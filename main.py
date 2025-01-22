@@ -95,7 +95,7 @@ class UserIDView(QWidget):
         title_label = QLabel('User ID')
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("font-size: 16pt;")
-        # layout.addWidget(title_label)
+        layout.addWidget(title_label)
         
         # User ID Input Buttons
         self.user_id_buttons = []
