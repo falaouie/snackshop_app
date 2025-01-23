@@ -51,7 +51,7 @@ class AuthenticationContainer(QFrame):
         
         # Create layout for the container
         self.layout = QVBoxLayout(self)
-        # self.layout.setContentsMargins(20, 20, 20, 20)
+        self.layout.setContentsMargins(20, 20, 20, 20)
         
         # Create stacked widget to handle view switching
         self.current_view = "userid"  # Track current view
