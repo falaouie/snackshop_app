@@ -89,7 +89,7 @@ class UserIDView(QWidget):
     def initUI(self):
         # Main layout
         layout = QVBoxLayout()
-        # layout.setSpacing(20)
+        layout.setSpacing(20)
         
         # Title
         title_label = QLabel('User ID')
@@ -223,7 +223,7 @@ class PasswordView(QWidget):
     def initUI(self):
         # Main layout
         layout = QVBoxLayout()
-        # layout.setSpacing(20)
+        layout.setSpacing(20)
         
         # Title
         title_label = QLabel(f'Enter Password for User: {self.user_id}')
@@ -248,8 +248,8 @@ class PasswordView(QWidget):
         
         # Numeric keypad
         keypad_layout = QGridLayout()
-        # keypad_layout.setHorizontalSpacing(30)
-        # keypad_layout.setVerticalSpacing(25)
+        keypad_layout.setHorizontalSpacing(30)
+        keypad_layout.setVerticalSpacing(25)
         buttons = [
             ('1', 0, 0), ('2', 0, 1), ('3', 0, 2),
             ('4', 1, 0), ('5', 1, 1), ('6', 1, 2),
