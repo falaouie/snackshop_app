@@ -234,7 +234,7 @@ class PasswordView(QWidget):
         # Password Input Buttons
         self.password_buttons = []
         password_layout = QGridLayout()
-        # password_layout.setHorizontalSpacing(15)
+        password_layout.setHorizontalSpacing(15)
         for i in range(4):
             btn = QPushButton(' ')
             btn.setFixedSize(60, 40)
