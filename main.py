@@ -100,7 +100,7 @@ class UserIDView(QWidget):
         # User ID Input Buttons
         self.user_id_buttons = []
         user_id_layout = QGridLayout()
-        # user_id_layout.setHorizontalSpacing(15)
+        user_id_layout.setHorizontalSpacing(15)
         for i in range(4):
             btn = QPushButton(' ')
             btn.setFixedSize(60, 40)
