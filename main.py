@@ -94,6 +94,10 @@ class UserIDView(QWidget):
     def eventFilter(self, obj, event):
         if event.type() == event.KeyPress:
             key = event.key()
+            
+            # Ignore space bar events
+            if key == Qt.Key_Space:
+                return True
             if key >= Qt.Key_0 and key <= Qt.Key_9:
                 # Convert key to digit
                 digit = str(key - Qt.Key_0)
@@ -279,6 +283,10 @@ class PinView(QWidget):
     def eventFilter(self, obj, event):
         if event.type() == event.KeyPress:
             key = event.key()
+            
+            # Ignore space bar events
+            if key == Qt.Key_Space:
+                return True
             if key >= Qt.Key_0 and key <= Qt.Key_9:
                 # Convert key to digit
                 digit = str(key - Qt.Key_0)
