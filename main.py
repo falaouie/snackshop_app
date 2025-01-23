@@ -42,16 +42,16 @@ class AuthenticationContainer(QFrame):
             QFrame#authContainer {
                 background-color: white;
                 border-radius: 10px;
-                border: 2px solid #cccccc;
+                border: 1px solid #cccccc;
             }
         """)
         
         # Set fixed size for the container
-        self.setFixedSize(400, 700)
+        self.setFixedSize(400, 600)
         
         # Create layout for the container
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(20, 20, 20, 20)
+        self.layout.setContentsMargins(10, 10, 0, 10)
         
         # Create stacked widget to handle view switching
         self.current_view = "userid"  # Track current view
@@ -89,11 +89,11 @@ class UserIDView(QWidget):
     def initUI(self):
         # Main layout
         layout = QVBoxLayout()
-        layout.setSpacing(20)
+        layout.setSpacing(10)
 
         # Create a QLabel for the logo
         logo_label = QLabel()
-        logo_size = (340, 200)  # Desired width and height for the logo
+        logo_size = (350, 200)  # Desired width and height for the logo
         pixmap = QPixmap('assets/images/silver_system_logo.png')  # Load the image
         scaled_pixmap = pixmap.scaled(logo_size[0], logo_size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation)  # Scale the image
         logo_label.setPixmap(scaled_pixmap)
@@ -116,7 +116,7 @@ class UserIDView(QWidget):
         user_id_layout.setHorizontalSpacing(15)
         for i in range(4):
             btn = QPushButton(' ')
-            btn.setFixedSize(70, 60)
+            btn.setFixedSize(50, 50)
             btn.setEnabled(False)
             btn.setStyleSheet("color: black; font-size: 14pt;")
             btn.setObjectName(f"user_id_btn_{i}")
@@ -127,8 +127,8 @@ class UserIDView(QWidget):
         
         # Numeric keypad
         keypad_layout = QGridLayout()
-        keypad_layout.setHorizontalSpacing(30)
-        keypad_layout.setVerticalSpacing(25)
+        keypad_layout.setHorizontalSpacing(25)
+        keypad_layout.setVerticalSpacing(20)
         buttons = [
             ('1', 0, 0), ('2', 0, 1), ('3', 0, 2),
             ('4', 1, 0), ('5', 1, 1), ('6', 1, 2),
@@ -236,11 +236,11 @@ class PasswordView(QWidget):
     def initUI(self):
         # Main layout
         layout = QVBoxLayout()
-        layout.setSpacing(20)
+        layout.setSpacing(10)
         
         # Create a QLabel for the logo
         logo_label = QLabel()
-        logo_size = (340, 200)  # Desired width and height for the logo
+        logo_size = (350, 200)  # Desired width and height for the logo
         pixmap = QPixmap('assets/images/silver_system_logo.png')  # Load the image
         scaled_pixmap = pixmap.scaled(logo_size[0], logo_size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation)  # Scale the image
         logo_label.setPixmap(scaled_pixmap)
@@ -263,7 +263,7 @@ class PasswordView(QWidget):
         password_layout.setHorizontalSpacing(15)
         for i in range(4):
             btn = QPushButton(' ')
-            btn.setFixedSize(70, 60)
+            btn.setFixedSize(40, 40)
             btn.setEnabled(False)
             btn.setStyleSheet("color: black; font-size: 14pt;")
             btn.setObjectName(f"password_btn_{i}")
@@ -274,8 +274,8 @@ class PasswordView(QWidget):
         
         # Numeric keypad
         keypad_layout = QGridLayout()
-        keypad_layout.setHorizontalSpacing(30)
-        keypad_layout.setVerticalSpacing(25)
+        keypad_layout.setHorizontalSpacing(25)
+        keypad_layout.setVerticalSpacing(20)
         buttons = [
             ('1', 0, 0), ('2', 0, 1), ('3', 0, 2),
             ('4', 1, 0), ('5', 1, 1), ('6', 1, 2),
