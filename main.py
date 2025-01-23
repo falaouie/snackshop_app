@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QLabel, 
                             QGridLayout, QPushButton, QMainWindow, QFrame)
 from PyQt5.QtCore import Qt, QPropertyAnimation, QRect
-from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtGui import QPalette, QColor, QPixmap
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -42,12 +42,12 @@ class AuthenticationContainer(QFrame):
             QFrame#authContainer {
                 background-color: white;
                 border-radius: 10px;
-                border: 1px solid #cccccc;
+                border: 2px solid #cccccc;
             }
         """)
         
         # Set fixed size for the container
-        self.setFixedSize(400, 600)
+        self.setFixedSize(400, 700)
         
         # Create layout for the container
         self.layout = QVBoxLayout(self)
@@ -90,12 +90,25 @@ class UserIDView(QWidget):
         # Main layout
         layout = QVBoxLayout()
         layout.setSpacing(20)
+
+        # Create a QLabel for the logo
+        logo_label = QLabel()
+        logo_size = (340, 200)  # Desired width and height for the logo
+        pixmap = QPixmap('assets/images/silver_system_logo.png')  # Load the image
+        scaled_pixmap = pixmap.scaled(logo_size[0], logo_size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation)  # Scale the image
+        logo_label.setPixmap(scaled_pixmap)
+        logo_label.setFixedSize(*logo_size)  # Set the fixed size for the QLabel
+        logo_label.setAlignment(Qt.AlignCenter)  # Align the logo to the center
         
         # Title
         title_label = QLabel('User ID')
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("font-size: 16pt;")
-        layout.addWidget(title_label)
+
+        # Add the widgets to the layout
+        layout = QVBoxLayout()
+        layout.addWidget(logo_label)  # Add the logo first
+        layout.addWidget(title_label)  # Add the title text
         
         # User ID Input Buttons
         self.user_id_buttons = []
@@ -103,7 +116,7 @@ class UserIDView(QWidget):
         user_id_layout.setHorizontalSpacing(15)
         for i in range(4):
             btn = QPushButton(' ')
-            btn.setFixedSize(60, 40)
+            btn.setFixedSize(70, 60)
             btn.setEnabled(False)
             btn.setStyleSheet("color: black; font-size: 14pt;")
             btn.setObjectName(f"user_id_btn_{i}")
@@ -225,11 +238,24 @@ class PasswordView(QWidget):
         layout = QVBoxLayout()
         layout.setSpacing(20)
         
+        # Create a QLabel for the logo
+        logo_label = QLabel()
+        logo_size = (340, 200)  # Desired width and height for the logo
+        pixmap = QPixmap('assets/images/silver_system_logo.png')  # Load the image
+        scaled_pixmap = pixmap.scaled(logo_size[0], logo_size[1], Qt.KeepAspectRatio, Qt.SmoothTransformation)  # Scale the image
+        logo_label.setPixmap(scaled_pixmap)
+        logo_label.setFixedSize(*logo_size)  # Set the fixed size for the QLabel
+        logo_label.setAlignment(Qt.AlignCenter)  # Align the logo to the center
+
         # Title
-        title_label = QLabel(f'Enter Password for User: {self.user_id}')
+        title_label = QLabel(f'Password for User: {self.user_id}')
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("font-size: 16pt;")
-        layout.addWidget(title_label)
+
+        # Add the widgets to the layout
+        layout = QVBoxLayout()
+        layout.addWidget(logo_label)  # Add the logo first
+        layout.addWidget(title_label)  # Add the title text
         
         # Password Input Buttons
         self.password_buttons = []
@@ -237,7 +263,7 @@ class PasswordView(QWidget):
         password_layout.setHorizontalSpacing(15)
         for i in range(4):
             btn = QPushButton(' ')
-            btn.setFixedSize(60, 40)
+            btn.setFixedSize(70, 60)
             btn.setEnabled(False)
             btn.setStyleSheet("color: black; font-size: 14pt;")
             btn.setObjectName(f"password_btn_{i}")
