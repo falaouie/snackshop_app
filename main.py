@@ -85,6 +85,30 @@ class UserIDView(QWidget):
         super().__init__(parent)
         self.parent_container = parent
         self.initUI()
+        self.setup_keyboard_input()
+
+    def setup_keyboard_input(self):
+        # Install event filter to handle keyboard input
+        self.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if event.type() == event.KeyPress:
+            key = event.key()
+            if key >= Qt.Key_0 and key <= Qt.Key_9:
+                # Convert key to digit
+                digit = str(key - Qt.Key_0)
+                self.add_digit(digit)
+                self.check_next_enable()
+                return True
+            elif key == Qt.Key_Backspace:
+                self.clear_one_user_id()
+                return True
+            elif key == Qt.Key_Return or key == Qt.Key_Enter:
+                if self.current_index == 4:
+                    user_id = ''.join([btn.text().strip() for btn in self.user_id_buttons])
+                    self.parent_container.switch_to_pin_view(user_id)
+                return True
+        return super().eventFilter(obj, event)
     
     def initUI(self):
         # Main layout
@@ -140,6 +164,7 @@ class UserIDView(QWidget):
             button = QPushButton(text)
             button.setFixedSize(80, 50)
             button.setObjectName(f"keypad_btn_{text}")
+            
             if text.isdigit():
                 button.setStyleSheet("""
                     QPushButton {
@@ -151,6 +176,10 @@ class UserIDView(QWidget):
                     }
                     QPushButton:hover {
                         background-color: #e0e0e0;
+                    }
+                    QPushButton:disabled {
+                        background-color: #cccccc;
+                        color: #888888;
                     }
                 """)
             else:
@@ -201,6 +230,9 @@ class UserIDView(QWidget):
         self.check_next_enable()
 
     def check_next_enable(self):
+        # Disable/enable numeric buttons based on current input
+        digit_buttons = [btn for btn in self.findChildren(QPushButton) if btn.text().isdigit()]
+        
         if self.current_index == 4:
             self.next_button.setEnabled(True)
             self.next_button.setStyleSheet("""
@@ -215,6 +247,9 @@ class UserIDView(QWidget):
                     background-color: #45a049;
                 }
             """)
+            # Disable all digit buttons
+            for btn in digit_buttons:
+                btn.setEnabled(False)
         else:
             self.next_button.setEnabled(False)
             self.next_button.setStyleSheet("""
@@ -225,6 +260,9 @@ class UserIDView(QWidget):
                     border: 1px solid #cccccc;
                 }
             """)
+            # Re-enable all digit buttons
+            for btn in digit_buttons:
+                btn.setEnabled(True)
 
 class PinView(QWidget):
     def __init__(self, user_id, parent=None):
@@ -232,6 +270,32 @@ class PinView(QWidget):
         self.user_id = user_id
         self.parent_container = parent
         self.initUI()
+        self.setup_keyboard_input()
+
+    def setup_keyboard_input(self):
+        # Install event filter to handle keyboard input
+        self.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if event.type() == event.KeyPress:
+            key = event.key()
+            if key >= Qt.Key_0 and key <= Qt.Key_9:
+                # Convert key to digit
+                digit = str(key - Qt.Key_0)
+                self.add_digit(digit)
+                self.check_sign_in_enable()
+                return True
+            elif key == Qt.Key_Backspace:
+                self.clear_one_pin()
+                return True
+            elif key == Qt.Key_Return or key == Qt.Key_Enter:
+                if self.current_index == 4:
+                    print("Signing in...")  # Placeholder for sign in logic
+                return True
+            elif key == Qt.Key_Escape:
+                self.parent_container.switch_to_user_id_view()
+                return True
+        return super().eventFilter(obj, event)
     
     def initUI(self):
         # Main layout
@@ -288,6 +352,7 @@ class PinView(QWidget):
             button = QPushButton(text)
             button.setFixedSize(80, 50)
             button.setObjectName(f"keypad_btn_{text}")
+            
             if text.isdigit():
                 button.setStyleSheet("""
                     QPushButton {
@@ -299,6 +364,10 @@ class PinView(QWidget):
                     }
                     QPushButton:hover {
                         background-color: #e0e0e0;
+                    }
+                    QPushButton:disabled {
+                        background-color: #cccccc;
+                        color: #888888;
                     }
                 """)
             else:
@@ -350,6 +419,9 @@ class PinView(QWidget):
         self.check_sign_in_enable()
 
     def check_sign_in_enable(self):
+        # Disable/enable numeric buttons based on current input
+        digit_buttons = [btn for btn in self.findChildren(QPushButton) if btn.text().isdigit()]
+        
         if self.current_index == 4:
             self.sign_in_button.setEnabled(True)
             self.sign_in_button.setStyleSheet("""
@@ -364,6 +436,9 @@ class PinView(QWidget):
                     background-color: #45a049;
                 }
             """)
+            # Disable all digit buttons
+            for btn in digit_buttons:
+                btn.setEnabled(False)
         else:
             self.sign_in_button.setEnabled(False)
             self.sign_in_button.setStyleSheet("""
@@ -374,6 +449,9 @@ class PinView(QWidget):
                     border: 1px solid #cccccc;
                 }
             """)
+            # Re-enable all digit buttons
+            for btn in digit_buttons:
+                btn.setEnabled(True)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

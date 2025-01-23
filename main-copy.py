@@ -66,15 +66,15 @@ class AuthenticationContainer(QFrame):
         self.user_id_view = UserIDView(self)
         self.layout.addWidget(self.user_id_view)
     
-    def switch_to_password_view(self, user_id):
+    def switch_to_pin_view(self, user_id):
         # Clear existing layout
         for i in reversed(range(self.layout.count())): 
             self.layout.itemAt(i).widget().setParent(None)
         
-        # Create and add PasswordView
-        self.password_view = PasswordView(user_id, self)
-        self.layout.addWidget(self.password_view)
-        self.current_view = "password"
+        # Create and add PinView
+        self.pin_view = PinView(user_id, self)
+        self.layout.addWidget(self.pin_view)
+        self.current_view = "pin"
     
     def switch_to_user_id_view(self):
         self.setup_user_id_view()
@@ -184,7 +184,7 @@ class UserIDView(QWidget):
             self.clear_one_user_id()
         elif text == 'Next':
             user_id = ''.join([btn.text().strip() for btn in self.user_id_buttons])
-            self.parent_container.switch_to_password_view(user_id)
+            self.parent_container.switch_to_pin_view(user_id)
         else:
             self.add_digit(text)
             self.check_next_enable()
@@ -226,7 +226,7 @@ class UserIDView(QWidget):
                 }
             """)
 
-class PasswordView(QWidget):
+class PinView(QWidget):
     def __init__(self, user_id, parent=None):
         super().__init__(parent)
         self.user_id = user_id
@@ -248,7 +248,7 @@ class PasswordView(QWidget):
         logo_label.setAlignment(Qt.AlignCenter)  # Align the logo to the center
 
         # Title
-        title_label = QLabel(f'Password for User: {self.user_id}')
+        title_label = QLabel(f'PIN for User ID: {self.user_id}')
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("font-size: 16pt;")
 
@@ -257,20 +257,20 @@ class PasswordView(QWidget):
         layout.addWidget(logo_label)  # Add the logo first
         layout.addWidget(title_label)  # Add the title text
         
-        # Password Input Buttons
-        self.password_buttons = []
-        password_layout = QGridLayout()
-        password_layout.setHorizontalSpacing(15)
+        # Pin Input Buttons
+        self.pin_buttons = []
+        pin_layout = QGridLayout()
+        pin_layout.setHorizontalSpacing(15)
         for i in range(4):
             btn = QPushButton(' ')
             btn.setFixedSize(40, 40)
             btn.setEnabled(False)
             btn.setStyleSheet("color: black; font-size: 14pt;")
-            btn.setObjectName(f"password_btn_{i}")
-            self.password_buttons.append(btn)
-            password_layout.addWidget(btn, 0, i)
+            btn.setObjectName(f"pin_btn_{i}")
+            self.pin_buttons.append(btn)
+            pin_layout.addWidget(btn, 0, i)
         
-        layout.addLayout(password_layout)
+        layout.addLayout(pin_layout)
         
         # Numeric keypad
         keypad_layout = QGridLayout()
@@ -329,7 +329,7 @@ class PasswordView(QWidget):
         text = sender.text()
 
         if text == 'Clear':
-            self.clear_one_password()
+            self.clear_one_pin()
         elif text == 'Back':
             self.parent_container.switch_to_user_id_view()
         elif text == 'Sign In':
@@ -340,13 +340,13 @@ class PasswordView(QWidget):
 
     def add_digit(self, digit):
         if self.current_index < 4:
-            self.password_buttons[self.current_index].setText('*')
+            self.pin_buttons[self.current_index].setText('*')
             self.current_index += 1
 
-    def clear_one_password(self):
+    def clear_one_pin(self):
         if self.current_index > 0:
             self.current_index -= 1
-            self.password_buttons[self.current_index].setText(' ')
+            self.pin_buttons[self.current_index].setText(' ')
         self.check_sign_in_enable()
 
     def check_sign_in_enable(self):
