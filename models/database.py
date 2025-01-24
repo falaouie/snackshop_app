@@ -203,4 +203,11 @@ class Database:
                 JOIN emp_employees e ON u.employee_id = e.employee_id
                 WHERE u.employee_id = ? AND u.pin = ? AND u.active = 1
             ''', (employee_id, pin))
-            return cursor.fetchone() is not None
+            result = cursor.fetchone()
+            if result:
+                return {
+                    'user_id': result[0],
+                    'first_name': result[1],
+                    'last_name': result[2]
+                }
+            return None

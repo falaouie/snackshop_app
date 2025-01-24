@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QColor, QPixmap, QDoubleValidator
 from PyQt5.QtWidgets import (QDialog, QGroupBox, QRadioButton, QDialogButtonBox,
                             QTableWidget, QTabWidget, QTableWidgetItem)
-from PyQt5.QtCore import QDateTime
+from PyQt5.QtCore import QDate
 from models.database import Database
 
 class MainWindow(QMainWindow):
@@ -504,8 +504,9 @@ class PinView(QWidget):
     def validate_pin(self, pin):
         pin_digits = ''.join([btn.property('digit') for btn in self.pin_buttons if btn.text() != ' '])
         
-        if self.db.authenticate_user(self.user_id, pin_digits):
-            self.open_landing_page()
+        user_data = self.db.authenticate_user(self.user_id, pin_digits)
+        if user_data:
+            self.open_landing_page(user_data)
         else:
             self.title_label.setText(f'Invalid PIN for User ID: {self.user_id}')
             self.title_label.setStyleSheet("font-size: 16pt; color: red;")
@@ -515,9 +516,9 @@ class PinView(QWidget):
             self.current_index = 0
             self.check_sign_in_enable()
 
-    def open_landing_page(self):
+    def open_landing_page(self, user_data):
         # Create a landing page window
-        self.landing_page = LandingPage(self.user_id, self.parent_container)
+        self.landing_page = LandingPage(self.user_id, self.parent_container, user_data)
         self.landing_page.showMaximized()
         # Hide the main window instead of closing
         self.parent_container.parent().hide()
@@ -564,10 +565,12 @@ class PinView(QWidget):
                 btn.setEnabled(True)
 
 class LandingPage(QMainWindow):
-    def __init__(self, user_id, parent=None):
+    def __init__(self, user_id, parent=None, user_data=None):
         super().__init__()
         self.user_id = user_id
         self.parent_container = parent
+        self.user_data = user_data
+        self.db = parent.db
         self.initUI()
     
     def initUI(self):
@@ -601,7 +604,7 @@ class LandingPage(QMainWindow):
         # Create bottom bar
         bottom_bar = self.create_bottom_bar()
         main_layout.addWidget(bottom_bar)
-        
+    
     def create_top_bar(self):
         top_bar = QFrame()
         top_bar.setStyleSheet("""
@@ -614,34 +617,52 @@ class LandingPage(QMainWindow):
         
         layout = QHBoxLayout(top_bar)
         
-        # Left side - Employee info and current time
+        # Left side - Employee info
         left_widget = QWidget()
         left_layout = QHBoxLayout(left_widget)
         
-        employee_label = QLabel(f'Employee ID: {self.user_id}')
-        time_label = QLabel(QDateTime.currentDateTime().toString('yyyy-MM-dd hh:mm:ss'))
-        
-        left_layout.addWidget(employee_label)
-        left_layout.addWidget(time_label)
-        
-        # Right side - Control buttons
-        right_widget = QWidget()
-        right_layout = QHBoxLayout(right_widget)
-        
+        # Get employee name from database
+        with sqlite3.connect(self.db.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT first_name, last_name 
+                FROM emp_employees 
+                WHERE employee_id = ?
+            ''', (self.user_id,))
+            result = cursor.fetchone()
+            if result:
+                employee_name = f'{result[0]} {result[1]}'
+            else:
+                employee_name = f'User {self.user_id}'
+
+        # Employee name and control buttons
+        emp_label = QLabel(employee_name)
+        date_label = QLabel(QDate.currentDate().toString('dd-MM-yyyy'))
         lock_btn = QPushButton('Lock')
         signout_btn = QPushButton('Sign Out')
         
         lock_btn.clicked.connect(self.lock_session)
         signout_btn.clicked.connect(self.sign_out)
         
-        right_layout.addWidget(lock_btn)
-        right_layout.addWidget(signout_btn)
+        left_layout.addWidget(emp_label)
+        left_layout.addWidget(lock_btn)
+        left_layout.addWidget(signout_btn)
+        left_layout.addWidget(date_label)
+        
+        # Right side - Back Office button
+        backoffice_btn = QPushButton('Back Office')
+        backoffice_btn.clicked.connect(self.open_back_office)
         
         layout.addWidget(left_widget)
         layout.addStretch()
-        layout.addWidget(right_widget)
+        layout.addWidget(backoffice_btn)
         
         return top_bar
+        
+    def open_back_office(self):
+        self.back_office = BackOffice(self.user_data, self)
+        self.back_office.show()
+        self.hide()
     
     def lock_session(self):
         # Open PIN view for the same user
@@ -650,7 +671,7 @@ class LandingPage(QMainWindow):
             self.parent_container.reset_to_pin_view(self.user_id)
             # Show the main window again
             self.parent_container.parent().show()
-            self.close()
+            
 
     def sign_out(self):
         # Return to User ID view
@@ -982,6 +1003,131 @@ class AdminUserPage(QWizardPage):
             QMessageBox.warning(self, "Validation", "PIN must be 4 digits")
             return False
         return True
+
+class BackOffice(QMainWindow):
+    def __init__(self, user_data, parent=None):
+        super().__init__()
+        self.user_data = user_data
+        self.parent = parent
+        self.initUI()
+    
+    def initUI(self):
+        self.setWindowTitle('Back Office')
+        self.setWindowState(Qt.WindowMaximized)
+        
+        # Create central widget and main layout
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        main_layout = QVBoxLayout(central_widget)
+        
+        # Create top bar
+        top_bar = self.create_top_bar()
+        main_layout.addWidget(top_bar)
+        
+        # Create tab widget for different sections
+        tabs = self.create_tabs()
+        main_layout.addWidget(tabs)
+    
+    def create_top_bar(self):
+        top_bar = QFrame()
+        top_bar.setStyleSheet("""
+            QFrame {
+                background-color: white;
+                border-bottom: 1px solid #cccccc;
+            }
+        """)
+        top_bar.setFixedHeight(60)
+        
+        layout = QHBoxLayout(top_bar)
+        layout.setContentsMargins(10, 0, 10, 0)  # Add some padding on the sides
+        
+        # Left side - Employee info
+        left_widget = QWidget()
+        left_layout = QHBoxLayout(left_widget)
+        left_layout.setSpacing(10)  # Add space between items
+        
+        # Employee name and buttons
+        name_label = QLabel(f'{self.user_data["first_name"]} {self.user_data["last_name"]}')
+        name_label.setStyleSheet("font-size: 12pt;")
+        
+        lock_btn = QPushButton('Lock')
+        signout_btn = QPushButton('Sign Out')
+        date_label = QLabel(QDate.currentDate().toString('dd-MM-yyyy'))
+        
+        lock_btn.clicked.connect(self.lock_session)
+        signout_btn.clicked.connect(self.sign_out)
+        
+        left_layout.addWidget(name_label)
+        left_layout.addWidget(lock_btn)
+        left_layout.addWidget(signout_btn)
+        left_layout.addWidget(date_label)
+        
+        # Right side - POS button
+        pos_btn = QPushButton('POS')
+        pos_btn.clicked.connect(self.return_to_pos)
+        
+        layout.addWidget(left_widget)
+        layout.addStretch()
+        layout.addWidget(pos_btn)
+        
+        return top_bar
+    
+    def create_tabs(self):
+        tabs = QTabWidget()
+        tabs.setStyleSheet("""
+            QTabWidget {
+                background-color: white;
+            }
+            QTabBar::tab {
+                padding: 10px 20px;
+                margin: 2px;
+            }
+            QTabBar::tab:selected {
+                background-color: #4CAF50;
+                color: white;
+            }
+        """)
+        
+        # Employees tab
+        emp_tab = QWidget()
+        emp_layout = QVBoxLayout(emp_tab)
+        emp_layout.addWidget(QLabel('Employee Management'))
+        # Add employee management widgets here
+        
+        # Products tab
+        prod_tab = QWidget()
+        prod_layout = QVBoxLayout(prod_tab)
+        prod_layout.addWidget(QLabel('Product Management'))
+        # Add product management widgets here
+        
+        # Categories tab
+        cat_tab = QWidget()
+        cat_layout = QVBoxLayout(cat_tab)
+        cat_layout.addWidget(QLabel('Category Management'))
+        # Add category management widgets here
+        
+        # Add tabs
+        tabs.addTab(emp_tab, "Employees")
+        tabs.addTab(prod_tab, "Products")
+        tabs.addTab(cat_tab, "Categories")
+        
+        return tabs
+    
+    def lock_session(self):
+        # First, close the back office window
+        self.close()
+        # Then tell the parent (LandingPage) to lock
+        self.parent.lock_session()
+    
+    def sign_out(self):
+        # First, close the back office window
+        self.close()
+        # Then tell the parent (LandingPage) to sign out
+        self.parent.sign_out()
+    
+    def return_to_pos(self):
+        self.close()
+        self.parent.show()
 
 def check_setup_required():
     db = Database()
