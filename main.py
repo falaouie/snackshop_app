@@ -373,7 +373,8 @@ class PinView(QWidget):
                 return True
             elif key == Qt.Key_Return or key == Qt.Key_Enter:
                 if self.current_index == 4:
-                    print("Signing in...")  # Placeholder for sign in logic
+                    pin = ''.join([btn.property('digit') for btn in self.pin_buttons if btn.text() != ' '])
+                    self.validate_pin(pin)
                 return True
             elif key == Qt.Key_Escape:
                 self.parent_container.switch_to_user_id_view()
