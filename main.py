@@ -671,8 +671,9 @@ class LandingPage(QMainWindow):
             self.parent_container.reset_to_pin_view(self.user_id)
             # Show the main window again
             self.parent_container.parent().show()
+            # Close the landing page
+            self.close()
             
-
     def sign_out(self):
         # Return to User ID view
         if self.parent_container:
