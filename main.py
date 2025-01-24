@@ -95,6 +95,8 @@ class AuthenticationContainer(QFrame):
         # Create and add UserIDView
         self.user_id_view = UserIDView(self)
         self.layout.addWidget(self.user_id_view)
+        # Ensure focus is set
+        self.user_id_view.setFocus()
     
     def switch_to_pin_view(self, user_id):
         # Clear existing layout
@@ -105,6 +107,8 @@ class AuthenticationContainer(QFrame):
         self.pin_view = PinView(user_id, self)
         self.layout.addWidget(self.pin_view)
         self.current_view = "pin"
+        # Ensure focus is set
+        self.pin_view.setFocus()
     
     def switch_to_user_id_view(self):
         self.setup_user_id_view()
@@ -119,6 +123,8 @@ class AuthenticationContainer(QFrame):
         self.pin_view = PinView(user_id, self)
         self.layout.addWidget(self.pin_view)
         self.current_view = "pin"
+        # Ensure focus is set
+        self.pin_view.setFocus()
     
     def reset_to_user_id_view(self):
         # Clear existing layout
@@ -129,6 +135,8 @@ class AuthenticationContainer(QFrame):
         self.user_id_view = UserIDView(self)
         self.layout.addWidget(self.user_id_view)
         self.current_view = "userid"
+        # Ensure focus is set
+        self.user_id_view.setFocus()
 
 class UserIDView(QWidget):
     def __init__(self, parent=None):
@@ -141,6 +149,8 @@ class UserIDView(QWidget):
     def setup_keyboard_input(self):
         # Install event filter to handle keyboard input
         self.installEventFilter(self)
+        # Set focus to ensure keyboard events are captured
+        self.setFocus()
 
     def eventFilter(self, obj, event):
         if event.type() == event.KeyPress:
@@ -342,6 +352,8 @@ class PinView(QWidget):
     def setup_keyboard_input(self):
         # Install event filter to handle keyboard input
         self.installEventFilter(self)
+        # Set focus to ensure keyboard events are captured
+        self.setFocus()
 
     def eventFilter(self, obj, event):
         if event.type() == event.KeyPress:
