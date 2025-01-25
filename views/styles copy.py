@@ -51,18 +51,3 @@ class AuthStyles:
             background-color: #f8f8f8;
         }
     """
-
-    NEXT_BUTTON_ACTIVE = """
-        QPushButton {
-            background-color: #3498db;  /* Blue */
-            color: white;
-            font-size: 18px;
-            min-width: 50px;
-            min-height: 40px;
-            border-radius: 5px;
-            padding: 10px;
-        }
-        QPushButton:hover {
-            background-color: #2980b9;  /* Darker blue on hover */
-        }
-    """
