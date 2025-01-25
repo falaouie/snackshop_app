@@ -138,10 +138,12 @@ class AuthenticationContainer(QFrame):
         if Qt.Key_0 <= key <= Qt.Key_9 and not self.user_input.is_complete():
             digit = str(key - Qt.Key_0)
             self.user_input.add_digit(digit)
+            self._reset_user_id_label()  # Reset label when typing starts
         
         # Backspace
         elif key == Qt.Key_Backspace:
             self.user_input.remove_digit()
+            self._reset_user_id_label()  # Reset label when removing digits
         
         # Enter/Return
         elif key in (Qt.Key_Return, Qt.Key_Enter):
