@@ -1,8 +1,9 @@
 from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel, 
-                            QPushButton, QGridLayout, QHBoxLayout)
+                            QPushButton, QGridLayout, QHBoxLayout, QStackedWidget, QWidget)
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt, QSize
 from .input_fields import UserIDInput
+from .pin_window import PinView
 from . import styles
 
 class AuthenticationContainer(QFrame):
@@ -16,7 +17,22 @@ class AuthenticationContainer(QFrame):
         self.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus
 
     def _setup_ui(self):
+        self.stack = QStackedWidget()
+        
+        # User ID View
+        self.user_id_view = self._create_user_id_view()
+        self.stack.addWidget(self.user_id_view)
+        
+        # PIN View (initially hidden)
+        self.pin_view = None
+        
         layout = QVBoxLayout(self)
+        layout.addWidget(self.stack)
+
+    def _create_user_id_view(self):
+        """Create and return the User ID view"""
+        user_id_view = QWidget()  # Create a QWidget for the User ID view
+        layout = QVBoxLayout(user_id_view)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
 
@@ -86,6 +102,8 @@ class AuthenticationContainer(QFrame):
         # Connect input changes to button state updates
         self.user_input.input_changed.connect(self._update_button_states)
 
+        return user_id_view  # Return the QWidget
+
     def _on_number_click(self, number):
         self.user_input.add_digit(str(number))
         self._reset_user_id_label()  # Restore label when typing starts
@@ -115,7 +133,7 @@ class AuthenticationContainer(QFrame):
             user_id = "".join(self.user_input.digits)
             print(f"User ID entered: {user_id}")  # Debugging output
             if user_id == self.valid_user_id:
-                print("Valid User ID entered")  # Replace with PIN screen logic
+                self.switch_to_pin_view(user_id)  # Switch to PIN view
             else:
                 self._show_invalid_user_id()  # Show error and clear input
 
@@ -129,6 +147,22 @@ class AuthenticationContainer(QFrame):
         """Restore User ID label to original state"""
         self.lbl_user_id.setText("User ID")
         self.lbl_user_id.setStyleSheet("font-size: 18px; color: #333;")
+
+    def switch_to_pin_view(self, user_id):
+        """Switch to PIN view for the given user ID"""
+        if self.pin_view:
+            self.stack.removeWidget(self.pin_view)
+        
+        self.pin_view = PinView(user_id, self)  # Pass self as the auth_container
+        self.stack.addWidget(self.pin_view)
+        self.stack.setCurrentWidget(self.pin_view)
+        self.pin_view.setFocus()
+
+    def switch_to_user_id_view(self):
+        """Switch back to User ID view"""
+        self.stack.setCurrentWidget(self.user_id_view)
+        self.user_input.clear_all()
+        self.user_id_view.setFocus()
 
     def keyPressEvent(self, event):
         """Handle physical keyboard input"""

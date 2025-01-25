@@ -3,8 +3,9 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from . import styles
 
 class DigitBox(QLabel):
-    def __init__(self):
+    def __init__(self, is_pin=False):
         super().__init__()
+        self.is_pin = is_pin  # Whether to mask input (for PIN)
         self.setFixedSize(40, 40)
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet("""
@@ -15,7 +16,8 @@ class DigitBox(QLabel):
         
     def update_digit(self, value):
         if value:
-            self.setText(value)
+            display_value = "*" if self.is_pin else value
+            self.setText(display_value)
             self.setStyleSheet("""
                 border: 2px solid #3498db;
                 background-color: #f8f8f8;
