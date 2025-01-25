@@ -17,5 +17,8 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(central_widget)
         main_layout.setAlignment(Qt.AlignCenter)
         
-        auth_container = AuthenticationContainer()
-        main_layout.addWidget(auth_container)
+        self.auth_container = AuthenticationContainer()
+        main_layout.addWidget(self.auth_container)
+        
+        # Set focus to auth container
+        self.auth_container.setFocus()

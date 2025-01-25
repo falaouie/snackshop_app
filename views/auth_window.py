@@ -16,7 +16,7 @@ class AuthenticationContainer(QFrame):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
-
+        self.setFocusPolicy(Qt.StrongFocus)  # Ensure widget can receive key events
         # Logo Section
         logo_label = QLabel()
         pixmap = QPixmap("assets/images/silver_system_logo.png")
@@ -106,3 +106,33 @@ class AuthenticationContainer(QFrame):
       # Update number buttons (0-9)
       for btn in self.number_buttons:
           btn.setEnabled(not is_complete)
+
+    def keyPressEvent(self, event):
+        """Handle physical keyboard input"""
+        key = event.key()
+        
+        # Number keys (0-9)
+        if Qt.Key_0 <= key <= Qt.Key_9 and not self.user_input.is_complete():
+            digit = str(key - Qt.Key_0)
+            self.user_input.add_digit(digit)
+        
+        # Backspace
+        elif key == Qt.Key_Backspace:
+            self.user_input.remove_digit()
+        
+        # Enter/Return
+        elif key in (Qt.Key_Return, Qt.Key_Enter):
+            if self.user_input.is_complete():
+                self._handle_next()
+        
+        # Ignore other keys
+        else:
+            super().keyPressEvent(event)
+
+    def _handle_next(self):
+        """Handle Next button click or Enter key"""
+        if self.user_input.is_complete():
+            user_id = "".join(self.user_input.digits)
+            print(f"User ID entered: {user_id}")  # Replace with actual logic
+            # Here you would typically validate the user ID
+    
