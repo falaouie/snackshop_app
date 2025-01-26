@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSpacerItem, QSizePolicy
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt, QSize
 from .auth_window import AuthenticationContainer
 from . import styles
 
@@ -15,10 +16,41 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         
         main_layout = QVBoxLayout(central_widget)
-        main_layout.setAlignment(Qt.AlignCenter)
+        main_layout.setContentsMargins(20, 20, 20, 20)
         
+        # Top bar with logo
+        top_bar = QHBoxLayout()
+        
+        # Logo
+        logo_label = QLabel()
+        pixmap = QPixmap("assets/images/silver_system_logo.png")
+        scaled_pixmap = pixmap.scaled(
+            QSize(300, 150),
+            Qt.KeepAspectRatio, 
+            Qt.SmoothTransformation
+        )
+        logo_label.setPixmap(scaled_pixmap)
+        logo_label.setStyleSheet(styles.AppStyles.LOGO_CONTAINER)
+        top_bar.addWidget(logo_label)
+        top_bar.addStretch()  # Push logo to left
+        
+        main_layout.addLayout(top_bar)
+        
+        # Add vertical spacer to push content down
+        main_layout.addStretch()
+        
+        # Center container horizontally
+        center_layout = QHBoxLayout()
+        center_layout.addStretch()  # Push container right
+        
+        # Add authentication container
         self.auth_container = AuthenticationContainer()
-        main_layout.addWidget(self.auth_container)
+        center_layout.addWidget(self.auth_container)
         
-        # Set focus to auth container
+        center_layout.addStretch()  # Push container left
+        main_layout.addLayout(center_layout)
+        
+        # Add vertical spacer to push content up
+        main_layout.addStretch()
+        
         self.auth_container.setFocus()

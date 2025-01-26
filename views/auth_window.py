@@ -1,8 +1,7 @@
 from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel, 
                             QPushButton, QGridLayout, QHBoxLayout, QStackedWidget, QWidget)
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt, QSize
-from .input_fields import UserIDInput
+from PyQt5.QtCore import Qt
+from .input_fields import UserInput
 from .pin_window import PinView
 from . import styles
 
@@ -17,51 +16,35 @@ class AuthenticationContainer(QFrame):
         self.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus
 
     def _setup_ui(self):
-        self.stack = QStackedWidget()
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
         
         # User ID View
         self.user_id_view = self._create_user_id_view()
-        self.stack.addWidget(self.user_id_view)
-        
-        # PIN View (initially hidden)
-        self.pin_view = None
-        
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.stack)
+        layout.addWidget(self.user_id_view)
 
     def _create_user_id_view(self):
         """Create and return the User ID view"""
         user_id_view = QWidget()  # Create a QWidget for the User ID view
         layout = QVBoxLayout(user_id_view)
-        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(15)
-
-        # Logo Section
-        logo_label = QLabel()
-        pixmap = QPixmap("assets/images/silver_system_logo.png")
-        scaled_pixmap = pixmap.scaled(
-            QSize(300, 150), 
-            Qt.KeepAspectRatio, 
-            Qt.SmoothTransformation
-        )
-        logo_label.setPixmap(scaled_pixmap)
-        logo_label.setStyleSheet(styles.AuthStyles.LOGO_CONTAINER)
-        layout.addWidget(logo_label)
 
         # User ID Label
         self.lbl_user_id = QLabel("User ID", alignment=Qt.AlignCenter)
-        self.lbl_user_id.setStyleSheet("font-size: 18px; color: #333;")
+        # self.lbl_user_id.setStyleSheet("font-size: 18px; color: #333;")
+        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT)
         layout.addWidget(self.lbl_user_id)
 
         # Input Fields
-        self.user_input = UserIDInput()
+        self.user_input = UserInput()
         layout.addWidget(self.user_input)
 
         # Keypad
         grid = QGridLayout()
-        grid.setHorizontalSpacing(10)
-        grid.setVerticalSpacing(10)
-        
+        grid.setHorizontalSpacing(15)
+        grid.setVerticalSpacing(15)
+        # grid.setStyleSheet(styles.AuthStyles.CONTAINER)
         # Number buttons 1-9
         positions = [(i//3, i%3) for i in range(9)]
         for idx, (row, col) in enumerate(positions):
@@ -140,27 +123,27 @@ class AuthenticationContainer(QFrame):
     def _show_invalid_user_id(self):
         """Show invalid user ID message and clear input"""
         self.lbl_user_id.setText("Invalid User ID")
-        self.lbl_user_id.setStyleSheet("font-size: 18px; color: red; font-weight: bold;")
+        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID)
         self.user_input.clear_all()
 
     def _reset_user_id_label(self):
         """Restore User ID label to original state"""
         self.lbl_user_id.setText("User ID")
-        self.lbl_user_id.setStyleSheet("font-size: 18px; color: #333;")
+        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT)
 
     def switch_to_pin_view(self, user_id):
-        """Switch to PIN view for the given user ID"""
-        if self.pin_view:
-            self.stack.removeWidget(self.pin_view)
+        if hasattr(self, 'user_id_view'):
+            self.user_id_view.hide()
         
-        self.pin_view = PinView(user_id, self)  # Pass self as the auth_container
-        self.stack.addWidget(self.pin_view)
-        self.stack.setCurrentWidget(self.pin_view)
+        if not hasattr(self, 'pin_view'):
+            self.pin_view = PinView(user_id, self)
+        self.pin_view.show()
         self.pin_view.setFocus()
 
     def switch_to_user_id_view(self):
-        """Switch back to User ID view"""
-        self.stack.setCurrentWidget(self.user_id_view)
+        if hasattr(self, 'pin_view'):
+            self.pin_view.hide()
+        self.user_id_view.show()
         self.user_input.clear_all()
         self.user_id_view.setFocus()
 

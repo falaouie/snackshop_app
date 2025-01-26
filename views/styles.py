@@ -2,7 +2,7 @@ class AppStyles:
     """Centralized style configurations"""
     WINDOW_MAIN = """
         QMainWindow {
-            background-color: #f0f0f0;
+            background-color: white;
         }
     """
     
@@ -13,11 +13,10 @@ class AppStyles:
             padding: 5px;
         }
     """
-    
-    CONTAINER = """
-        QWidget {
-            background: white;
-            border-radius: 8px;
+
+    LOGO_CONTAINER = """
+        QLabel {
+            qproperty-alignment: AlignCenter;
             padding: 5px;
         }
     """
@@ -25,9 +24,8 @@ class AuthStyles:
     CONTAINER = """
         QFrame {
             background: white;
-            border-radius: 10px;
             border: 1px solid #ddd;
-            padding: 5px;
+            border-radius: 10px;
         }
     """
     
@@ -38,6 +36,40 @@ class AuthStyles:
         }
     """
     
+    LABEL_TEXT = """
+        QLabel {
+            font-size: 18px;
+            color: #333;
+            padding: 10px;
+            background: transparent;
+        }
+    """
+
+    LABEL_TEXT_INVALID = """
+        QLabel {
+            font-size: 18px;
+            color: red;
+            font-weight: bold;
+            background: white;
+        }
+    """
+
+    DIGIT_BOX_EMPTY = """
+        QLabel {
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+    """
+
+    DIGIT_BOX_FILLED = """
+        QLabel {
+            border: 2px solid #3498db;
+            background-color: #f8f8f8;
+            font-size: 16px;
+        }
+    """
+
     KEYPAD_BUTTON = """
         QPushButton {
             font-size: 18px;
