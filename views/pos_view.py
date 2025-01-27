@@ -24,17 +24,20 @@ class POSView(QWidget):
         # Main Content Area with Splitter
         content_splitter = QSplitter(Qt.Horizontal)
         
-        # Left Side - Order Details (40%)
+        # Left Side - Order Details (30%)
         self.order_widget = self._create_order_widget()
         content_splitter.addWidget(self.order_widget)
         
-        # Right Side - Products (60%)
+        # Middle - Numbers Section (5%)
+        self.numbers_widget = self._create_numbers_widget()
+        content_splitter.addWidget(self.numbers_widget)
+        
+        # Right Side - Products (65%)
         self.products_widget = self._create_products_widget()
         content_splitter.addWidget(self.products_widget)
         
-        # Set split ratio (40:60)
-        total_width = self.width()
-        content_splitter.setSizes([int(total_width * 0.4), int(total_width * 0.6)])
+        # Set split proportions (30:5:65)
+        content_splitter.setSizes([300, 50, 650])
         
         main_layout.addWidget(content_splitter)
 
@@ -86,10 +89,10 @@ class POSView(QWidget):
         
         layout = QVBoxLayout(order_frame)
         layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(0)  # Remove spacing between elements
+        layout.setSpacing(0)
         
         # Order Header
-        header = QLabel("Current Order")
+        header = QLabel("Order Details")
         header.setStyleSheet(styles.POSStyles.SECTION_HEADER)
         layout.addWidget(header)
         
@@ -124,6 +127,45 @@ class POSView(QWidget):
         layout.addWidget(summary_frame)
         
         return order_frame
+    
+    def _create_numbers_widget(self):
+        numbers_frame = QFrame()
+        numbers_frame.setStyleSheet(styles.POSStyles.NUMBERS_PANEL)
+        
+        layout = QVBoxLayout(numbers_frame)
+        layout.setContentsMargins(5, 10, 5, 10)
+        layout.setSpacing(5)
+        
+        # Numbers grid for 1-9
+        grid = QGridLayout()
+        grid.setSpacing(5)
+        
+        # Add number buttons 1-9
+        for i in range(9):
+            row = i // 3
+            col = i % 3
+            btn = QPushButton(str(i + 1))
+            btn.setFixedSize(40, 40)
+            btn.setStyleSheet(styles.POSStyles.NUMBER_BUTTON)
+            grid.addWidget(btn, row, col)
+        
+        layout.addLayout(grid)
+        
+        # Add 0 button
+        btn_0 = QPushButton("0")
+        btn_0.setFixedSize(40, 40)
+        btn_0.setStyleSheet(styles.POSStyles.NUMBER_BUTTON)
+        layout.addWidget(btn_0, alignment=Qt.AlignCenter)
+        
+        # Add arrow buttons
+        for arrow in ["▲", "▼"]:
+            btn = QPushButton(arrow)
+            btn.setFixedSize(40, 40)
+            btn.setStyleSheet(styles.POSStyles.NUMBER_BUTTON)
+            layout.addWidget(btn, alignment=Qt.AlignCenter)
+        
+        layout.addStretch()
+        return numbers_frame
 
     def _create_products_widget(self):
         products_frame = QFrame()

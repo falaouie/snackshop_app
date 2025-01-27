@@ -234,3 +234,28 @@ class POSStyles:
             border-color: #3498db;
         }
     """
+
+    NUMBERS_PANEL = """
+        QFrame {
+            background-color: #f5f6fa;
+            border-right: 1px solid #dcdde1;
+            border-left: 1px solid #dcdde1;
+        }
+    """
+    
+    NUMBER_BUTTON = """
+        QPushButton {
+            background-color: white;
+            border: 1px solid #dcdde1;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        QPushButton:hover {
+            background-color: #f8f9fa;
+            border-color: #3498db;
+        }
+        QPushButton:pressed {
+            background-color: #e9ecef;
+        }
+    """
