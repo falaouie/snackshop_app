@@ -10,7 +10,7 @@ class AuthenticationContainer(QFrame):
         super().__init__(parent)
         self.valid_user_id = "1001"  # Hardcoded valid user ID
         self.number_buttons = []     # Initialize number buttons list
-        self.setFixedSize(400, 600)
+        self.setFixedSize(400, 500)
         self.setStyleSheet(styles.AuthStyles.CONTAINER)
         self._setup_ui()
         self.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus
@@ -124,7 +124,7 @@ class AuthenticationContainer(QFrame):
         """Show invalid user ID message and clear input"""
         self.lbl_user_id.setText("Invalid User ID")
         self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID)
-        self.user_input.clear_all()
+        # self.user_input.clear_all()
 
     def _reset_user_id_label(self):
         """Restore User ID label to original state"""

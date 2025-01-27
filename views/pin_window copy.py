@@ -8,17 +8,10 @@ class PinView(QWidget):
         super().__init__(parent or auth_container)
         self.user_id = user_id
         self.auth_container = auth_container
-        self.setFixedSize(400, 600)
+        self.valid_pin = "9856"  # Hardcoded valid PIN
+        self.setFixedSize(400, 500)
         self.setStyleSheet(styles.AuthStyles.CONTAINER)
         self._setup_ui()
-
-        # Position in parent
-        if parent or auth_container:
-            parent_rect = (parent or auth_container).rect()
-            self.move(
-                (parent_rect.width() - self.width()) // 2,
-                (parent_rect.height() - self.height()) // 2
-            )
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -26,7 +19,7 @@ class PinView(QWidget):
         layout.setSpacing(15)
 
         # PIN Label
-        self.lbl_pin = QLabel(f"Password for User ID {self.user_id}", alignment=Qt.AlignCenter)
+        self.lbl_pin = QLabel(f"PIN for User ID {self.user_id}", alignment=Qt.AlignCenter)
         self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT)
         layout.addWidget(self.lbl_pin)
 
@@ -84,7 +77,14 @@ class PinView(QWidget):
         self.btn_sign_in.clicked.connect(self._handle_sign_in)
 
     def _on_number_click(self, number):
+        """Handle number button clicks"""
         self.pin_input.add_digit(str(number))
+        self._reset_pin_label()  # Reset label when typing starts
+
+    def _reset_pin_label(self):
+        """Restore PIN label to original state"""
+        self.lbl_pin.setText(f"PIN for User ID {self.user_id}")
+        self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT)
 
     def _update_button_states(self, digits):
         """Update button states based on input"""
@@ -108,13 +108,28 @@ class PinView(QWidget):
 
     def _handle_back(self):
         """Handle Back button click"""
-        self.auth_container.switch_to_user_id_view()  # Use auth_container reference
+        # Reset the label and input before going back
+        self._reset_pin_label()
+        self.pin_input.clear_all()
+        # Switch back to user ID view
+        self.auth_container.switch_to_user_id_view()
 
     def _handle_sign_in(self):
         """Handle Sign In button click"""
         if self.pin_input.is_complete():
-            pin = "".join(self.pin_input.digits)
-            self.submit_requested.emit(pin)
+            entered_pin = "".join(self.pin_input.digits)
+            if entered_pin == self.valid_pin:
+                print(f"Correct PIN entered: {entered_pin}")  # Success message to console
+                # Here you can add code to proceed to next screen
+            else:
+                self._show_invalid_pin()
+
+    def _show_invalid_pin(self):
+        """Show invalid PIN message and clear input"""
+        self.lbl_pin.setText(f"Invalid PIN for User ID {self.user_id}")
+        self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID)
+        self.pin_input.clear_all()
+        self._update_button_states([])  # Reset button states
 
     def keyPressEvent(self, event):
         """Handle physical keyboard input"""
@@ -124,11 +139,13 @@ class PinView(QWidget):
         if Qt.Key_0 <= key <= Qt.Key_9 and not self.pin_input.is_complete():
             digit = str(key - Qt.Key_0)
             self.pin_input.add_digit(digit)
-        
+            self._reset_pin_label()  # Reset label when typing starts
+
         # Backspace
         elif key == Qt.Key_Backspace:
             self.pin_input.remove_digit()
-        
+            self._reset_pin_label()  # Reset label when removing digits
+
         # Enter/Return
         elif key in (Qt.Key_Return, Qt.Key_Enter):
             if self.pin_input.is_complete():
