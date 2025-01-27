@@ -1,6 +1,8 @@
-from PyQt5.QtWidgets import QFrame, QVBoxLayout, QLabel, QPushButton, QGridLayout, QHBoxLayout, QWidget
+from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel, QPushButton, 
+                           QGridLayout, QHBoxLayout, QWidget, QMainWindow)
 from PyQt5.QtCore import Qt, pyqtSignal
 from .input_fields import UserInput
+from .pos_view import POSView 
 from . import styles
 
 class PinView(QWidget):
@@ -119,8 +121,7 @@ class PinView(QWidget):
         if self.pin_input.is_complete():
             entered_pin = "".join(self.pin_input.digits)
             if entered_pin == self.valid_pin:
-                print(f"Correct PIN entered: {entered_pin}")  # Success message to console
-                # Here you can add code to proceed to next screen
+                self._show_pos_view()
             else:
                 self._show_invalid_pin()
 
@@ -154,3 +155,26 @@ class PinView(QWidget):
         # Ignore other keys
         else:
             super().keyPressEvent(event)
+
+    def _show_pos_view(self):
+        """Switch to POS view after successful login"""
+        # Get the main window by traversing up the parent hierarchy
+        parent = self.auth_container.parent()
+        while parent and not isinstance(parent, QMainWindow):
+            parent = parent.parent()
+            
+        if parent:
+            main_window = parent  # This is our QMainWindow instance
+            
+            # Hide the auth container
+            self.auth_container.hide()
+            
+            # Find and hide the logo container
+            logo_label = main_window.findChild(QLabel)
+            if logo_label:
+                logo_label.hide()
+            
+            # Create and show POS view
+            pos_view = POSView(self.user_id, main_window)
+            main_window.setCentralWidget(pos_view)
+            pos_view.show()

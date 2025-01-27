@@ -98,3 +98,139 @@ class AuthStyles:
             background-color: #2980b9;  /* Darker blue on hover */
         }
     """
+
+class POSStyles:
+    TOP_BAR = """
+        QFrame {
+            background-color: #2c3e50;
+            border-bottom: 1px solid #34495e;
+        }
+    """
+    
+    TOP_BAR_TEXT = """
+        QLabel {
+            color: white;
+            font-size: 14px;
+            padding: 5px;
+        }
+    """
+    
+    TOP_BAR_BUTTON = """
+        QPushButton {
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        QPushButton:hover {
+            background-color: #435c78;
+        }
+    """
+    
+    ORDER_PANEL = """
+        QFrame {
+            background-color: #f5f6fa;
+            border-right: 1px solid #dcdde1;
+        }
+    """
+    
+    PRODUCTS_PANEL = """
+        QFrame {
+            background-color: white;
+        }
+    """
+    
+    SECTION_HEADER = """
+        QLabel {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            padding: 5px 0;
+        }
+    """
+    
+    CATEGORY_BUTTON = """
+        QPushButton {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        QPushButton:hover {
+            background-color: #2980b9;
+        }
+        QPushButton:checked {
+            background-color: #2980b9;
+        }
+    """
+    
+    SCROLL_AREA = """
+        QScrollArea {
+            border: none;
+            background: white;
+        }
+    """
+    
+    BOTTOM_BAR = """
+        QFrame {
+            background-color: #2c3e50;
+            border-top: 1px solid #34495e;
+        }
+    """
+    
+    BOTTOM_BAR_BUTTON = """
+        QPushButton {
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        QPushButton:hover {
+            background-color: #435c78;
+        }
+    """
+    
+    PAYMENT_BUTTON = """
+        QPushButton {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #219a52;
+        }
+    """
+
+    SUMMARY_PANEL = """
+        QFrame {
+            background-color: white;
+            border-top: 1px solid #dcdde1;
+            margin-top: 10px;
+        }
+        QLabel {
+            font-size: 16px;
+            color: #2c3e50;
+        }
+    """
+    
+    PRODUCT_BUTTON = """
+        QPushButton {
+            background-color: white;
+            border: 1px solid #dcdde1;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+        QPushButton:hover {
+            background-color: #f8f9fa;
+            border-color: #3498db;
+        }
+    """
