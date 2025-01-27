@@ -13,12 +13,12 @@ class PinView(QWidget):
         self._setup_ui()
 
         # Position in parent
-        if parent or auth_container:
-            parent_rect = (parent or auth_container).rect()
-            self.move(
-                (parent_rect.width() - self.width()) // 2,
-                (parent_rect.height() - self.height()) // 2
-            )
+        # if parent or auth_container:
+        #     parent_rect = (parent or auth_container).rect()
+        #     self.move(
+        #         (parent_rect.width() - self.width()) // 2,
+        #         (parent_rect.height() - self.height()) // 2
+        #     )
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
