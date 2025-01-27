@@ -124,7 +124,7 @@ class AuthenticationContainer(QFrame):
         """Show invalid user ID message and clear input"""
         self.lbl_user_id.setText("Invalid User ID")
         self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID)
-        self.user_input.clear_all()
+        # self.user_input.clear_all()
 
     def _reset_user_id_label(self):
         """Restore User ID label to original state"""
