@@ -15,7 +15,7 @@ class PinView(QWidget):
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(15)
 
         # PIN Label
@@ -52,16 +52,16 @@ class PinView(QWidget):
         
         self.btn_clear = QPushButton("Clear")
         btn_0 = QPushButton("0")
-        self.btn_back = QPushButton("Back")
+        self.btn_cancel = QPushButton("Cancel")
         
-        for btn in [self.btn_clear, btn_0, self.btn_back]:
+        for btn in [self.btn_clear, btn_0, self.btn_cancel]:
             btn.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON)
             action_row.addWidget(btn)
         
         self.btn_clear.setEnabled(False)
         btn_0.clicked.connect(lambda: self._on_number_click(0))
         self.btn_clear.clicked.connect(self.pin_input.remove_digit)
-        self.btn_back.clicked.connect(self._handle_back)
+        self.btn_cancel.clicked.connect(self._handle_cancel)
 
         keypad_container.addLayout(action_row)
         layout.addLayout(keypad_container)
@@ -106,12 +106,12 @@ class PinView(QWidget):
             if btn.text().isdigit():
                 btn.setEnabled(not is_complete)
 
-    def _handle_back(self):
-        """Handle Back button click"""
-        # Reset the label and input before going back
+    def _handle_cancel(self):
+        """Handle Cancel button click"""
+        # Reset the label and input before going cancel
         self._reset_pin_label()
         self.pin_input.clear_all()
-        # Switch back to user ID view
+        # Switch cancel to user ID view
         self.auth_container.switch_to_user_id_view()
 
     def _handle_sign_in(self):
