@@ -8,7 +8,7 @@ class PinView(QWidget):
         super().__init__(parent or auth_container)
         self.user_id = user_id
         self.auth_container = auth_container
-        self.setFixedSize(400, 600)
+        self.setFixedSize(400, 500)
         self.setStyleSheet(styles.AuthStyles.CONTAINER)
         self._setup_ui()
 

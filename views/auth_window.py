@@ -10,7 +10,7 @@ class AuthenticationContainer(QFrame):
         super().__init__(parent)
         self.valid_user_id = "1001"  # Hardcoded valid user ID
         self.number_buttons = []     # Initialize number buttons list
-        self.setFixedSize(400, 600)
+        self.setFixedSize(400, 500)
         self.setStyleSheet(styles.AuthStyles.CONTAINER)
         self._setup_ui()
         self.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus
