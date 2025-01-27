@@ -259,3 +259,32 @@ class POSStyles:
             background-color: #e9ecef;
         }
     """
+
+    PRODUCT_BUTTON_DISABLED = """
+        QPushButton {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+        }
+    """
+    
+    BACK_BUTTON = """
+        QPushButton {
+            background-color: #34495e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #2c3e50;
+        }
+    """
+
+    HEADER_FRAME = """
+        QFrame {
+            background-color: #f5f6fa;
+            border-bottom: 1px solid #dcdde1;
+        }
+    """
