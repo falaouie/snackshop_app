@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSpacerItem, QSizePolicy
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt, QSize
-from .auth_window import AuthenticationContainer
+from .auth_view import AuthenticationContainer
 from . import styles
 
 class MainWindow(QMainWindow):

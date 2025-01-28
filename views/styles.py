@@ -102,14 +102,13 @@ class AuthStyles:
 class POSStyles:
     TOP_BAR = """
         QFrame {
-            background-color: #2c3e50;
-            border-bottom: 1px solid #34495e;
+            background-color: white;
         }
     """
     
     TOP_BAR_TEXT = """
         QLabel {
-            color: white;
+            color: black;
             font-size: 14px;
             padding: 5px;
         }

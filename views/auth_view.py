@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel,
                             QPushButton, QGridLayout, QHBoxLayout, QStackedWidget, QWidget)
 from PyQt5.QtCore import Qt
 from .input_fields import UserInput
-from .pin_window import PinView
+from .pin_view import PinView
 from . import styles
 
 class AuthenticationContainer(QFrame):
