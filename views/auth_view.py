@@ -17,7 +17,9 @@ class AuthenticationContainer(QFrame):
         height = screen_config.get_size('auth_container_height')
         self.setFixedSize(width, height)
         
-        self.setStyleSheet(styles.AuthStyles.CONTAINER)
+        self.setStyleSheet(styles.AuthStyles.CONTAINER.format(
+            screen_config.get_size('container_margin')
+        ))
         self._setup_ui()
         self.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus
 
@@ -43,7 +45,10 @@ class AuthenticationContainer(QFrame):
 
         # User ID Label
         self.lbl_user_id = QLabel("User ID", alignment=Qt.AlignCenter)
-        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT)
+        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT.format(
+            screen_config.get_size('label_padding'),
+            screen_config.get_size('label_font_size')
+        ))
         layout.addWidget(self.lbl_user_id)
 
         # Input Fields
@@ -96,8 +101,14 @@ class AuthenticationContainer(QFrame):
         self.btn_next.setFixedSize(action_width, action_height)
         
         # Set action button styles
-        self.btn_clear.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON)
-        self.btn_next.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON)
+        self.btn_clear.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON.format(
+            screen_config.get_size('keypad_font_size'),
+            screen_config.get_size('keypad_padding')
+        ))
+        self.btn_next.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON.format(
+            screen_config.get_size('keypad_font_size'),
+            screen_config.get_size('keypad_padding')
+        ))
         
         # Initialize action button states
         self.btn_clear.setEnabled(False)
@@ -137,8 +148,14 @@ class AuthenticationContainer(QFrame):
         # Update Next button
         self.btn_next.setEnabled(is_complete)
         self.btn_next.setStyleSheet(
-            styles.AuthStyles.NEXT_BUTTON_ACTIVE if is_complete
-            else styles.AuthStyles.KEYPAD_BUTTON
+            styles.AuthStyles.NEXT_BUTTON_ACTIVE.format(
+                screen_config.get_size('keypad_font_size'),
+                screen_config.get_size('keypad_padding')
+            ) if is_complete
+            else styles.AuthStyles.KEYPAD_BUTTON.format(
+                screen_config.get_size('keypad_font_size'),
+                screen_config.get_size('keypad_padding')
+            )
         )
         
         # Update number buttons (0-9)
@@ -156,11 +173,17 @@ class AuthenticationContainer(QFrame):
 
     def _show_invalid_user_id(self):
         self.lbl_user_id.setText("Invalid User ID")
-        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID)
+        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID.format(
+            screen_config.get_size('label_padding'),
+            screen_config.get_size('label_font_size')
+        ))
 
     def _reset_user_id_label(self):
         self.lbl_user_id.setText("User ID")
-        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT)
+        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT.format(
+            screen_config.get_size('label_padding'),
+            screen_config.get_size('label_font_size')
+        ))
 
     def switch_to_pin_view(self, user_id):
         if hasattr(self, 'user_id_view'):

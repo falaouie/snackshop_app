@@ -21,11 +21,12 @@ class AppStyles:
     """
 class AuthStyles:
     CONTAINER = """
-        QFrame {
+        QFrame {{
             background: white;
             border: 1px solid #ddd;
             border-radius: 10px;
-        }
+            padding: {}px;
+        }}
     """
     
     LOGO_CONTAINER = """
@@ -35,31 +36,39 @@ class AuthStyles:
     """
     
     LABEL_TEXT = """
-        QLabel {
+        QLabel {{
             color: #333;
             background: transparent;
-        }
+            padding: {}px;
+            font-size: {}px;
+        }}
     """
 
     LABEL_TEXT_INVALID = """
-        QLabel {
+        QLabel {{
             color: red;
             background: white;
-        }
+            padding: {}px;
+            font-size: {}px;
+        }}
     """
 
     DIGIT_BOX_EMPTY = """
-        QLabel {
+        QLabel {{
             border: 2px solid #ddd;
             border-radius: 5px;
-        }
+            padding: {}px;
+            font-size: {}px;
+        }}
     """
 
     DIGIT_BOX_FILLED = """
-        QLabel {
+        QLabel {{
             border: 2px solid #3498db;
             background-color: #f8f8f8;
-        }
+            padding: {}px;
+            font-size: {}px;
+        }}
     """
 
     KEYPAD_BUTTON = """
@@ -75,14 +84,16 @@ class AuthStyles:
     """
 
     NEXT_BUTTON_ACTIVE = """
-        QPushButton {
-            background-color: #3498db;  /* Blue */
+        QPushButton {{
+            background-color: #3498db;
             color: white;
             border-radius: 5px;
-        }
-        QPushButton:hover {
-            background-color: #2980b9;  /* Darker blue on hover */
-        }
+            font-size: {}px;
+            padding: {}px;
+        }}
+        QPushButton:hover {{
+            background-color: #2980b9;
+        }}
     """
 
 class POSStyles:

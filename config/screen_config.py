@@ -23,6 +23,8 @@ class ScreenConfig:
         'keypad_button_height': 40,
         'action_button_width': 60,
         'action_button_height': 40,
+        'signin_button_width': 120,
+        'signin_button_height': 40,
 
         # Font sizes
         'keypad_font_size': 16,
@@ -58,6 +60,8 @@ class ScreenConfig:
         'keypad_button_height': 50,
         'action_button_width': 80,
         'action_button_height': 50,
+        'signin_button_width': 160,
+        'signin_button_height': 50,
 
         # Font sizes
         'keypad_font_size': 18,
@@ -81,8 +85,8 @@ class ScreenConfig:
         'logo_height': 100,
 
         # Auth container sizes
-        'auth_container_width': 600,
-        'auth_container_height': 700,
+        'auth_container_width': 500,
+        'auth_container_height': 600,
 
         # Input field sizes
         'digit_input_width': 60,
@@ -90,24 +94,26 @@ class ScreenConfig:
 
         # Button sizes
         'keypad_button_width': 100,
-        'keypad_button_height': 100,
+        'keypad_button_height': 60,
         'action_button_width': 150,
-        'action_button_height': 100,
+        'action_button_height': 60,
+        'signin_button_width': 200,
+        'signin_button_height': 60,
 
         # Font sizes
-        'keypad_font_size': 36,
-        'label_font_size': 20,
-        'digit_font_size': 18,
+        'keypad_font_size': 24,
+        'label_font_size': 18,
+        'digit_font_size': 16,
 
         # Padding
-        'keypad_padding': 12,
-        'label_padding': 12,
-        'digit_padding': 10,
+        'keypad_padding': 5,
+        'label_padding': 5,
+        'digit_padding': 5,
 
         # Spacing and margins
-        'keypad_spacing': 20,
-        'container_margin': 30,
-        'section_spacing': 25
+        'keypad_spacing': 10,
+        'container_margin': 15,
+        'section_spacing': 10
     }
 
     def __init__(self):
