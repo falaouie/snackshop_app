@@ -3,6 +3,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt, QSize
 from .auth_view import AuthenticationContainer
 from . import styles
+from config.screen_config import screen_config
 
 class MainWindow(QMainWindow):
     def __init__(self):

@@ -63,12 +63,18 @@ class ScreenConfig:
         # Auth container sizes
         'auth_container_width': 600,
         'auth_container_height': 700,
+
+        # Input field sizes
         'input_field_height': 60,
         'input_digit_width': 40,
+
+        # Button sizes
         'keypad_button_width': 100,
         'keypad_button_height': 100,
         'action_button_width': 150,
         'action_button_height': 60,
+
+        # Spacing and margins
         'keypad_spacing': 20,
         'container_margin': 30,
         'section_spacing': 25
