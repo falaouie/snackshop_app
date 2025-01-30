@@ -13,7 +13,7 @@ def main():
     
     # Create and show the main window
     window = MainWindow()
-    window.showFullScreen()
+    window.showMaximized()
     
     # Start the event loop
     sys.exit(app.exec_())
