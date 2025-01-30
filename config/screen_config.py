@@ -7,8 +7,8 @@ class ScreenConfig:
     # Size configurations for different screen sizes
     SMALL = {
         # Auth container sizes
-        'auth_container_width': 400,
-        'auth_container_height': 500,
+        'auth_container_width': 350,
+        'auth_container_height': 400,
         
         # Input field sizes
         'input_field_height': 40,
@@ -22,8 +22,8 @@ class ScreenConfig:
         
         # Spacing and margins
         'keypad_spacing': 10,
-        'container_margin': 20,
-        'section_spacing': 15
+        'container_margin': 10,
+        'section_spacing': 10
     }
 
     MEDIUM = {
