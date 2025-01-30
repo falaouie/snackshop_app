@@ -25,7 +25,8 @@ class MainWindow(QMainWindow):
         logo_label = QLabel()
         pixmap = QPixmap("assets/images/silver_system_logo.png")
         scaled_pixmap = pixmap.scaled(
-            QSize(200, 75),
+            QSize(screen_config.get_size('logo_width'), 
+                screen_config.get_size('logo_height')),
             Qt.KeepAspectRatio, 
             Qt.SmoothTransformation
         )

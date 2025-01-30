@@ -6,6 +6,10 @@ class ScreenConfig:
     
     # Size configurations for different screen sizes
     SMALL = {
+        # Logo dimensions
+        'logo_width': 150,
+        'logo_height': 56,
+
         # Auth container sizes
         'auth_container_width': 350,
         'auth_container_height': 400,
@@ -27,6 +31,11 @@ class ScreenConfig:
     }
 
     MEDIUM = {
+        # Logo dimensions
+        'logo_width': 200,
+        'logo_height': 75,
+
+        # Auth container sizes
         'auth_container_width': 400,
         'auth_container_height': 500,
 
@@ -47,6 +56,11 @@ class ScreenConfig:
     }
 
     LARGE = {
+        # Logo dimensions
+        'logo_width': 200,
+        'logo_height': 100,
+
+        # Auth container sizes
         'auth_container_width': 600,
         'auth_container_height': 700,
         'input_field_height': 60,
