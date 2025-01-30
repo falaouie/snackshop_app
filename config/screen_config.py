@@ -15,8 +15,8 @@ class ScreenConfig:
         'auth_container_height': 400,
         
         # Input field sizes
-        'input_field_height': 30,
-        'input_digit_width': 30,
+        'digit_input_width': 40,
+        'digit_input_height': 40,
         
         # Button sizes
         'keypad_button_width': 60,
@@ -40,8 +40,8 @@ class ScreenConfig:
         'auth_container_height': 500,
 
         # Input field sizes
-        'input_field_height': 40,
-        'input_digit_width': 30,
+        'digit_input_width': 50,
+        'digit_input_height': 50,
 
         # Button sizes
         'keypad_button_width': 60,
@@ -65,8 +65,8 @@ class ScreenConfig:
         'auth_container_height': 700,
 
         # Input field sizes
-        'input_field_height': 60,
-        'input_digit_width': 40,
+        'digit_input_width': 60,
+        'digit_input_height': 60,
 
         # Button sizes
         'keypad_button_width': 100,

@@ -1,12 +1,16 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel
 from PyQt5.QtCore import Qt, pyqtSignal
 from . import styles
+from config.screen_config import screen_config
 
 class DigitBox(QLabel):
     def __init__(self, is_pin=False):
         super().__init__()
-        self.is_pin = is_pin  # Whether to mask input (for PIN)
-        self.setFixedSize(40, 40)
+        self.is_pin = is_pin  # Whether this is a PIN input
+        # Get sizes from config
+        digit_width = screen_config.get_size('digit_input_width')
+        digit_height = screen_config.get_size('digit_input_height')
+        self.setFixedSize(digit_width, digit_height)
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet(styles.AuthStyles.DIGIT_BOX_EMPTY)
         
@@ -31,8 +35,11 @@ class UserInput(QWidget):
         
     def _setup_ui(self):
         layout = QHBoxLayout()
-        layout.setContentsMargins(0, 10, 0, 10)
-        layout.setSpacing(10)
+        # Get margin and spacing from config
+        digit_margin = screen_config.get_size('container_margin')
+        digit_spacing = screen_config.get_size('section_spacing')
+        layout.setContentsMargins(0, digit_margin//2, 0, digit_margin//2)
+        layout.setSpacing(digit_spacing)
         
         self.digit_boxes = []
         for _ in range(4):
