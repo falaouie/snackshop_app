@@ -81,12 +81,19 @@ class AuthenticationContainer(QFrame):
         btn_0 = QPushButton("0")
         self.btn_next = QPushButton("Next")
         
-        # Set sizes and styles for action buttons
-        for btn in [self.btn_clear, btn_0, self.btn_next]:
-            btn.setFixedSize(action_width, action_height)
-            btn.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON)
+        # Style the '0' button like other keypad buttons
+        btn_0.setFixedSize(button_width, button_height)
+        btn_0.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON)
+
+        # Style action buttons
+        self.btn_clear.setFixedSize(action_width, action_height)
+        self.btn_next.setFixedSize(action_width, action_height)
         
-        # Initialize buttons
+        # Set action button styles
+        self.btn_clear.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON)
+        self.btn_next.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON)
+        
+        # Initialize action button states
         self.btn_clear.setEnabled(False)
         self.btn_next.setEnabled(False)
         

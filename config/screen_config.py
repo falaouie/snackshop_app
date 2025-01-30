@@ -16,8 +16,8 @@ class ScreenConfig:
         
         # Button sizes
         'keypad_button_width': 60,
-        'keypad_button_height': 50,
-        'action_button_width': 80,
+        'keypad_button_height': 40,
+        'action_button_width': 60,
         'action_button_height': 40,
         
         # Spacing and margins
@@ -29,12 +29,18 @@ class ScreenConfig:
     MEDIUM = {
         'auth_container_width': 400,
         'auth_container_height': 500,
+
+        # Input field sizes
         'input_field_height': 40,
         'input_digit_width': 30,
+
+        # Button sizes
         'keypad_button_width': 60,
         'keypad_button_height': 50,
         'action_button_width': 80,
         'action_button_height': 50,
+
+        # Spacing and margins
         'keypad_spacing': 15,
         'container_margin': 15,
         'section_spacing': 15
