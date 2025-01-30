@@ -17,7 +17,6 @@ class AppStyles:
     LOGO_CONTAINER = """
         QLabel {
             qproperty-alignment: AlignCenter;
-            padding: 5px;
         }
     """
 class AuthStyles:
@@ -32,24 +31,19 @@ class AuthStyles:
     LOGO_CONTAINER = """
         QLabel {
             qproperty-alignment: AlignCenter;
-            padding: 5px;
         }
     """
     
     LABEL_TEXT = """
         QLabel {
-            font-size: 18px;
             color: #333;
-            padding: 10px;
             background: transparent;
         }
     """
 
     LABEL_TEXT_INVALID = """
         QLabel {
-            font-size: 18px;
             color: red;
-            font-weight: bold;
             background: white;
         }
     """
@@ -58,7 +52,6 @@ class AuthStyles:
         QLabel {
             border: 2px solid #ddd;
             border-radius: 5px;
-            font-size: 16px;
         }
     """
 
@@ -66,33 +59,26 @@ class AuthStyles:
         QLabel {
             border: 2px solid #3498db;
             background-color: #f8f8f8;
-            font-size: 16px;
         }
     """
 
     KEYPAD_BUTTON = """
-        QPushButton {
-            font-size: 18px;
-            min-width: 50px;
-            min-height: 40px;
+        QPushButton {{
+            font-size: {}px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            padding: 10px;
-        }
-        QPushButton:hover {
+            padding: {}px;
+        }}
+        QPushButton:hover {{
             background-color: #f8f8f8;
-        }
+        }}
     """
 
     NEXT_BUTTON_ACTIVE = """
         QPushButton {
             background-color: #3498db;  /* Blue */
             color: white;
-            font-size: 18px;
-            min-width: 50px;
-            min-height: 40px;
             border-radius: 5px;
-            padding: 10px;
         }
         QPushButton:hover {
             background-color: #2980b9;  /* Darker blue on hover */
@@ -109,8 +95,6 @@ class POSStyles:
     TOP_BAR_TEXT = """
         QLabel {
             color: black;
-            font-size: 14px;
-            padding: 5px;
         }
     """
     
@@ -120,7 +104,6 @@ class POSStyles:
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 5px;
         }
         QPushButton:hover {
             background-color: #435c78;
@@ -142,10 +125,7 @@ class POSStyles:
     
     SECTION_HEADER = """
         QLabel {
-            font-size: 18px;
-            font-weight: bold;
             color: #2c3e50;
-            padding: 5px 0;
         }
     """
     
@@ -155,8 +135,6 @@ class POSStyles:
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 8px;
-            font-size: 14px;
         }
         QPushButton:hover {
             background-color: #2980b9;
@@ -186,7 +164,6 @@ class POSStyles:
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 5px;
         }
         QPushButton:hover {
             background-color: #435c78;
@@ -199,8 +176,6 @@ class POSStyles:
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 5px;
-            font-weight: bold;
         }
         QPushButton:hover {
             background-color: #219a52;
@@ -211,10 +186,8 @@ class POSStyles:
         QFrame {
             background-color: white;
             border-top: 1px solid #dcdde1;
-            margin-top: 10px;
         }
         QLabel {
-            font-size: 16px;
             color: #2c3e50;
         }
     """
@@ -224,8 +197,6 @@ class POSStyles:
             background-color: white;
             border: 1px solid #dcdde1;
             border-radius: 4px;
-            padding: 10px;
-            font-size: 14px;
             text-align: center;
         }
         QPushButton:hover {
@@ -247,7 +218,6 @@ class POSStyles:
             background-color: white;
             border: 1px solid #dcdde1;
             border-radius: 4px;
-            font-size: 14px;
             color: #2c3e50;
         }
         QPushButton:hover {
@@ -273,8 +243,6 @@ class POSStyles:
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 14px;
-            font-weight: bold;
         }
         QPushButton:hover {
             background-color: #2c3e50;

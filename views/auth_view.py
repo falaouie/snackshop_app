@@ -64,7 +64,10 @@ class AuthenticationContainer(QFrame):
         for idx, (row, col) in enumerate(positions):
             btn = QPushButton(str(idx+1))
             btn.setFixedSize(button_width, button_height)
-            btn.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON)
+            btn.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON.format(
+                screen_config.get_size('keypad_font_size'),
+                screen_config.get_size('keypad_padding')
+            ))
             btn.clicked.connect(lambda _, num=idx+1: self._on_number_click(num))
             self.number_buttons.append(btn)
             grid.addWidget(btn, row, col)
@@ -83,7 +86,10 @@ class AuthenticationContainer(QFrame):
         
         # Style the '0' button like other keypad buttons
         btn_0.setFixedSize(button_width, button_height)
-        btn_0.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON)
+        btn_0.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON.format(
+                screen_config.get_size('keypad_font_size'),
+                screen_config.get_size('keypad_padding')
+            ))
 
         # Style action buttons
         self.btn_clear.setFixedSize(action_width, action_height)

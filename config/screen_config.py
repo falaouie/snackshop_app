@@ -23,6 +23,16 @@ class ScreenConfig:
         'keypad_button_height': 40,
         'action_button_width': 60,
         'action_button_height': 40,
+
+        # Font sizes
+        'keypad_font_size': 16,
+        'label_font_size': 16,
+        'digit_font_size': 14,
+
+        # Padding
+        'keypad_padding': 8,
+        'label_padding': 8,
+        'digit_padding': 5,
         
         # Spacing and margins
         'keypad_spacing': 10,
@@ -49,6 +59,16 @@ class ScreenConfig:
         'action_button_width': 80,
         'action_button_height': 50,
 
+        # Font sizes
+        'keypad_font_size': 18,
+        'label_font_size': 18,
+        'digit_font_size': 16,
+
+        # Padding
+        'keypad_padding': 10,
+        'label_padding': 10,
+        'digit_padding': 8,
+
         # Spacing and margins
         'keypad_spacing': 15,
         'container_margin': 15,
@@ -72,7 +92,17 @@ class ScreenConfig:
         'keypad_button_width': 100,
         'keypad_button_height': 100,
         'action_button_width': 150,
-        'action_button_height': 60,
+        'action_button_height': 100,
+
+        # Font sizes
+        'keypad_font_size': 36,
+        'label_font_size': 20,
+        'digit_font_size': 18,
+
+        # Padding
+        'keypad_padding': 12,
+        'label_padding': 12,
+        'digit_padding': 10,
 
         # Spacing and margins
         'keypad_spacing': 20,
