@@ -81,8 +81,8 @@ class ScreenConfig:
 
     LARGE = {
         # Logo dimensions
-        'logo_width': 200,
-        'logo_height': 100,
+        'logo_width': 300,
+        'logo_height': 150,
 
         # Auth container sizes
         'auth_container_width': 500,
