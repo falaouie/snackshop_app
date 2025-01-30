@@ -142,7 +142,10 @@ class PinView(QWidget):
     def _reset_pin_label(self):
         """Restore PIN label to original state"""
         self.lbl_pin.setText(f"PIN for User ID {self.user_id}")
-        self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT)
+        self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT.format(
+            screen_config.get_size('label_padding'),
+            screen_config.get_size('label_font_size')
+        ))
 
     def _update_button_states(self, digits):
         """Update button states based on input"""
@@ -190,7 +193,10 @@ class PinView(QWidget):
     def _show_invalid_pin(self):
         """Show invalid PIN message and clear input"""
         self.lbl_pin.setText(f"Invalid PIN for User ID {self.user_id}")
-        self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID)
+        self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID.format(
+            screen_config.get_size('label_padding'),
+            screen_config.get_size('label_font_size')
+        ))
         self.pin_input.clear_all()
         self._update_button_states([])  # Reset button states
 

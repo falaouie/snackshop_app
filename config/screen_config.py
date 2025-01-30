@@ -7,8 +7,8 @@ class ScreenConfig:
     # Size configurations for different screen sizes
     SMALL = {
         # Logo dimensions
-        'logo_width': 150,
-        'logo_height': 56,
+        'logo_width': 200,
+        'logo_height': 100,
 
         # Auth container sizes
         'auth_container_width': 350,
@@ -44,19 +44,19 @@ class ScreenConfig:
 
     MEDIUM = {
         # Logo dimensions
-        'logo_width': 200,
-        'logo_height': 75,
+        'logo_width': 300,
+        'logo_height': 125,
 
         # Auth container sizes
         'auth_container_width': 400,
         'auth_container_height': 500,
 
         # Input field sizes
-        'digit_input_width': 50,
-        'digit_input_height': 50,
+        'digit_input_width': 40,
+        'digit_input_height': 40,
 
         # Button sizes
-        'keypad_button_width': 60,
+        'keypad_button_width': 50,
         'keypad_button_height': 50,
         'action_button_width': 80,
         'action_button_height': 50,
