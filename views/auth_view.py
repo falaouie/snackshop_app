@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel, 
-                            QPushButton, QGridLayout, QHBoxLayout, QStackedWidget, QWidget)
+                            QPushButton, QGridLayout, QHBoxLayout, QWidget)
 from PyQt5.QtCore import Qt
 from .input_fields import UserInput
 from .pin_view import PinView
@@ -16,7 +16,6 @@ class AuthenticationContainer(QFrame):
         width = screen_config.get_size('auth_container_width')
         height = screen_config.get_size('auth_container_height')
         self.setFixedSize(width, height)
-        
         self.setStyleSheet(styles.AuthStyles.CONTAINER.format(
             screen_config.get_size('container_margin')
         ))
@@ -25,7 +24,7 @@ class AuthenticationContainer(QFrame):
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        margin = screen_config.get_size('container_margin')
+        # margin = screen_config.get_size('container_margin')
         layout.setContentsMargins(0, 0, 0, 0)
         
         # User ID View
@@ -58,8 +57,8 @@ class AuthenticationContainer(QFrame):
         # Keypad
         grid = QGridLayout()
         keypad_spacing = screen_config.get_size('keypad_spacing')
-        grid.setHorizontalSpacing(keypad_spacing)
-        grid.setVerticalSpacing(keypad_spacing)
+        # grid.setHorizontalSpacing(keypad_spacing)
+        # grid.setVerticalSpacing(keypad_spacing)
 
         # Number buttons 1-9
         positions = [(i//3, i%3) for i in range(9)]

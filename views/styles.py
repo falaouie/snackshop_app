@@ -6,13 +6,13 @@ class AppStyles:
         }
     """
     
-    LABEL_HEADING = """
-        QLabel {
-            font-size: 24px;
-            color: #2c3e50;
-            padding: 5px;
-        }
-    """
+    # LABEL_HEADING = """
+    #     QLabel {
+    #         font-size: 24px;
+    #         color: #2c3e50;
+    #         padding: 5px;
+    #     }
+    # """
 
     LOGO_CONTAINER = """
         QLabel {
@@ -29,11 +29,11 @@ class AuthStyles:
         }}
     """
     
-    LOGO_CONTAINER = """
-        QLabel {
-            qproperty-alignment: AlignCenter;
-        }
-    """
+    # LOGO_CONTAINER = """
+    #     QLabel {
+    #         qproperty-alignment: AlignCenter;
+    #     }
+    # """
     
     LABEL_TEXT = """
         QLabel {{
