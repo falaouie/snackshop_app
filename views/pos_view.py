@@ -18,26 +18,27 @@ class POSView(QWidget):
         # Top Bar
         self._create_top_bar()
         main_layout.addWidget(self.top_bar)
-
+        
         # Main Content Area with Splitter
-        content_splitter = QSplitter(Qt.Horizontal)
+        # content_splitter = QSplitter(Qt.Horizontal)
         
         # Left Side - Order Details (30%)
-        self.order_widget = self._create_order_widget()
-        content_splitter.addWidget(self.order_widget)
+        self.order_widget = self._order_details_widget()
+        main_layout.addWidget(self.order_widget)
         
         # Middle - Numbers Section (5%)
         self.numbers_widget = self._create_numbers_widget()
-        content_splitter.addWidget(self.numbers_widget)
+        # content_splitter.addWidget(self.numbers_widget)
         
         # Right Side - Products (65%)
         self.products_widget = self._create_products_widget()
-        content_splitter.addWidget(self.products_widget)
+        # content_splitter.addWidget(self.products_widget)
         
         # Set split proportions (30:5:65)
-        content_splitter.setSizes([300, 50, 650])
+        # content_splitter.setSizes([300, 50, 650])
         
-        main_layout.addWidget(content_splitter)
+        # main_layout.addWidget(content_splitter)
+        main_layout.addStretch()
 
         # Bottom Bar
         self._create_bottom_bar()
@@ -93,7 +94,7 @@ class POSView(QWidget):
         time_str = current.toString("hh:mm:ss AP")
         self.time_label.setText(f"{date_str} {time_str}")
 
-    def _create_order_widget(self):
+    def _order_details_widget(self):
         order_frame = QFrame()
         order_frame.setStyleSheet(styles.POSStyles.ORDER_PANEL)
         
