@@ -10,7 +10,7 @@ class POSView(QWidget):
         super().__init__(parent)
         self.user_id = user_id
         # self.setWindowTitle(f"Snack Shop POS - Cashier: {self.user_id} - {QDateTime.currentDateTime().toString('dd-MM-yyyy hh:mm:ss')}")
-        self.setWindowTitle("Snack Shop POS")
+        # self.setWindowTitle("Snack Shop POS")
         self._setup_ui()
 
     def _setup_ui(self):
@@ -38,7 +38,7 @@ class POSView(QWidget):
         content_splitter.addWidget(self.products_widget)
         
         # Set split proportions (30:5:65)
-        content_splitter.setSizes([300, 50, 650])
+        # content_splitter.setSizes([300, 50, 650])
         
         main_layout.addWidget(content_splitter)
 
@@ -49,25 +49,27 @@ class POSView(QWidget):
     def _create_top_bar(self):
         self.top_bar = QFrame()
         self.top_bar.setStyleSheet(styles.POSStyles.TOP_BAR)
-        self.top_bar.setFixedHeight(100)
+        self.top_bar.setFixedHeight(80)
         
         layout = QHBoxLayout(self.top_bar)
-        layout.setContentsMargins(10, 5, 10, 5)
+        layout.setContentsMargins(0, 0, 0, 0) # left, top, right, and bottom
         
         # Logo and Info group
         left_group = QHBoxLayout()
         
         # Logo
-        logo_label = QLabel()
-        pixmap = QPixmap("assets/images/silver_system_logo.png")
-        scaled_pixmap = pixmap.scaled(QSize(150, 100), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        logo_label.setPixmap(scaled_pixmap)
-        left_group.addWidget(logo_label)
+        # logo_label = QLabel()
+        # pixmap = QPixmap("assets/images/silver_system_logo.png")
+        # scaled_pixmap = pixmap.scaled(QSize(150, 100), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # logo_label.setPixmap(scaled_pixmap)
+        # left_group.addWidget(logo_label)
         
-        # Cashier Info
-        cashier_info = QLabel(f"Cashier ID: {self.user_id}")
-        cashier_info.setStyleSheet(styles.POSStyles.TOP_BAR_TEXT)
-        left_group.addWidget(cashier_info)
+        # Emp Info
+        Emp_info = QLabel(f"Emp ID: {self.user_id}")
+        Emp_info.setStyleSheet(styles.POSStyles.TOP_BAR_TEXT)
+        Emp_info.setContentsMargins(10, 5, 10, 5) # left, top, right, and bottom
+        Emp_info.setFixedHeight(20)
+        left_group.addWidget(Emp_info)
         
         # Date/Time
         self.time_label = QLabel()
@@ -251,7 +253,7 @@ class POSView(QWidget):
         # Categories header
         cat_header = QFrame()
         # cat_header.setStyleSheet(styles.POSStyles.HEADER_FRAME)
-        cat_header.setFixedHeight(60)
+        # cat_header.setFixedHeight(60)
         cat_header_layout = QVBoxLayout(cat_header)
         # cat_header_layout.setContentsMargins(10, 5, 10, 5)
         
@@ -273,7 +275,7 @@ class POSView(QWidget):
         for category in categories:
             btn = QPushButton(category)
             btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
-            btn.setFixedSize(150, 100)
+            # btn.setFixedSize(150, 100)
             btn.clicked.connect(lambda checked, c=category: self._show_category_items(c))
             categories_grid.addWidget(btn, position // 5, position % 5)
             position += 1
@@ -282,7 +284,7 @@ class POSView(QWidget):
         while position < 25:  # 6 rows of 5
             btn = QPushButton()
             btn.setEnabled(False)
-            btn.setFixedSize(150, 100)
+            # btn.setFixedSize(150, 100)
             btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON_DISABLED)
             categories_grid.addWidget(btn, position // 5, position % 5)
             position += 1
@@ -309,7 +311,7 @@ class POSView(QWidget):
         
         # Back button
         back_btn = QPushButton("BACK")
-        back_btn.setFixedSize(100, 40)
+        # back_btn.setFixedSize(100, 40)
         back_btn.setStyleSheet(styles.POSStyles.BACK_BUTTON)
         back_btn.clicked.connect(self._show_categories)
         layout.addWidget(back_btn)
@@ -330,7 +332,7 @@ class POSView(QWidget):
         for item in items[category]:
             btn = QPushButton(item)
             btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
-            btn.setFixedSize(150, 100)
+            # btn.setFixedSize(150, 100)
             items_grid.addWidget(btn, position // 5, position % 5)
             position += 1
         
@@ -347,7 +349,7 @@ class POSView(QWidget):
     def _create_bottom_bar(self):
         self.bottom_bar = QFrame()
         self.bottom_bar.setStyleSheet(styles.POSStyles.BOTTOM_BAR)
-        self.bottom_bar.setFixedHeight(60)
+        # self.bottom_bar.setFixedHeight(60)
         
         layout = QHBoxLayout(self.bottom_bar)
         layout.setContentsMargins(10, 5, 10, 5)
@@ -357,7 +359,7 @@ class POSView(QWidget):
         for btn_text in transaction_buttons:
             btn = QPushButton(btn_text)
             btn.setStyleSheet(styles.POSStyles.BOTTOM_BAR_BUTTON)
-            btn.setFixedSize(100, 40)
+            # btn.setFixedSize(100, 40)
             layout.addWidget(btn)
         
         layout.addStretch()
@@ -365,7 +367,7 @@ class POSView(QWidget):
         # Payment Button
         pay_btn = QPushButton("Payment")
         pay_btn.setStyleSheet(styles.POSStyles.PAYMENT_BUTTON)
-        pay_btn.setFixedSize(120, 40)
+        # pay_btn.setFixedSize(120, 40)
         layout.addWidget(pay_btn)
 
     def _populate_products_grid(self, products):
@@ -377,5 +379,5 @@ class POSView(QWidget):
         for i, product in enumerate(products):
             btn = QPushButton(product)
             btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
-            btn.setFixedSize(150, 100)
+            # btn.setFixedSize(150, 100)
             self.products_widget.layout().addWidget(btn, i//3, i%3)

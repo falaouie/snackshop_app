@@ -92,6 +92,7 @@ class POSStyles:
     TOP_BAR_TEXT = """
         QLabel {
             color: black;
+            background-color: yellow;
         }
     """
     

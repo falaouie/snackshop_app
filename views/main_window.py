@@ -9,7 +9,7 @@ from utilities.utils import close_application
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Snack Shop POS")
+        self.setWindowTitle("Snack Shop POS - Silver System")
         self.setStyleSheet(styles.AppStyles.WINDOW_MAIN)
 
         # Get the screen dimensions
