@@ -156,6 +156,12 @@ class ScreenConfig:
         if self.current_config is None:
             self.initialize()
         return self.current_config.get(element_name)
+    
+    def get_screen_dimensions(self):
+        """Get the screen dimensions"""
+        if self.width is None or self.height is None:
+            self.initialize()
+        return self.width, self.height
 
 # Create a singleton instance
 screen_config = ScreenConfig()

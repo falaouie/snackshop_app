@@ -10,7 +10,12 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Snack Shop POS")
         self.setStyleSheet(styles.AppStyles.WINDOW_MAIN)
-        self.setFixedSize(800, 600)
+
+        # Get the screen dimensions
+        screen_width, screen_height = screen_config.get_screen_dimensions()
+        # Set the main window size based on the screen dimensions
+        self.setGeometry(100, 100, screen_width // 2, screen_height // 2)
+        # self.setFixedSize(window_width, window_height)
         self._setup_ui()
 
     def _setup_ui(self):
