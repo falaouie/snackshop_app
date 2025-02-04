@@ -2,17 +2,9 @@ class AppStyles:
     """Centralized style configurations"""
     WINDOW_MAIN = """
         QMainWindow {
-            background-color: white;
+            background-color: #BCBBBA;
         }
     """
-    
-    # LABEL_HEADING = """
-    #     QLabel {
-    #         font-size: 24px;
-    #         color: #2c3e50;
-    #         padding: 5px;
-    #     }
-    # """
 
     LOGO_CONTAINER = """
         QLabel {
@@ -28,12 +20,6 @@ class AuthStyles:
             padding: {}px;
         }}
     """
-    
-    # LOGO_CONTAINER = """
-    #     QLabel {
-    #         qproperty-alignment: AlignCenter;
-    #     }
-    # """
     
     LABEL_TEXT = """
         QLabel {{
@@ -99,7 +85,7 @@ class AuthStyles:
 class POSStyles:
     TOP_BAR = """
         QFrame {
-            background-color: white;
+            background-color: #BCBBBA;
         }
     """
     
@@ -110,15 +96,31 @@ class POSStyles:
     """
     
     TOP_BAR_BUTTON = """
-        QPushButton {
+        QPushButton {{
             background-color: #34495e;
             color: white;
+            font-size: {}px;
             border: none;
             border-radius: 4px;
-        }
-        QPushButton:hover {
+            padding: {}px;
+        }}
+        QPushButton:hover {{
             background-color: #435c78;
-        }
+        }}
+    """
+
+    SIGN_OUT_BUTTON = """
+        QPushButton {{
+            background-color: red;
+            color: white;
+            font-size: {}px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: {}px;
+        }}
+        QPushButton:hover {{
+            background-color: #f8f8f8;
+        }}
     """
     
     ORDER_PANEL = """
@@ -137,6 +139,7 @@ class POSStyles:
     SECTION_HEADER = """
         QLabel {
             color: #2c3e50;
+            padding: 10px;
         }
     """
     
@@ -164,7 +167,7 @@ class POSStyles:
     
     BOTTOM_BAR = """
         QFrame {
-            background-color: #2c3e50;
+            background-color: #BCBBBA;
             border-top: 1px solid #34495e;
         }
     """

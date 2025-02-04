@@ -62,16 +62,20 @@ class ScreenConfig:
         'action_button_height': 50,
         'signin_button_width': 160,
         'signin_button_height': 50,
+        'top_bar_btn_width': 100,
+        'top_bar_btn_height': 40,
 
         # Font sizes
         'keypad_font_size': 18,
         'label_font_size': 18,
         'digit_font_size': 16,
+        'top_bar_btn_font_size': 16,
 
         # Padding
         'keypad_padding': 10,
         'label_padding': 10,
         'digit_padding': 8,
+        'top_bar_btn_padding': 8,
 
         # Spacing and margins
         'keypad_spacing': 15,
@@ -137,7 +141,7 @@ class ScreenConfig:
 
     def _set_size_config(self):
         """Determine which size configuration to use based on screen resolution"""
-        if self.width >= 1280 and self.height >= 1024:
+        if self.width >= 1280 and self.height >= 1080:
             self.current_config = self.LARGE
             print(f"size: Large")
         elif self.width >= 1024 and self.height >= 768:
