@@ -44,6 +44,11 @@ class AuthenticationContainer(QFrame):
 
         # User ID Label
         self.lbl_user_id = QLabel("User ID", alignment=Qt.AlignCenter)
+
+        width = screen_config.get_size('auth_label_width')
+        height = screen_config.get_size('auth_label_height')
+        self.lbl_user_id.setFixedSize(width, height)
+
         self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT.format(
             screen_config.get_size('label_padding'),
             screen_config.get_size('label_font_size')

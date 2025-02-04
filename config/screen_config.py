@@ -13,6 +13,10 @@ class ScreenConfig:
         # Auth container sizes
         'auth_container_width': 350,
         'auth_container_height': 400,
+
+        # user id and password label
+        'auth_label_width': 250,
+        'auth_label_height': 60,
         
         # Input field sizes
         'digit_input_width': 40,
@@ -50,6 +54,10 @@ class ScreenConfig:
         # Auth container sizes
         'auth_container_width': 400,
         'auth_container_height': 500,
+
+        # user id and password label
+        'auth_label_width': 250,
+        'auth_label_height': 60,
 
         # Input field sizes
         'digit_input_width': 40,
@@ -91,6 +99,10 @@ class ScreenConfig:
         # Auth container sizes
         'auth_container_width': 500,
         'auth_container_height': 600,
+
+        # user id and password label
+        'auth_label_width': 400,
+        'auth_label_height': 60,
 
         # Input field sizes
         'digit_input_width': 60,
