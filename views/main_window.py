@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt, QSize
 from .auth_view import AuthenticationContainer
 from . import styles
 from config.screen_config import screen_config
+from utilities.utils import close_application
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -12,9 +13,9 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(styles.AppStyles.WINDOW_MAIN)
 
         # Get the screen dimensions
-        screen_width, screen_height = screen_config.get_screen_dimensions()
+        # screen_width, screen_height = screen_config.get_screen_dimensions()
         # Set the main window size based on the screen dimensions
-        self.setGeometry(100, 100, screen_width // 2, screen_height // 2)
+        # self.setGeometry(100, 100, screen_width // 2, screen_height // 2)
         # self.setFixedSize(window_width, window_height)
         self._setup_ui()
 
@@ -77,6 +78,9 @@ class MainWindow(QMainWindow):
             }
         """)
 
+        # Connect the button's clicked signal to the close method
+        exit_button.clicked.connect(close_application)
+
         top_bar.addWidget(exit_button)
 
         main_layout.addLayout(top_bar)
@@ -99,3 +103,7 @@ class MainWindow(QMainWindow):
         main_layout.addStretch()
         
         self.auth_container.setFocus()
+
+    # def close_application(self):
+    #     # Close the application
+    #     QApplication.quit()

@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QStacked
 from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
 from PyQt5.QtGui import QPixmap, QIcon
 from . import styles
+from utilities.utils import close_application
 
 class POSView(QWidget):
     def __init__(self, user_id, parent=None):
@@ -111,20 +112,23 @@ class POSView(QWidget):
         exit_button.setFlat(True)
 
         # Set the style sheet to remove the background and border
-        # exit_button.setStyleSheet("""
-        #     QPushButton {
-        #         background: transparent;
-        #         border: none;
-        #     }
-        #     QPushButton:hover {
-        #         background: transparent;
-        #         border: none;
-        #     }
-        #     QPushButton:pressed {
-        #         background: transparent;
-        #         border: none;
-        #     }
-        # """)
+        exit_button.setStyleSheet("""
+            QPushButton {
+                background: transparent;
+                border: none;
+            }
+            QPushButton:hover {
+                background: transparent;
+                border: none;
+            }
+            QPushButton:pressed {
+                background: transparent;
+                border: none;
+            }
+        """)
+
+        # Connect the button's clicked signal to the close method
+        exit_button.clicked.connect(close_application)
 
         layout.addWidget(exit_button)
 
