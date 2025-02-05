@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox,
-                             QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter, QToolButton)
+                             QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter, QToolButton, QMenu)
 from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
 from PyQt5.QtGui import QPixmap, QIcon, QPainter, QColor, QFont, QLinearGradient
 from PyQt5.QtSvg import QSvgRenderer
@@ -692,7 +692,61 @@ class POSView(QWidget):
         self.time_label.setText(current.toString("hh:mm AP"))
 
     def on_dots_clicked(self):
-        QMessageBox.information(self, "Settings", "Three dots clicked!")
+        """Handle three dots menu click with various order options"""
+        # Create menu
+        menu = QMenu(self)
+        menu.setStyleSheet("""
+            QMenu {
+                background-color: white;
+                border: 1px solid #DEDEDE;
+                border-radius: 4px;
+                padding: 5px;
+            }
+            QMenu::item {
+                padding: 8px 20px;
+                border-radius: 4px;
+                color: #333;
+            }
+            QMenu::item:selected {
+                background-color: #F0F0F0;
+                color: #2196F3;
+            }
+            QMenu::separator {
+                height: 1px;
+                background: #DEDEDE;
+                margin: 5px 0px;
+            }
+        """)
+
+        # Add Clear Order action
+        clear_action = menu.addAction("Clear Order")
+        clear_action.setIcon(QIcon("assets/images/clear.png"))  # Assuming you have this icon
+        
+        # Show menu at button position
+        action = menu.exec_(self.sender().mapToGlobal(self.sender().rect().bottomLeft()))
+        
+        # Handle menu actions
+        if action == clear_action:
+            self._clear_order()
+
+    def _clear_order(self):
+        """Clear all items from the current order"""
+        # Show confirmation dialog
+        reply = QMessageBox.question(
+            self,
+            'Clear Order',
+            'Are you sure you want to clear the current order?',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            # Clear order items
+            self.order_items = []
+            
+            # Update display
+            self._update_order_display()
+            self._update_totals()
 
 class OrderItem:
     def __init__(self, name, price):
