@@ -139,7 +139,9 @@ class POSStyles:
     SECTION_HEADER = """
         QLabel {
             color: #2c3e50;
-            padding: 10px;
+            padding: 2px;
+            font-weight: bold;
+            font-size: 16px;
         }
     """
     
@@ -174,10 +176,11 @@ class POSStyles:
     
     BOTTOM_BAR_BUTTON = """
         QPushButton {
-            background-color: #34495e;
-            color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 16px;
+            padding: 2px;
+            font-weight: bold;
+            font-size: 14px;
         }
         QPushButton:hover {
             background-color: #435c78;
