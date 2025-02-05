@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QSize
 from .auth_view import AuthenticationContainer
 from . import styles
 from config.screen_config import screen_config
-from utilities.utils import close_application
+from utilities.utils import ApplicationUtils
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -79,7 +79,8 @@ class MainWindow(QMainWindow):
         """)
 
         # Connect the button's clicked signal to the close method
-        exit_button.clicked.connect(close_application)
+        app_utils = ApplicationUtils()
+        exit_button.clicked.connect(app_utils.close_application)
 
         top_bar.addWidget(exit_button)
 
