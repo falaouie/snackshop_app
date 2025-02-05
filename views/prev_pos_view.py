@@ -1,288 +1,309 @@
-def __init__(self, user_id, parent=None, user_data=None):
-        super().__init__()
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QStackedWidget,
+                             QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter)
+from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
+from PyQt5.QtGui import QPixmap, QIcon
+from . import styles
+from utilities.utils import close_application
+
+class POSView(QWidget):
+    def __init__(self, user_id, parent=None):
+        super().__init__(parent)
         self.user_id = user_id
-        self.parent_container = parent
-        self.user_data = user_data
-        self.db = parent.db
-        self.initUI()
-    
-    def initUI(self):
-        # Set window title and maximize
-        self.setWindowTitle('Snack Shop POS')
-        self.setWindowState(Qt.WindowMaximized)
-        
-        # Create central widget and main layout
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        main_layout = QVBoxLayout(central_widget)
-        
-        # Create top bar
-        top_bar = self.create_top_bar()
-        main_layout.addWidget(top_bar)
-        
-        # Create content area
-        content_widget = QWidget()
-        content_layout = QHBoxLayout(content_widget)
-        
-        # Create left panel (Order Details)
-        left_panel = self.create_left_panel()
-        content_layout.addWidget(left_panel, stretch=1)
-        
-        # Create right panel (Menu Items)
-        right_panel = self.create_right_panel()
-        content_layout.addWidget(right_panel, stretch=2)
-        
-        main_layout.addWidget(content_widget)
-        
-        # Create bottom bar
-        bottom_bar = self.create_bottom_bar()
-        main_layout.addWidget(bottom_bar)
-    
-    def create_top_bar(self):
-        top_bar = QFrame()
-        top_bar.setStyleSheet("""
-            QFrame {
-                background-color: white;
-                border-bottom: 1px solid #cccccc;
-            }
-        """)
-        top_bar.setFixedHeight(60)
-        
-        layout = QHBoxLayout(top_bar)
-        
-        # Left side - Employee info
-        left_widget = QWidget()
-        left_layout = QHBoxLayout(left_widget)
-        
-        # Get employee name from database
-        with sqlite3.connect(self.db.db_path) as conn:
-            cursor = conn.cursor()
-            cursor.execute('''
-                SELECT first_name, last_name 
-                FROM emp_employees 
-                WHERE employee_id = ?
-            ''', (self.user_id,))
-            result = cursor.fetchone()
-            if result:
-                employee_name = f'{result[0]} {result[1]}'
-            else:
-                employee_name = f'User {self.user_id}'
+        self._setup_ui()
 
-        # Employee name and control buttons
-        emp_label = QLabel(employee_name)
-        date_label = QLabel(QDate.currentDate().toString('dd-MM-yyyy'))
-        lock_btn = QPushButton('Lock')
-        signout_btn = QPushButton('Sign Out')
-        
-        lock_btn.clicked.connect(self.lock_session)
-        signout_btn.clicked.connect(self.sign_out)
-        
-        left_layout.addWidget(emp_label)
-        left_layout.addWidget(lock_btn)
-        left_layout.addWidget(signout_btn)
-        left_layout.addWidget(date_label)
-        
-        # Right side - Back Office button
-        backoffice_btn = QPushButton('Back Office')
-        backoffice_btn.clicked.connect(self.open_back_office)
-        
-        layout.addWidget(left_widget)
-        layout.addStretch()
-        layout.addWidget(backoffice_btn)
-        
-        return top_bar
-        
-    def open_back_office(self):
-        self.back_office = BackOffice(self.user_data, self)
-        self.back_office.show()
-        self.hide()
-    
-    def lock_session(self):
-        # Open PIN view for the same user
-        if self.parent_container:
-            # Reset authentication container to PIN view
-            self.parent_container.reset_to_pin_view(self.user_id)
-            # Show the main window again
-            self.parent_container.parent().show()
-            # Close the landing page
-            self.close()
-            
-    def sign_out(self):
-        # Return to User ID view
-        if self.parent_container:
-            # Reset authentication container to User ID view
-            self.parent_container.reset_to_user_id_view()
-            # Show the main window again
-            self.parent_container.parent().show()
-            self.close()
+    def _setup_ui(self):
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
-    
+        # Top Bar
+        self._create_top_bar()
+        main_layout.addWidget(self.top_bar)
+
+        # Main Content Area with Splitter
+        content_splitter = QSplitter(Qt.Horizontal)
         
-    def create_left_panel(self):
-        left_panel = QFrame()
-        left_panel.setStyleSheet("""
-            QFrame {
-                background-color: white;
-                border: 1px solid #cccccc;
-                border-radius: 5px;
-            }
-        """)
+        # Left Side - Order Details
+        self.order_widget = self._create_order_widget()
+        content_splitter.addWidget(self.order_widget)
         
-        layout = QVBoxLayout(left_panel)
+        # Right Side - Products
+        self.products_widget = self._create_products_widget()
+        content_splitter.addWidget(self.products_widget)
         
-        # Order header
-        header_widget = QWidget()
-        header_layout = QHBoxLayout(header_widget)
+        main_layout.addWidget(content_splitter)
+
+        # Bottom Bar
+        self._create_bottom_bar()
+        main_layout.addWidget(self.bottom_bar)
+
+    def _create_top_bar(self):
+        self.top_bar = QFrame()
+        self.top_bar.setStyleSheet(styles.POSStyles.TOP_BAR)
+        self.top_bar.setFixedHeight(80)
         
-        order_label = QLabel('Current Order #1234')
-        order_label.setStyleSheet('font-size: 14pt; font-weight: bold;')
+        layout = QHBoxLayout(self.top_bar)
+        layout.setContentsMargins(0, 0, 0, 0) # left, top, right, and bottom
         
-        clear_btn = QPushButton('Clear Order')
-        clear_btn.clicked.connect(self.clear_order)
+        # Info group
+        left_group = QHBoxLayout()
         
-        header_layout.addWidget(order_label)
-        header_layout.addWidget(clear_btn)
+        # Vertical layout for emp_info and time_label
+        vertical_layout = QVBoxLayout()
+        vertical_layout.setContentsMargins(10, 5, 10, 5)  # left, top, right, and bottom
+        vertical_layout.setSpacing(0)  # No space between emp_info and time_label
+
+        # Emp Info
+        emp_info = QLabel(f"Emp ID: {self.user_id}")
+        emp_info.setStyleSheet(styles.POSStyles.TOP_BAR_TEXT)
+        emp_info.setFixedHeight(30)
+        vertical_layout.addWidget(emp_info)
         
-        # Order items table
-        self.order_table = QTableWidget()
-        self.order_table.setColumnCount(4)
-        self.order_table.setHorizontalHeaderLabels(['Item', 'Qty', 'Price', 'Total'])
-        self.order_table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.order_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        # Date/Time
+        self.time_label = QLabel()
+        self.time_label.setStyleSheet(styles.POSStyles.TOP_BAR_TEXT)
+        self.time_label.setFixedHeight(20)
+        vertical_layout.addWidget(self.time_label)  # Add to left_group instead of main layout
         
-        # Order totals
-        totals_widget = QWidget()
-        totals_layout = QGridLayout(totals_widget)
+        # Add the vertical layout to the left_group
+        left_group.addLayout(vertical_layout)
         
-        subtotal_label = QLabel('Subtotal:')
-        tax_label = QLabel('Tax:')
-        total_label = QLabel('Total:')
-        
-        self.subtotal_value = QLabel('$0.00')
-        self.tax_value = QLabel('$0.00')
-        self.total_value = QLabel('$0.00')
-        
-        totals_layout.addWidget(subtotal_label, 0, 0)
-        totals_layout.addWidget(self.subtotal_value, 0, 1)
-        totals_layout.addWidget(tax_label, 1, 0)
-        totals_layout.addWidget(self.tax_value, 1, 1)
-        totals_layout.addWidget(total_label, 2, 0)
-        totals_layout.addWidget(self.total_value, 2, 1)
-        
-        layout.addWidget(header_widget)
-        layout.addWidget(self.order_table)
-        layout.addWidget(totals_widget)
-        
-        return left_panel
-        
-    def create_right_panel(self):
-        right_panel = QFrame()
-        right_panel.setStyleSheet("""
-            QFrame {
-                background-color: white;
-                border: 1px solid #cccccc;
-                border-radius: 5px;
-            }
-        """)
-        
-        layout = QVBoxLayout(right_panel)
-        
-        # Category tabs
-        self.category_tabs = QTabWidget()
-        
-        # Create tabs for each category
-        categories = ['Sandwiches', 'Beverages', 'Snacks', 'Desserts', 'Combos']
-        for category in categories:
-            tab = QWidget()
-            tab_layout = QGridLayout(tab)
-            
-            # Add menu item buttons to grid
-            # This would be populated from database
-            for i in range(12):  # Example with 12 items per category
-                btn = QPushButton(f'{category} Item {i+1}\n$9.99')
-                btn.setMinimumSize(120, 80)
-                btn.clicked.connect(lambda checked, item=f'{category} Item {i+1}': 
-                                  self.add_item_to_order(item))
-                row = i // 4
-                col = i % 4
-                tab_layout.addWidget(btn, row, col)
-            
-            self.category_tabs.addTab(tab, category)
-        
-        layout.addWidget(self.category_tabs)
-        
-        return right_panel
-        
-    def create_bottom_bar(self):
-        bottom_bar = QFrame()
-        bottom_bar.setStyleSheet("""
-            QFrame {
-                background-color: white;
-                border-top: 1px solid #cccccc;
-            }
-        """)
-        bottom_bar.setFixedHeight(60)
-        
-        layout = QHBoxLayout(bottom_bar)
-        
-        # Left side - Order info
-        items_count = QLabel('Items: 0')
-        layout.addWidget(items_count)
-        
+        layout.addLayout(left_group)
         layout.addStretch()
+
+        # Timer setup
+        self.timer = QTimer()
+        self.timer.timeout.connect(self._update_time)
+        self.timer.start(1000)
+        self._update_time()
+
+        # lock
+        lock_label = QLabel()
+        pixmap = QPixmap("assets/images/lock_screen.png")
+        scaled_pixmap = pixmap.scaled(QSize(75, 100), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        lock_label.setPixmap(scaled_pixmap)
+        layout.addWidget(lock_label)
         
-        # Right side - Checkout button
-        checkout_btn = QPushButton('Checkout')
-        checkout_btn.setMinimumSize(120, 40)
-        checkout_btn.setStyleSheet("""
+        # Exit
+        exit_button = QPushButton()
+
+        # Load the pixmap and scale it
+        pixmap = QPixmap("assets/images/exit_app.png")
+        scaled_pixmap = pixmap.scaled(QSize(150, 75), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+        # Set the scaled pixmap as the icon for the button
+        exit_button.setIcon(QIcon(scaled_pixmap))
+        exit_button.setIconSize(scaled_pixmap.size())
+
+        # Make the button flat (no border)
+        exit_button.setFlat(True)
+
+        # Set the style sheet to remove the background and border
+        exit_button.setStyleSheet("""
             QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                font-size: 14pt;
-                border-radius: 5px;
+                background: transparent;
+                border: none;
             }
             QPushButton:hover {
-                background-color: #45a049;
+                background: transparent;
+                border: none;
+            }
+            QPushButton:pressed {
+                background: transparent;
+                border: none;
             }
         """)
-        checkout_btn.clicked.connect(self.show_checkout_dialog)
+
+        # Connect the button's clicked signal to the close method
+        exit_button.clicked.connect(close_application)
+
+        layout.addWidget(exit_button)
+
+    def _update_time(self):
+        current = QDateTime.currentDateTime()
+        date_str = current.toString("dd-MM-yyyy")
+        time_str = current.toString("hh:mm AP")
+        self.time_label.setText(f"{date_str} {time_str}")
+
+    def _create_order_widget(self):
+        order_frame = QFrame()
+        order_frame.setStyleSheet(styles.POSStyles.ORDER_PANEL)
         
-        layout.addWidget(checkout_btn)
+        layout = QVBoxLayout(order_frame)
+        layout.setContentsMargins(0, 0, 0, 0) # left, top, right, and bottom
+        layout.setSpacing(0)
         
-        return bottom_bar
+        # Order Header
+        header = QLabel("ORDER # 1234")
+        header.setStyleSheet(styles.POSStyles.SECTION_HEADER)
+        layout.addWidget(header)
         
-    def add_item_to_order(self, item_name):
-        # Add item to order table
-        row_position = self.order_table.rowCount()
-        self.order_table.insertRow(row_position)
+        # Order Items List with scroll area
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setStyleSheet(styles.POSStyles.SCROLL_AREA)
         
-        self.order_table.setItem(row_position, 0, QTableWidgetItem(item_name))
-        self.order_table.setItem(row_position, 1, QTableWidgetItem('1'))
-        self.order_table.setItem(row_position, 2, QTableWidgetItem('$9.99'))
-        self.order_table.setItem(row_position, 3, QTableWidgetItem('$9.99'))
+        order_list = QWidget()
+        order_list.setStyleSheet("background: white;")
+        scroll_area.setWidget(order_list)
+        layout.addWidget(scroll_area)
         
-        self.update_totals()
+        # Order Summary
+        summary_frame = QFrame()
+        summary_frame.setStyleSheet(styles.POSStyles.SUMMARY_PANEL)
+        summary_layout = QVBoxLayout(summary_frame)
+        summary_layout.setSpacing(10)
         
-    def update_totals(self):
-        # Calculate totals based on order items
-        subtotal = 0
-        for row in range(self.order_table.rowCount()):
-            total_str = self.order_table.item(row, 3).text()
-            total = float(total_str.replace('$', ''))
-            subtotal += total
+        # Add subtotal, tax, total with consistent alignment
+        for label, amount in [("Subtotal", "$0.00"), ("Tax (5%)", "$0.00"), ("Total", "$0.00")]:
+            row = QHBoxLayout()
+            row.setContentsMargins(10, 5, 10, 5) # left, top, right, and bottom
+            label_widget = QLabel(label)
+            amount_widget = QLabel(amount)
+            amount_widget.setAlignment(Qt.AlignRight)
+            row.addWidget(label_widget)
+            row.addStretch()
+            row.addWidget(amount_widget)
+            summary_layout.addLayout(row)
         
-        tax = subtotal * 0.08  # 8% tax rate
-        total = subtotal + tax
+        layout.addWidget(summary_frame)
         
-        self.subtotal_value.setText(f'${subtotal:.2f}')
-        self.tax_value.setText(f'${tax:.2f}')
-        self.total_value.setText(f'${total:.2f}')
+        return order_frame
+
+    def _create_products_widget(self):
+        products_frame = QFrame()
+        products_frame.setStyleSheet(styles.POSStyles.PRODUCTS_PANEL)
         
-    def clear_order(self):
-        self.order_table.setRowCount(0)
-        self.update_totals()
+        self.products_layout = QVBoxLayout(products_frame)
+        self.products_layout.setSpacing(0)
         
-    def show_checkout_dialog(self):
-        # Show payment dialog
-        # This would be implemented as a separate class
-        pass
+        self.stacked_widget = QStackedWidget()
+        
+        # Categories page
+        categories_page = QWidget()
+        categories_layout = QVBoxLayout(categories_page)
+        categories_layout.setSpacing(0)
+        categories_layout.setContentsMargins(0, 0, 0, 0)
+        
+        
+        categories_label = QLabel()
+        categories_label.setStyleSheet(styles.POSStyles.SECTION_HEADER)
+
+        # Categories grid
+        categories_grid = QGridLayout()
+        categories_grid.setSpacing(10)
+        categories_grid.setContentsMargins(2, 2, 5, 10) # left, top, right, and bottom
+        
+        categories = ["Sandwiches", "Snacks", "Beverages", "Desserts"]
+        position = 0
+        
+        # Add category buttons
+        for category in categories:
+            btn = QPushButton(category)
+            btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
+            btn.setFixedSize(100, 50)
+            btn.clicked.connect(lambda checked, c=category: self._show_category_items(c))
+            categories_grid.addWidget(btn, position // 4, position % 4)
+            position += 1
+        
+        # Add empty buttons to fill grid (30 total slots)
+        while position < 24:  # 6 rows of 5
+            btn = QPushButton()
+            btn.setEnabled(False)
+            btn.setFixedSize(100, 50)
+            btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON_DISABLED)
+            categories_grid.addWidget(btn, position // 4, position % 4)
+            position += 1
+        
+        categories_layout.addLayout(categories_grid)
+        categories_layout.addStretch()
+        # Items pages
+        self.items_pages = {}
+        for category in categories:
+            page = self._create_items_page(category)
+            self.items_pages[category] = page
+        
+        self.stacked_widget.addWidget(categories_page)
+        for page in self.items_pages.values():
+            self.stacked_widget.addWidget(page)
+        
+        self.products_layout.addWidget(self.stacked_widget)
+        return products_frame
+
+    def _create_items_page(self, category):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setSpacing(10)
+        
+        # Back button
+        back_btn = QPushButton("BACK")
+        back_btn.setFixedSize(100, 50)
+        back_btn.setStyleSheet(styles.POSStyles.BACK_BUTTON)
+        back_btn.clicked.connect(self._show_categories)
+        layout.addWidget(back_btn)
+        
+        # Items grid
+        items_grid = QGridLayout()
+        items_grid.setSpacing(10)
+        
+        # Sample items
+        items = {
+            "Sandwiches": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese", "Vegan Sandwich"],
+            "Snacks": ["Chips", "Popcorn", "Nuts", "Pretzels"],
+            "Beverages": ["Coffee", "Tea", "Soda", "Soda Diet", "Lemonade", "Water"],
+            "Desserts": ["Cookies", "Brownies", "Muffins", "Fruit Cup"]
+        }
+        
+        position = 0
+        for item in items[category]:
+            btn = QPushButton(item)
+            btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
+            btn.setFixedSize(100, 50)
+            items_grid.addWidget(btn, position // 3, position % 3)
+            position += 1
+        
+        layout.addLayout(items_grid)
+        layout.addStretch()
+        return page
+    
+    def _show_category_items(self, category):
+        self.stacked_widget.setCurrentWidget(self.items_pages[category])
+
+    def _show_categories(self):
+        self.stacked_widget.setCurrentIndex(0)
+
+    def _create_bottom_bar(self):
+        self.bottom_bar = QFrame()
+        self.bottom_bar.setStyleSheet(styles.POSStyles.BOTTOM_BAR)
+        # self.bottom_bar.setFixedHeight(60)
+        
+        layout = QHBoxLayout(self.bottom_bar)
+        layout.setContentsMargins(10, 5, 10, 5)
+        
+        # Transaction Controls
+        transaction_buttons = ["New Order", "Hold", "Void", "Discount"]
+        for btn_text in transaction_buttons:
+            btn = QPushButton(btn_text)
+            btn.setStyleSheet(styles.POSStyles.BOTTOM_BAR_BUTTON)
+            # btn.setFixedSize(100, 40)
+            layout.addWidget(btn)
+        
+        layout.addStretch()
+        
+        # Payment Button
+        pay_btn = QPushButton("Payment")
+        pay_btn.setStyleSheet(styles.POSStyles.PAYMENT_BUTTON)
+        # pay_btn.setFixedSize(120, 40)
+        layout.addWidget(pay_btn)
+
+    def _populate_products_grid(self, products):
+        # Clear existing products
+        for i in reversed(range(self.products_widget.layout().count())): 
+            self.products_widget.layout().itemAt(i).widget().deleteLater()
+        
+        # Add new products
+        for i, product in enumerate(products):
+            btn = QPushButton(product)
+            btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
+            # btn.setFixedSize(150, 100)
+            self.products_widget.layout().addWidget(btn, i//3, i%3)

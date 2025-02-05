@@ -9,8 +9,6 @@ class POSView(QWidget):
     def __init__(self, user_id, parent=None):
         super().__init__(parent)
         self.user_id = user_id
-        # self.setWindowTitle(f"Snack Shop POS - Cashier: {self.user_id} - {QDateTime.currentDateTime().toString('dd-MM-yyyy hh:mm:ss')}")
-        # self.setWindowTitle("Snack Shop POS")
         self._setup_ui()
 
     def _setup_ui(self):
@@ -25,20 +23,13 @@ class POSView(QWidget):
         # Main Content Area with Splitter
         content_splitter = QSplitter(Qt.Horizontal)
         
-        # Left Side - Order Details (30%)
+        # Left Side - Order Details
         self.order_widget = self._create_order_widget()
         content_splitter.addWidget(self.order_widget)
         
-        # Middle - Numbers Section (5%)
-        # self.numbers_widget = self._create_numbers_widget()
-        # content_splitter.addWidget(self.numbers_widget)
-        
-        # Right Side - Products (65%)
+        # Right Side - Products
         self.products_widget = self._create_products_widget()
         content_splitter.addWidget(self.products_widget)
-        
-        # Set split proportions (30:5:65)
-        # content_splitter.setSizes([300, 50, 650])
         
         main_layout.addWidget(content_splitter)
 
@@ -54,43 +45,37 @@ class POSView(QWidget):
         layout = QHBoxLayout(self.top_bar)
         layout.setContentsMargins(0, 0, 0, 0) # left, top, right, and bottom
         
-        # Logo and Info group
+        # Info group
         left_group = QHBoxLayout()
         
-        # Logo
-        # logo_label = QLabel()
-        # pixmap = QPixmap("assets/images/silver_system_logo.png")
-        # scaled_pixmap = pixmap.scaled(QSize(150, 100), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        # logo_label.setPixmap(scaled_pixmap)
-        # left_group.addWidget(logo_label)
-        
+        # Vertical layout for emp_info and time_label
+        vertical_layout = QVBoxLayout()
+        vertical_layout.setContentsMargins(10, 5, 10, 5)  # left, top, right, and bottom
+        vertical_layout.setSpacing(0)  # No space between emp_info and time_label
+
         # Emp Info
-        Emp_info = QLabel(f"Emp ID: {self.user_id}")
-        Emp_info.setStyleSheet(styles.POSStyles.TOP_BAR_TEXT)
-        Emp_info.setContentsMargins(10, 5, 10, 5) # left, top, right, and bottom
-        Emp_info.setFixedHeight(20)
-        left_group.addWidget(Emp_info)
+        emp_info = QLabel(f"Emp ID: {self.user_id}")
+        emp_info.setStyleSheet(styles.POSStyles.TOP_BAR_TEXT)
+        emp_info.setFixedHeight(30)
+        vertical_layout.addWidget(emp_info)
         
         # Date/Time
         self.time_label = QLabel()
         self.time_label.setStyleSheet(styles.POSStyles.TOP_BAR_TEXT)
-        left_group.addWidget(self.time_label)  # Add to left_group instead of main layout
+        self.time_label.setFixedHeight(20)
+        vertical_layout.addWidget(self.time_label)  # Add to left_group instead of main layout
         
+        # Add the vertical layout to the left_group
+        left_group.addLayout(vertical_layout)
+        
+        layout.addLayout(left_group)
+        layout.addStretch()
+
         # Timer setup
         self.timer = QTimer()
         self.timer.timeout.connect(self._update_time)
         self.timer.start(1000)
         self._update_time()
-        
-        layout.addLayout(left_group)
-        layout.addStretch()
-        
-        # Right-side buttons
-        # for btn_text in ["Customers", "Products"]:
-        #     btn = QPushButton(btn_text)
-        #     btn.setStyleSheet(styles.POSStyles.TOP_BAR_BUTTON)
-        #     btn.setFixedSize(100, 50)
-        #     layout.addWidget(btn)
 
         # lock
         lock_label = QLabel()
@@ -134,24 +119,19 @@ class POSView(QWidget):
 
         layout.addWidget(exit_button)
 
-    # def _update_window_title(self):
-    #     if self.window():  # Check if we have a parent window
-    #         current_time = QDateTime.currentDateTime().toString('dd-MM-yyyy hh:mm:ss')
-    #         title = f"Snack Shop POS - Cashier: {self.user_id} - {current_time}"
-    #         self.window().setWindowTitle(title)
-
     def _update_time(self):
         current = QDateTime.currentDateTime()
         date_str = current.toString("dd-MM-yyyy")
-        time_str = current.toString("hh:mm:ss AP")
+        time_str = current.toString("hh:mm AP")
         self.time_label.setText(f"{date_str} {time_str}")
 
     def _create_order_widget(self):
         order_frame = QFrame()
         order_frame.setStyleSheet(styles.POSStyles.ORDER_PANEL)
-        
+        order_frame.setFixedSize(300, 450)
+
         layout = QVBoxLayout(order_frame)
-        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setContentsMargins(0, 0, 0, 0) # left, top, right, and bottom
         layout.setSpacing(0)
         
         # Order Header
@@ -178,170 +158,124 @@ class POSView(QWidget):
         # Add subtotal, tax, total with consistent alignment
         for label, amount in [("Subtotal", "$0.00"), ("Tax (5%)", "$0.00"), ("Total", "$0.00")]:
             row = QHBoxLayout()
-            row.setContentsMargins(10, 5, 10, 5)
+            row.setContentsMargins(10, 5, 10, 5) # left, top, right, and bottom
             label_widget = QLabel(label)
+            label_widget.setAlignment(Qt.AlignRight)
             amount_widget = QLabel(amount)
             amount_widget.setAlignment(Qt.AlignRight)
+            # row.addStretch()
             row.addWidget(label_widget)
-            row.addStretch()
+            
             row.addWidget(amount_widget)
             summary_layout.addLayout(row)
         
         layout.addWidget(summary_frame)
         
         return order_frame
-    
-    # def _create_numbers_widget(self):
-    #     numbers_frame = QFrame()
-    #     numbers_frame.setStyleSheet(styles.POSStyles.NUMBERS_PANEL)
-        
-    #     layout = QVBoxLayout(numbers_frame)
-    #     layout.setContentsMargins(5, 10, 5, 10)
-        
-    #     # Add stretch to push keypad to bottom
-    #     layout.addStretch()
-        
-    #     # Numbers grid for 1-9
-    #     grid = QGridLayout()
-    #     grid.setSpacing(5)
-        
-    #     # Add number buttons 1-9
-    #     for i in range(9):
-    #         row = i // 3
-    #         col = i % 3
-    #         btn = QPushButton(str(i + 1))
-    #         btn.setFixedSize(40, 40)
-    #         btn.setStyleSheet(styles.POSStyles.NUMBER_BUTTON)
-    #         grid.addWidget(btn, row, col)
-        
-    #     layout.addLayout(grid)
-        
-    #     # Bottom row with arrows and 0
-    #     bottom_row = QHBoxLayout()
-    #     bottom_row.setSpacing(5)
-        
-    #     # Down arrow, 0, Up arrow
-    #     btn_down = QPushButton("▼")
-    #     btn_0 = QPushButton("0")
-    #     btn_up = QPushButton("▲")
-        
-    #     for btn in [btn_down, btn_0, btn_up]:
-    #         btn.setFixedSize(40, 40)
-    #         btn.setStyleSheet(styles.POSStyles.NUMBER_BUTTON)
-    #         bottom_row.addWidget(btn)
-        
-    #     layout.addLayout(bottom_row)
-    #     return numbers_frame
 
     def _create_products_widget(self):
         products_frame = QFrame()
         products_frame.setStyleSheet(styles.POSStyles.PRODUCTS_PANEL)
         
-        self.products_layout = QVBoxLayout(products_frame)
-        # self.products_layout.setContentsMargins(10, 10, 10, 10)
-        self.products_layout.setSpacing(0)
+        # Create main horizontal splitter
+        splitter = QSplitter(Qt.Horizontal)
         
-        self.stacked_widget = QStackedWidget()
+        # Left side - Products area with scroll
+        products_scroll = QScrollArea()
+        products_scroll.setWidgetResizable(True)
+        products_scroll.setStyleSheet(styles.POSStyles.SCROLL_AREA)
         
-        # Categories page
-        categories_page = QWidget()
-        categories_layout = QVBoxLayout(categories_page)
-        categories_layout.setSpacing(0)
-        categories_layout.setContentsMargins(0, 0, 0, 0)
+        products_container = QWidget()
+        self.products_grid = QGridLayout(products_container)
+        self.products_grid.setSpacing(10)
+        self.products_grid.setContentsMargins(10, 10, 10, 10)
+        products_scroll.setWidget(products_container)
         
+        # Right side - Categories
+        categories_widget = QWidget()
+        categories_layout = QVBoxLayout(categories_widget)
+        categories_layout.setSpacing(10)
+        categories_layout.setContentsMargins(10, 10, 10, 10)
         
-        # Categories header
-        cat_header = QFrame()
-        # cat_header.setStyleSheet(styles.POSStyles.HEADER_FRAME)
-        # cat_header.setFixedHeight(60)
-        cat_header_layout = QVBoxLayout(cat_header)
-        # cat_header_layout.setContentsMargins(10, 5, 10, 5)
-        
-        categories_label = QLabel()
-        categories_label.setStyleSheet(styles.POSStyles.SECTION_HEADER)
-        cat_header_layout.addWidget(categories_label)
-        
-        categories_layout.addWidget(cat_header)
-        # categories_layout.addStretch()
-        # Categories grid
-        categories_grid = QGridLayout()
-        categories_grid.setSpacing(10)
-        categories_grid.setContentsMargins(10, 10, 10, 10)
-        
-        categories = ["Sandwiches", "Snacks", "Beverages", "Desserts"]
-        position = 0
-        
+
         # Add category buttons
+        self.category_buttons = {}
+        categories = ["Freq Items", "Sandwiches", "Snacks", "Beverages", "Desserts"]
+        self.selected_category = None
+        
         for category in categories:
             btn = QPushButton(category)
             btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
-            # btn.setFixedSize(150, 100)
+            btn.setFixedHeight(40)
             btn.clicked.connect(lambda checked, c=category: self._show_category_items(c))
-            categories_grid.addWidget(btn, position // 5, position % 5)
-            position += 1
+            categories_layout.addWidget(btn)
+            self.category_buttons[category] = btn
         
-        # Add empty buttons to fill grid (30 total slots)
-        while position < 25:  # 6 rows of 5
-            btn = QPushButton()
-            btn.setEnabled(False)
-            # btn.setFixedSize(150, 100)
-            btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON_DISABLED)
-            categories_grid.addWidget(btn, position // 5, position % 5)
-            position += 1
-        
-        categories_layout.addLayout(categories_grid)
         categories_layout.addStretch()
-        # Items pages
-        self.items_pages = {}
-        for category in categories:
-            page = self._create_items_page(category)
-            self.items_pages[category] = page
         
-        self.stacked_widget.addWidget(categories_page)
-        for page in self.items_pages.values():
-            self.stacked_widget.addWidget(page)
+        # Add both sides to splitter
+        splitter.addWidget(products_scroll)
+        splitter.addWidget(categories_widget)
         
-        self.products_layout.addWidget(self.stacked_widget)
+        # Set initial splitter sizes (70% products, 30% categories)
+        splitter.setSizes([700, 300])
+        
+        # Add splitter to main layout
+        main_layout = QVBoxLayout(products_frame)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(splitter)
+        
+        # Select first category by default
+        QTimer.singleShot(0, lambda: self._show_category_items(categories[0]))
+        
         return products_frame
-
-    def _create_items_page(self, category):
-        page = QWidget()
-        layout = QVBoxLayout(page)
-        layout.setSpacing(10)
+    
+    def _show_category_items(self, category):
+    # Update button styles
+        if self.selected_category:
+            self.category_buttons[self.selected_category].setStyleSheet(
+                styles.POSStyles.PRODUCT_BUTTON
+            )
         
-        # Back button
-        back_btn = QPushButton("BACK")
-        # back_btn.setFixedSize(100, 40)
-        back_btn.setStyleSheet(styles.POSStyles.BACK_BUTTON)
-        back_btn.clicked.connect(self._show_categories)
-        layout.addWidget(back_btn)
+        self.category_buttons[category].setStyleSheet(
+            styles.POSStyles.CATEGORY_BUTTON_SELECTED
+        )
+        self.selected_category = category
         
-        # Items grid
-        items_grid = QGridLayout()
-        items_grid.setSpacing(10)
+        # Clear existing products
+        for i in reversed(range(self.products_grid.count())):
+            widget = self.products_grid.itemAt(i).widget()
+            if widget:
+                widget.deleteLater()
         
-        # Sample items
+        # Sample items (this would typically come from a database)
         items = {
-            "Sandwiches": ["Chicken Club", "BLT", "Tuna", "Veggie"],
+            "Freq Items": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese", "Vegan Sandwich"],
+            "Sandwiches": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", 
+                        "Steak & Cheese", "Vegan Sandwich"],
             "Snacks": ["Chips", "Popcorn", "Nuts", "Pretzels"],
-            "Beverages": ["Coffee", "Tea", "Soda", "Water"],
+            "Beverages": ["Coffee", "Tea", "Soda", "Soda Diet", "Lemonade", "Water"],
             "Desserts": ["Cookies", "Brownies", "Muffins", "Fruit Cup"]
         }
         
-        position = 0
-        for item in items[category]:
+        # Add new products in 3-column grid
+        for i, item in enumerate(items[category]):
             btn = QPushButton(item)
             btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
-            # btn.setFixedSize(150, 100)
-            items_grid.addWidget(btn, position // 5, position % 5)
-            position += 1
+            btn.setFixedSize(100, 100)
+            row = i // 3
+            col = i % 3
+            self.products_grid.addWidget(btn, row, col)
         
-        layout.addLayout(items_grid)
-        layout.addStretch()
-        return page
-    
-    def _show_category_items(self, category):
-        self.stacked_widget.setCurrentWidget(self.items_pages[category])
+        # Add empty grid items to maintain layout
+        remaining_slots = 3 - (len(items[category]) % 3)
+        if remaining_slots < 3:
+            start_pos = len(items[category])
+            for i in range(remaining_slots):
+                empty_widget = QWidget()
+                row = start_pos // 3
+                col = (start_pos + i) % 3
+                self.products_grid.addWidget(empty_widget, row, col)
 
     def _show_categories(self):
         self.stacked_widget.setCurrentIndex(0)

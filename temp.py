@@ -1,63 +1,57 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel
-from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QLabel
+from PyQt5.QtCore import QTimer
 
-class POSView(QWidget):
-    def __init__(self, user_id, parent=None):
-        super().__init__()
-        self.user_id = user_id
-        self.setWindowTitle("Snack Shop POS")
-        self.setGeometry(100, 100, 800, 600)  # Adjust window size
+class YourClass:
+    def __init__(self):
+        self.top_bar = QFrame()
+        self.top_bar.setStyleSheet(styles.POSStyles.TOP_BAR)
+        self.top_bar.setFixedHeight(80)
         
-        self.initUI()
+        layout = QHBoxLayout(self.top_bar)
+        layout.setContentsMargins(0, 0, 0, 0)  # left, top, right, and bottom
+        
+        # Logo and Info group
+        left_group = QHBoxLayout()
+        
+        # Logo
+        # logo_label = QLabel()
+        # pixmap = QPixmap("assets/images/silver_system_logo.png")
+        # scaled_pixmap = pixmap.scaled(QSize(150, 100), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # logo_label.setPixmap(scaled_pixmap)
+        # left_group.addWidget(logo_label)
+        
+        # Vertical layout for emp_info and time_label
+        vertical_layout = QVBoxLayout()
+        vertical_layout.setContentsMargins(0, 0, 0, 0)  # left, top, right, and bottom
+        vertical_layout.setSpacing(0)  # No space between emp_info and time_label
+        
+        # Emp Info
+        emp_info = QLabel(f"Emp ID: {self.user_id}")
+        emp_info.setStyleSheet(styles.POSStyles.TOP_BAR_TEXT)
+        emp_info.setContentsMargins(10, 5, 10, 5)  # left, top, right, and bottom
+        emp_info.setFixedHeight(20)
+        vertical_layout.addWidget(emp_info)
+        
+        # Date/Time
+        self.time_label = QLabel()
+        self.time_label.setStyleSheet(styles.POSStyles.TOP_BAR_TEXT)
+        self.time_label.setContentsMargins(10, 5, 10, 5)  # left, top, right, and bottom
+        self.time_label.setFixedHeight(20)
+        vertical_layout.addWidget(self.time_label)
+        
+        # Add the vertical layout to the left_group
+        left_group.addLayout(vertical_layout)
+        
+        # Add left_group to the main layout
+        layout.addLayout(left_group)
+        
+        # Timer setup
+        self.timer = QTimer()
+        self.timer.timeout.connect(self._update_time)
+        self.timer.start(1000)
+        self._update_time()
     
-    def initUI(self):
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        
-        main_layout = QVBoxLayout()
-        
-        # Top Bar
-        top_bar = QLabel("Top Bar (Fixed Height 60)")
-        top_bar.setFixedHeight(60)
-        top_bar.setStyleSheet("background-color: #E3F2FD; font-size: 16px; padding: 10px; font-weight: bold;")
-        top_bar.setAlignment(Qt.AlignCenter)
-        
-        # Middle Layout (Left + Center)
-        middle_layout = QHBoxLayout()
-        
-        left_section = QLabel("Left Section (Fixed W: 240, H: 420)")
-        left_section.setFixedSize(240, 420)
-        left_section.setStyleSheet("background-color: #F5F5F5; font-size: 14px; padding: 10px;")
-        left_section.setAlignment(Qt.AlignCenter)
-        
-        center_section = QLabel("Center Frame (Fixed Height 420)")
-        center_section.setFixedHeight(420)
-        center_section.setStyleSheet("background-color: #FFFDE7; font-size: 14px; padding: 10px;")
-        center_section.setAlignment(Qt.AlignCenter)
-        
-        middle_layout.addWidget(left_section)
-        middle_layout.addWidget(center_section)
-        
-        # Bottom Layout (Left + Right)
-        bottom_layout = QHBoxLayout()
-        
-        bottom_left = QLabel("Bottom Left (Fixed Width: 240)")
-        bottom_left.setFixedWidth(240)
-        bottom_left.setStyleSheet("background-color: #F1F1F1; font-size: 14px; padding: 10px;")
-        bottom_left.setAlignment(Qt.AlignCenter)
-        
-        bottom_right = QLabel("Bottom Right (Fixed Height 120)")
-        bottom_right.setFixedHeight(120)
-        bottom_right.setStyleSheet("background-color: #FFFFFF; font-size: 14px; padding: 10px; border-top: 1px solid #DDDDDD;")
-        bottom_right.setAlignment(Qt.AlignCenter)
-        
-        bottom_layout.addWidget(bottom_left)
-        bottom_layout.addWidget(bottom_right)
-        
-        # Add widgets to main layout
-        main_layout.addWidget(top_bar)
-        main_layout.addLayout(middle_layout)
-        main_layout.addLayout(bottom_layout)
-        
-        central_widget.setLayout(main_layout)
+    def _update_time(self):
+        # Update the time_label with the current time
+        current_time = QDateTime.currentDateTime().toString("yyyy-MM-dd hh:mm:ss")
+        self.time_label.setText(current_time)

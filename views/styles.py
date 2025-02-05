@@ -92,7 +92,6 @@ class POSStyles:
     TOP_BAR_TEXT = """
         QLabel {
             color: black;
-            background-color: yellow;
         }
     """
     
@@ -211,7 +210,7 @@ class POSStyles:
         QPushButton {
             background-color: white;
             border: 1px solid #dcdde1;
-            border-radius: 4px;
+            border-radius: 10px;
             text-align: center;
         }
         QPushButton:hover {
@@ -248,19 +247,17 @@ class POSStyles:
         QPushButton {
             background-color: #f8f9fa;
             border: 1px solid #e9ecef;
-            border-radius: 4px;
+            border-radius: 10px;
         }
     """
     
     BACK_BUTTON = """
         QPushButton {
-            background-color: #34495e;
+            background-color: black;
             color: white;
-            border: none;
-            border-radius: 4px;
-        }
-        QPushButton:hover {
-            background-color: #2c3e50;
+            border: 1px solid #dcdde1;
+            border-radius: 10px;
+            text-align: center;
         }
     """
 
@@ -270,3 +267,18 @@ class POSStyles:
             border-bottom: 1px solid #dcdde1;
         }
     """
+
+    CATEGORY_BUTTON_SELECTED = """
+    QPushButton {
+        background-color: #2980b9;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    QPushButton:hover {
+        background-color: #3498db;
+    }
+"""
