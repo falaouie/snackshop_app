@@ -46,6 +46,9 @@ class POSView(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 10)  # Added bottom margin
         main_layout.setSpacing(0)
 
+        # Initialize selected item tracking
+        self.selected_item = None
+        
         # Top Bar
         self._create_top_bar()
         main_layout.addWidget(self.top_bar)
@@ -372,10 +375,17 @@ class POSView(QWidget):
         
         # Create item row
         item_widget = QFrame()
+        item_widget.setProperty('selected', False)  # Track selection state
         item_widget.setStyleSheet("""
             QFrame {
                 background: white;
                 border-bottom: 1px solid #EEEEEE;
+                padding: 2px;
+            }
+            QFrame[selected="true"] {
+                background: #E3F2FD;
+                border: 1px solid #2196F3;
+                border-radius: 4px;
             }
             QLabel {
                 color: #333;
@@ -402,8 +412,32 @@ class POSView(QWidget):
         item_layout.addWidget(name_label)
         item_layout.addWidget(total_label)
         
+        # Store reference to the order item
+        item_widget.order_item = item
+        
+        # Add click handling
+        item_widget.mousePressEvent = lambda event, widget=item_widget: self._on_item_clicked(widget)
+        
         self.order_list_layout.addWidget(item_widget)
         self.order_list_layout.addStretch()
+
+    def _on_item_clicked(self, clicked_widget):
+        """Handle item selection"""
+        # Deselect all other items
+        for i in range(self.order_list_layout.count()):
+            widget = self.order_list_layout.itemAt(i).widget()
+            if widget and isinstance(widget, QFrame):
+                widget.setProperty('selected', False)
+                widget.style().unpolish(widget)
+                widget.style().polish(widget)
+        
+        # Select clicked item
+        clicked_widget.setProperty('selected', True)
+        clicked_widget.style().unpolish(clicked_widget)
+        clicked_widget.style().polish(clicked_widget)
+        
+        # Store reference to selected item
+        self.selected_item = clicked_widget
 
     def _update_order_display(self):
         """Update the entire order display"""
@@ -661,6 +695,11 @@ class POSView(QWidget):
                 }}
             """)
             btn.setFixedSize(70, 60)
+            
+            # Connect void functionality to the Void button
+            if btn_text == "Void":
+                btn.clicked.connect(self._void_selected_item)
+                
             layout.addWidget(btn)
         
         layout.addStretch()
@@ -743,6 +782,19 @@ class POSView(QWidget):
         if reply == QMessageBox.Yes:
             # Clear order items
             self.order_items = []
+            
+            # Update display
+            self._update_order_display()
+            self._update_totals()
+
+    def _void_selected_item(self):
+        """Remove the selected item from the order"""
+        if self.selected_item and hasattr(self.selected_item, 'order_item'):
+            # Remove item from order items list
+            self.order_items.remove(self.selected_item.order_item)
+            
+            # Clear selection
+            self.selected_item = None
             
             # Update display
             self._update_order_display()
