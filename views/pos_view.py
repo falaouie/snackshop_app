@@ -43,7 +43,7 @@ class POSView(QWidget):
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setContentsMargins(0, 0, 0, 10)  # Added bottom margin
         main_layout.setSpacing(0)
 
         # Top Bar
@@ -68,11 +68,12 @@ class POSView(QWidget):
         self.products_widget = self._create_products_widget()
         content_splitter.addWidget(self.products_widget)
         
-        main_layout.addWidget(content_splitter)
+        # Add splitter to main layout with spacing at the bottom
+        main_layout.addWidget(content_splitter, 1)
 
-        # Bottom Bar
+        # Create and add bottom bar with proper spacing
         self._create_bottom_bar()
-        main_layout.addWidget(self.bottom_bar)
+        main_layout.addWidget(self.bottom_bar, 0)
 
     def _create_top_bar(self):
         """Create modern top bar with distinct zones"""
@@ -614,27 +615,31 @@ class POSView(QWidget):
                 self.products_grid.addWidget(empty_widget, row, col)
 
     def _create_bottom_bar(self):
-        """Create bottom action bar with modern styling"""
+        """Create bottom action bar with modern styling and proper margins"""
         self.bottom_bar = QFrame()
+        self.bottom_bar.setFixedHeight(80)
         self.bottom_bar.setStyleSheet("""
             QFrame {
                 background: #F8F9FA;
                 border-top: 1px solid #DEDEDE;
+                min-height: 80px;
+                max-height: 80px;
+                margin-bottom: 10px;  /* Add margin to bottom */
             }
         """)
         
         layout = QHBoxLayout(self.bottom_bar)
-        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setContentsMargins(10, 5, 10, 10)  # Increased bottom margin to 10
         layout.setSpacing(10)
         
         # Transaction buttons with modern styling
         transaction_buttons = {
-            "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},      # Warning yellow
-            "Void": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},      # Danger red
-            "Discount": {"bg": "#4CAF50", "hover": "#43A047", "text": "#FFFFFF"},  # Success green
-            "BLANK1": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},    # Gray
-            "BLANK2": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},    # Gray
-            "BLANK3": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}     # Gray
+            "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
+            "Void": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
+            "Discount": {"bg": "#4CAF50", "hover": "#43A047", "text": "#FFFFFF"},
+            "BLANK1": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+            "BLANK2": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+            "BLANK3": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
         }
 
         for btn_text, colors in transaction_buttons.items():
@@ -648,12 +653,14 @@ class POSView(QWidget):
                     padding: 8px;
                     font-size: 13px;
                     font-weight: 500;
+                    min-height: 60px;
+                    max-height: 60px;
                 }}
                 QPushButton:hover {{
                     background-color: {colors['hover']};
                 }}
             """)
-            btn.setFixedSize(70, 70)
+            btn.setFixedSize(70, 60)
             layout.addWidget(btn)
         
         layout.addStretch()
@@ -669,12 +676,14 @@ class POSView(QWidget):
                 padding: 8px 20px;
                 font-size: 14px;
                 font-weight: 500;
+                min-height: 60px;
+                max-height: 60px;
             }
             QPushButton:hover {
                 background-color: #1E88E5;
             }
         """)
-        pay_btn.setFixedSize(120, 70)
+        pay_btn.setFixedSize(120, 60)
         layout.addWidget(pay_btn)
 
     def _update_time(self):
