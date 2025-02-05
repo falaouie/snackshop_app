@@ -759,6 +759,7 @@ class POSView(QWidget):
 
         # Add Clear Order action
         clear_action = menu.addAction("Clear Order")
+        clear_item = menu.addAction("Clear Item")
         clear_action.setIcon(QIcon("assets/images/clear.png"))  # Assuming you have this icon
         
         # Show menu at button position
@@ -767,6 +768,9 @@ class POSView(QWidget):
         # Handle menu actions
         if action == clear_action:
             self._clear_order()
+        
+        if action == clear_item:
+            self._void_selected_item()
 
     def _clear_order(self):
         """Clear all items from the current order"""
