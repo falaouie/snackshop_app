@@ -1,16 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <g fill="#EF5350">
+  <g fill="#EF5350" transform="translate(0, -5)">
     <!-- Monitor frame with rounded corners -->
     <path d="M10 15 h80 q5 0 5 5 v50 q0 5 -5 5 h-80 q-5 0 -5 -5 v-50 q0 -5 5 -5 z"/>
     
     <!-- Inner white rectangle -->
     <path fill="white" d="M15 20 h70 v45 h-70 z"/>
-    
-    <!-- Corner brackets - corrected right side to point inward -->
-    <path d="M20 25 h10 v2 h-8 v8 h-2 z"/>
-    <path d="M80 25 h-10 v2 h8 v8 h2 z"/>
-    <path d="M20 58 h10 v-2 h-8 v-8 h-2 z"/>
-    <path d="M80 58 h-10 v-2 h8 v-8 h2 z"/>
     
     <!-- Lock symbol -->
     <path d="M40 35 h20 v5 q0 -10 -10 -10 t-10 10 z"/>
@@ -21,4 +15,16 @@
     <path d="M40 75 h20 l5 10 h-30 z"/>
     <rect x="35" y="85" width="30" height="5" rx="2"/>
   </g>
+  
+  <!-- Lock Screen Text with more space -->
+  <text 
+    x="50" 
+    y="100" 
+    font-family="sans-serif" 
+    font-size="16" 
+    fill="black" 
+    text-anchor="middle" 
+    dominant-baseline="middle">
+    Lock Screen
+  </text>
 </svg>

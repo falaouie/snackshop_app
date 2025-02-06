@@ -150,13 +150,13 @@ class POSView(QWidget):
         # Lock button with modern style
         lock_btn = QPushButton()
         renderer = QSvgRenderer("assets/images/lock_screen.svg")
-        pixmap = QPixmap(40, 40)
+        pixmap = QPixmap(55, 55)
         pixmap.fill(Qt.transparent)
         painter = QPainter(pixmap)
         renderer.render(painter)
         painter.end()
         lock_btn.setIcon(QIcon(pixmap))
-        lock_btn.setIconSize(QSize(40, 40))
+        lock_btn.setIconSize(QSize(55, 55))
         lock_btn.setStyleSheet("""
             QPushButton {
                 background: transparent;
@@ -882,6 +882,7 @@ class POSView(QWidget):
             # Import and create auth container here to avoid circular import
             from .auth_view import AuthenticationContainer
             auth_container = AuthenticationContainer()
+            auth_container.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus
             auth_container.switch_to_pin_view(self.user_id)
             center_layout.addWidget(auth_container)
             
@@ -889,8 +890,9 @@ class POSView(QWidget):
             main_layout.addLayout(center_layout)
             main_layout.addStretch()
             
-            # Set focus to auth container
+            # Ensure proper focus chain
             auth_container.setFocus()
+            auth_container.pin_view.setFocus()  # Give focus to pin view specifically
             
             # Delete current POS view
             self.deleteLater()
