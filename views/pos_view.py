@@ -509,7 +509,7 @@ class POSView(QWidget):
         
         # Categories with modern styling
         self.category_buttons = {}
-        self.categories = ["Freq Items", "Sandwiches", "Snacks", "Beverages", "Desserts"]
+        self.categories = ["Main Screen", "Sandwiches", "Snacks", "Beverages", "Desserts"]
         self.selected_category = None
         
         for category in self.categories:
@@ -592,7 +592,7 @@ class POSView(QWidget):
         
         # Sample items
         items = {
-            "Freq Items": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
+            "Main Screen": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
                           "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
                           "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
                           "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
@@ -677,8 +677,9 @@ class POSView(QWidget):
                     background-color: {colors['bg']};
                     color: {colors['text']};
                     border: none;
-                    border-radius: 4px;
+                    border-radius: 10px;
                     padding: 8px;
+                    margin: 5px;
                     font-size: 13px;
                     font-weight: 500;
                     min-height: 60px;
@@ -688,7 +689,7 @@ class POSView(QWidget):
                     background-color: {colors['hover']};
                 }}
             """)
-            btn.setFixedSize(70, 60)
+            btn.setFixedSize(80, 50)
             
             # Connect void functionality to the Void button
             if btn_text == "Void":
@@ -698,11 +699,11 @@ class POSView(QWidget):
         
         layout.addStretch()
         
-        # Payment button with enhanced styling
-        pay_btn = QPushButton("Payment")
-        pay_btn.setStyleSheet("""
+        # COD Payment button
+        pay_cod_btn = QPushButton("C.O.D")
+        pay_cod_btn.setStyleSheet("""
             QPushButton {
-                background-color: #2196F3;
+                background-color: blue;
                 color: white;
                 border: none;
                 border-radius: 4px;
@@ -713,11 +714,32 @@ class POSView(QWidget):
                 max-height: 60px;
             }
             QPushButton:hover {
-                background-color: #1E88E5;
+                background-color: lightblue;
             }
         """)
-        pay_btn.setFixedSize(120, 60)
-        layout.addWidget(pay_btn)
+        pay_cod_btn.setFixedSize(120, 60)
+        layout.addWidget(pay_cod_btn)
+
+        # Cash Payment button
+        pay_cash_btn = QPushButton("CASH")
+        pay_cash_btn.setStyleSheet("""
+            QPushButton {
+                background-color: darkgreen;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 8px 20px;
+                font-size: 14px;
+                font-weight: 500;
+                min-height: 60px;
+                max-height: 60px;
+            }
+            QPushButton:hover {
+                background-color: #48A848;
+            }
+        """)
+        pay_cash_btn.setFixedSize(120, 60)
+        layout.addWidget(pay_cash_btn)
 
     def _update_time(self):
         current = QDateTime.currentDateTime()

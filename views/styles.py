@@ -2,7 +2,7 @@ class AppStyles:
     """Centralized style configurations"""
     WINDOW_MAIN = """
         QMainWindow {
-            background-color: #BCBBBA;
+            background-color: #F8F9FA;
         }
     """
 
@@ -169,7 +169,7 @@ class POSStyles:
     
     BOTTOM_BAR = """
         QFrame {
-            background-color: #BCBBBA;
+            background-color: #F8F9FA;
             border-top: 1px solid #34495e;
         }
     """
