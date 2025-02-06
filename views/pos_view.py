@@ -110,7 +110,7 @@ class POSView(QWidget):
         emp_icon.setPixmap(pixmap)
         # user_name = "Fadi"
         # emp_id = QLabel(f"{user_name}")
-        emp_id = QLabel(f"{self.user_id}")
+        emp_id = QLabel(f"Emp ID: {self.user_id}")
         emp_id.setStyleSheet("color: #333; font-weight: 500;")
         
         emp_layout.addWidget(emp_icon)
@@ -170,30 +170,6 @@ class POSView(QWidget):
         """)
         lock_btn.clicked.connect(self._handle_lock)
         
-        # # Exit button with SVG
-        # exit_btn = QPushButton()
-        # renderer = QSvgRenderer("assets/images/exit_app.svg")
-        # pixmap = QPixmap(40, 40)
-        # pixmap.fill(Qt.transparent)
-        # painter = QPainter(pixmap)
-        # renderer.render(painter)
-        # painter.end()
-        # exit_btn.setIcon(QIcon(pixmap))
-        # exit_btn.setIconSize(QSize(40, 40))
-        # exit_btn.setStyleSheet("""
-        #     QPushButton {
-        #         background: transparent;
-        #         border: none;
-        #         padding: 0px;
-        #     }
-        #     QPushButton:hover {
-        #         background: rgba(229, 57, 53, 0.1);  /* E53935 with 10% opacity */
-        #         border-radius: 4px;
-        #     }
-        # """)
-        # app_utils = ApplicationUtils()
-        # exit_btn.clicked.connect(app_utils.close_application)
-        
         controls_layout.addWidget(lock_btn)
         # controls_layout.addWidget(exit_btn)
         
@@ -229,6 +205,7 @@ class POSView(QWidget):
         header_frame.setStyleSheet("""
             QFrame {
                 background: #F8F9FA;
+                border: none;
             }
             QLabel {
                 color: #2196F3;
@@ -237,7 +214,7 @@ class POSView(QWidget):
             }
         """)
         header_layout = QHBoxLayout(header_frame)
-        header_layout.setContentsMargins(10, 5, 10, 5)  # left, top, right, and bottom
+        header_layout.setContentsMargins(10, 5, 0, 5)  # left, top, right, and bottom
         
         order_label = QLabel("ORDER # 1234")
         
@@ -246,8 +223,9 @@ class POSView(QWidget):
         menu_btn.setStyleSheet("""
             QToolButton {
                 border: none;
-                color: black;
+                color: #2196F3;
                 font-size: 20px;
+                font-weight: bold;
                 padding-left: 5px;
                 padding-right: 5px;
             }
@@ -615,6 +593,11 @@ class POSView(QWidget):
         # Sample items
         items = {
             "Freq Items": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
+                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
+                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
+                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
+                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
+                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
                           "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese"],
             "Sandwiches": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", 
                           "Steak N Cheese", "Vegan Sandwich"],

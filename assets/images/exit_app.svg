@@ -1,10 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <g fill="#EF5350">
-    <!-- Door frame -->
-    <path d="M20 20 h30 v8 h-22 v44 h22 v8 h-30 z"/>
-    <!-- Arrow -->
-    <path d="M55 40 h15 l15 10 l-15 10 h-15 z"/>
-    <!-- EXIT text -->
-    <text x="25" y="100" font-family="Arial" font-size="20" font-weight="bold">EXIT</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 130" width="100" height="130">
+  <!-- Door Frame -->
+  <rect x="15" y="10" width="70" height="90" fill="#CC0000" rx="3"/>
+  
+  <!-- Main Door -->
+  <rect x="20" y="15" width="60" height="80" fill="#FF4444" rx="2"/>
+  
+  <!-- Open Door Section -->
+  <path d="M55 15 L80 30 L80 95 L55 80 Z" fill="#AA0000"/>
+  
+  <!-- Exit Arrow -->
+  <g transform="translate(62,50)">
+    <path d="M10 15 L25 15 L25 10 L35 20 L25 30 L25 25 L10 25 Z" 
+          fill="#FFFFFF"/>
+    <line x1="0" y1="20" x2="30" y2="20" 
+          stroke="#FFFFFF" stroke-width="3"/>
   </g>
+  
+  <!-- Door Handle -->
+  <circle cx="30" cy="55" r="3" fill="#FFFFFF"/>
+  
+  <!-- Exit Text -->
+  <text x="50" y="120" font-family="Arial" font-size="14" 
+        text-anchor="middle" fill="#FF0000" font-weight="bold">
+    EXIT
+  </text>
 </svg>
