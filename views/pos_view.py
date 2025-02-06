@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox,
-                             QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter, QToolButton, QMenu)
+                             QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter, QToolButton, QMenu, QMainWindow)
 from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
 from PyQt5.QtGui import QPixmap, QIcon, QPainter, QColor, QFont, QLinearGradient
 from PyQt5.QtSvg import QSvgRenderer
@@ -149,30 +149,15 @@ class POSView(QWidget):
         
         # Lock button with modern style
         lock_btn = QPushButton()
-        lock_btn.setIcon(QIcon("assets/images/lock_screen.png"))
-        lock_btn.setIconSize(QSize(40, 40))
-        lock_btn.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                border: none;
-            }
-            QPushButton:hover {
-                background: rgba(0, 0, 0, 0.05);
-                border-radius: 4px;
-            }
-        """)
-        
-        # Exit button with SVG
-        exit_btn = QPushButton()
-        renderer = QSvgRenderer("assets/images/exit_app.svg")
-        pixmap = QPixmap(50, 50)
+        renderer = QSvgRenderer("assets/images/lock_screen.svg")
+        pixmap = QPixmap(40, 40)
         pixmap.fill(Qt.transparent)
         painter = QPainter(pixmap)
         renderer.render(painter)
         painter.end()
-        exit_btn.setIcon(QIcon(pixmap))
-        exit_btn.setIconSize(QSize(40, 40))
-        exit_btn.setStyleSheet("""
+        lock_btn.setIcon(QIcon(pixmap))
+        lock_btn.setIconSize(QSize(40, 40))
+        lock_btn.setStyleSheet("""
             QPushButton {
                 background: transparent;
                 border: none;
@@ -183,11 +168,34 @@ class POSView(QWidget):
                 border-radius: 4px;
             }
         """)
-        app_utils = ApplicationUtils()
-        exit_btn.clicked.connect(app_utils.close_application)
+        lock_btn.clicked.connect(self._handle_lock)
+        
+        # # Exit button with SVG
+        # exit_btn = QPushButton()
+        # renderer = QSvgRenderer("assets/images/exit_app.svg")
+        # pixmap = QPixmap(40, 40)
+        # pixmap.fill(Qt.transparent)
+        # painter = QPainter(pixmap)
+        # renderer.render(painter)
+        # painter.end()
+        # exit_btn.setIcon(QIcon(pixmap))
+        # exit_btn.setIconSize(QSize(40, 40))
+        # exit_btn.setStyleSheet("""
+        #     QPushButton {
+        #         background: transparent;
+        #         border: none;
+        #         padding: 0px;
+        #     }
+        #     QPushButton:hover {
+        #         background: rgba(229, 57, 53, 0.1);  /* E53935 with 10% opacity */
+        #         border-radius: 4px;
+        #     }
+        # """)
+        # app_utils = ApplicationUtils()
+        # exit_btn.clicked.connect(app_utils.close_application)
         
         controls_layout.addWidget(lock_btn)
-        controls_layout.addWidget(exit_btn)
+        # controls_layout.addWidget(exit_btn)
         
         # Add all zones to layout
         layout.addWidget(emp_zone)
@@ -806,6 +814,86 @@ class POSView(QWidget):
             # Update display
             self._update_order_display()
             self._update_totals()
+
+    def _handle_lock(self):
+        """Handle lock button click - return to PIN view"""
+        # Get the main window
+        main_window = self.parent()
+        while main_window and not isinstance(main_window, QMainWindow):
+            main_window = main_window.parent()
+            
+        if main_window:
+            # Create central widget to hold everything
+            central_widget = QWidget()
+            main_window.setCentralWidget(central_widget)
+            main_layout = QVBoxLayout(central_widget)
+            main_layout.setContentsMargins(20, 20, 20, 20)
+            
+            # Top bar with logo
+            top_bar = QHBoxLayout()
+            
+            # Logo
+            logo_label = QLabel()
+            pixmap = QPixmap("assets/images/silver_system_logo.png")
+            scaled_pixmap = pixmap.scaled(
+                QSize(screen_config.get_size('logo_width'), 
+                    screen_config.get_size('logo_height')),
+                Qt.KeepAspectRatio, 
+                Qt.SmoothTransformation
+            )
+            logo_label.setPixmap(scaled_pixmap)
+            logo_label.setStyleSheet(styles.AppStyles.LOGO_CONTAINER)
+            top_bar.addWidget(logo_label)
+            top_bar.addStretch()
+            
+            # Exit button
+            exit_btn = QPushButton()
+            renderer = QSvgRenderer("assets/images/exit_app.svg")
+            pixmap = QPixmap(150, 150)
+            pixmap.fill(Qt.transparent)
+            painter = QPainter(pixmap)
+            renderer.render(painter)
+            painter.end()
+            exit_btn.setIcon(QIcon(pixmap))
+            exit_btn.setIconSize(QSize(150, 150))
+            exit_btn.setStyleSheet("""
+                QPushButton {
+                    background: transparent;
+                    border: none;
+                    padding: 0px;
+                }
+                QPushButton:hover {
+                    background: rgba(229, 57, 53, 0.1);
+                    border-radius: 4px;
+                }
+            """)
+            from utilities.utils import ApplicationUtils
+            app_utils = ApplicationUtils()
+            exit_btn.clicked.connect(app_utils.close_application)
+            top_bar.addWidget(exit_btn)
+            
+            main_layout.addLayout(top_bar)
+            main_layout.addStretch()
+            
+            # Center container horizontally
+            center_layout = QHBoxLayout()
+            center_layout.addStretch()
+            
+            # Import and create auth container here to avoid circular import
+            from .auth_view import AuthenticationContainer
+            auth_container = AuthenticationContainer()
+            auth_container.switch_to_pin_view(self.user_id)
+            center_layout.addWidget(auth_container)
+            
+            center_layout.addStretch()
+            main_layout.addLayout(center_layout)
+            main_layout.addStretch()
+            
+            # Set focus to auth container
+            auth_container.setFocus()
+            
+            # Delete current POS view
+            self.deleteLater()
 
 class OrderItem:
     def __init__(self, name, price):

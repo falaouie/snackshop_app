@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtSvg import QSvgRenderer
 from .auth_view import AuthenticationContainer
 from . import styles
 from config.screen_config import screen_config
@@ -43,46 +44,31 @@ class MainWindow(QMainWindow):
         top_bar.addWidget(logo_label)
         top_bar.addStretch()  # Push logo to left
         
-        # Exit
-        exit_button = QPushButton()
-
-        # Load the pixmap and scale it
-        pixmap = QPixmap("assets/images/exit_app.png")
-        scaled_pixmap = pixmap.scaled(
-            QSize(screen_config.get_size('logo_width'), 
-                screen_config.get_size('logo_height')),
-            Qt.KeepAspectRatio, 
-            Qt.SmoothTransformation
-        )
-
-        # Set the scaled pixmap as the icon for the button
-        exit_button.setIcon(QIcon(scaled_pixmap))
-        exit_button.setIconSize(scaled_pixmap.size())
-
-        # Make the button flat (no border)
-        exit_button.setFlat(True)
-
-        # Set the style sheet to remove the background and border
-        exit_button.setStyleSheet("""
+        # Exit button with SVG
+        exit_btn = QPushButton()
+        renderer = QSvgRenderer("assets/images/exit_app.svg")
+        pixmap = QPixmap(150, 150)
+        pixmap.fill(Qt.transparent)
+        painter = QPainter(pixmap)
+        renderer.render(painter)
+        painter.end()
+        exit_btn.setIcon(QIcon(pixmap))
+        exit_btn.setIconSize(QSize(150, 150))
+        exit_btn.setStyleSheet("""
             QPushButton {
                 background: transparent;
                 border: none;
+                padding: 0px;
             }
             QPushButton:hover {
-                background: transparent;
-                border: none;
-            }
-            QPushButton:pressed {
-                background: transparent;
-                border: none;
+                background: rgba(229, 57, 53, 0.1);  /* E53935 with 10% opacity */
+                border-radius: 4px;
             }
         """)
-
-        # Connect the button's clicked signal to the close method
         app_utils = ApplicationUtils()
-        exit_button.clicked.connect(app_utils.close_application)
+        exit_btn.clicked.connect(app_utils.close_application)
 
-        top_bar.addWidget(exit_button)
+        top_bar.addWidget(exit_btn)
 
         main_layout.addLayout(top_bar)
         

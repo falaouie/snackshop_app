@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g fill="#EF5350">
+    <!-- Door frame -->
+    <path d="M20 20 h30 v8 h-22 v44 h22 v8 h-30 z"/>
+    <!-- Arrow -->
+    <path d="M55 40 h15 l15 10 l-15 10 h-15 z"/>
+    <!-- EXIT text -->
+    <text x="25" y="100" font-family="Arial" font-size="20" font-weight="bold">EXIT</text>
+  </g>
+</svg>
