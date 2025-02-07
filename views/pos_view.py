@@ -15,6 +15,14 @@ class POSView(QWidget):
         self.order_items = []  # List to store order items
         self.exchange_rate = 90000  # LBP per USD
         
+        # Add these new attributes for tracking horizontal category buttons
+        self.horizontal_category_buttons = {}
+        self.selected_horizontal_category = None
+        
+        # Existing attributes
+        self.category_buttons = {}
+        self.selected_category = None
+        
         # Sample prices (you would typically get these from a database)
         self.prices = {
             "Chicken Club": 8.50,
@@ -64,7 +72,7 @@ class POSView(QWidget):
         
         # Left Side - Order Details
         self.order_widget = self._create_order_widget()
-        self.order_widget.setFixedWidth(250)
+        self.order_widget.setFixedWidth(350)
         content_splitter.addWidget(self.order_widget)
         
         # Middle - Products Grid
@@ -515,11 +523,58 @@ class POSView(QWidget):
         """)
         
         # Main layout for products area
-        main_layout = QHBoxLayout(products_frame)
+        main_layout = QVBoxLayout(products_frame)
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(10)
-        
-        # Products Grid Area (Middle)
+
+        # Horizontal Categories Row - Full width including right panel space
+        horizontal_categories = QFrame()
+        horizontal_categories.setStyleSheet("""
+            QFrame {
+                background: transparent;
+            }
+        """)
+        horizontal_layout = QHBoxLayout(horizontal_categories)
+        horizontal_layout.setContentsMargins(5, 0, 5, 0)
+        horizontal_layout.setSpacing(8)
+
+        # Horizontal category buttons
+        self.horizontal_category_buttons = {}
+        self.categories = ["Main Screen", "Sandwiches", "Snacks", "Beverages", "Desserts"]
+        self.selected_horizontal_category = None
+
+        for category in self.categories:
+            btn = QPushButton(category)
+            btn.setStyleSheet("""
+                QPushButton {
+                    background: white;
+                    border: 1px solid #DEDEDE;
+                    border-radius: 4px;
+                    padding: 8px;
+                    color: #333;
+                    text-align: center;
+                    font-size: 13px;
+                }
+                QPushButton:hover {
+                    background: #F8F9FA;
+                    border-color: #2196F3;
+                }
+            """)
+            btn.setFixedSize(150, 40)
+            btn.clicked.connect(lambda checked, c=category: self._show_category_items(c))
+            horizontal_layout.addWidget(btn)
+            self.horizontal_category_buttons[category] = btn
+
+        horizontal_layout.addStretch()
+        main_layout.addWidget(horizontal_categories)
+
+        # Container for products grid and right panel
+        content_container = QWidget()
+        content_layout = QHBoxLayout(content_container)
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.setSpacing(10)
+
+        # Products Grid Area
         products_scroll = QScrollArea()
         products_scroll.setWidgetResizable(True)
         products_scroll.setStyleSheet("""
@@ -549,28 +604,30 @@ class POSView(QWidget):
         self.products_grid.setSpacing(10)
         self.products_grid.setContentsMargins(5, 5, 5, 5)
         products_scroll.setWidget(products_container)
-        
-        # Categories Panel (Right)
-        categories_panel = QFrame()
-        categories_panel.setFixedWidth(120)
-        categories_panel.setStyleSheet("""
+        content_layout.addWidget(products_scroll, 1)
+
+        # Right side buttons panel
+        right_panel = QFrame()
+        right_panel.setFixedWidth(120)
+        right_panel.setStyleSheet("""
             QFrame {
                 background: white;
                 border-left: 1px solid #DEDEDE;
             }
         """)
         
-        categories_layout = QVBoxLayout(categories_panel)
-        categories_layout.setContentsMargins(8, 8, 8, 8)
-        categories_layout.setSpacing(8)
+        right_layout = QVBoxLayout(right_panel)
+        right_layout.setContentsMargins(8, 8, 8, 8)
+        right_layout.setSpacing(8)
         
-        # Categories with modern styling
-        self.category_buttons = {}
-        self.categories = ["Main Screen", "Sandwiches", "Snacks", "Beverages", "Desserts"]
-        self.selected_category = None
+        # Add spacing widget to push down the first button
+        # spacer = QWidget()
+        # spacer.setFixedHeight(48)  # Height of category button + spacing
+        # right_layout.addWidget(spacer)
         
-        for category in self.categories:
-            btn = QPushButton(category)
+        # Generic buttons for right panel
+        for i in range(5):
+            btn = QPushButton(f"Button {i+1}")
             btn.setStyleSheet("""
                 QPushButton {
                     background: white;
@@ -587,77 +644,73 @@ class POSView(QWidget):
                 }
             """)
             btn.setFixedHeight(40)
-            btn.clicked.connect(lambda checked, c=category: self._show_category_items(c))
-            categories_layout.addWidget(btn)
-            self.category_buttons[category] = btn
+            right_layout.addWidget(btn)
+
+        right_layout.addStretch()
         
-        categories_layout.addStretch()
+        content_layout.addWidget(right_panel)
         
-        # Add widgets to main layout
-        main_layout.addWidget(products_scroll, 1)  # Products grid takes available space
-        main_layout.addWidget(categories_panel)   # Fixed width categories panel
+        # Add content container to main layout
+        main_layout.addWidget(content_container, 1)
         
-        # Initialize first category after the buttons are created
+        # Initialize first category
         self._show_category_items(self.categories[0])
         
         return products_frame
 
     def _show_category_items(self, category):
         """Display product items for selected category"""
-        # Update button styles
-        if self.selected_category:
-            self.category_buttons[self.selected_category].setProperty("selected", False)
-            self.category_buttons[self.selected_category].setStyleSheet("""
+        # Update button styles - now handles both horizontal and vertical buttons independently
+        if category in self.horizontal_category_buttons:
+            # Reset previously selected horizontal button
+            if self.selected_horizontal_category:
+                self.horizontal_category_buttons[self.selected_horizontal_category].setStyleSheet("""
+                    QPushButton {
+                        background: white;
+                        border: 1px solid #DEDEDE;
+                        border-radius: 4px;
+                        padding: 8px;
+                        color: #333;
+                        text-align: center;
+                        font-size: 13px;
+                    }
+                    QPushButton:hover {
+                        background: #F8F9FA;
+                        border-color: #2196F3;
+                    }
+                """)
+            
+            # Update selected horizontal button
+            self.horizontal_category_buttons[category].setStyleSheet("""
                 QPushButton {
-                    background: white;
-                    border: 1px solid #DEDEDE;
+                    background: #2196F3;
+                    border: none;
                     border-radius: 4px;
                     padding: 8px;
-                    color: #333;
+                    color: white;
                     text-align: center;
                     font-size: 13px;
+                    font-weight: 500;
                 }
                 QPushButton:hover {
-                    background: #F8F9FA;
-                    border-color: #2196F3;
+                    background: #1E88E5;
                 }
             """)
-        
-        self.category_buttons[category].setProperty("selected", True)
-        self.category_buttons[category].setStyleSheet("""
-            QPushButton {
-                background: #2196F3;
-                border: none;
-                border-radius: 4px;
-                padding: 8px;
-                color: white;
-                text-align: center;
-                font-size: 13px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background: #1E88E5;
-            }
-        """)
-        self.selected_category = category
-        
+            self.selected_horizontal_category = category
+            
         # Clear existing products
         for i in reversed(range(self.products_grid.count())):
             widget = self.products_grid.itemAt(i).widget()
             if widget:
                 widget.deleteLater()
         
-        # Sample items
+        # Sample items (this would typically come from a database)
         items = {
             "Main Screen": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
-                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
-                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
-                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
-                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
-                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese",
-                          "Vegan Sandwich", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak & Cheese"],
-            "Sandwiches": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", 
-                          "Steak N Cheese", "Vegan Sandwich"],
+                        "Vegan Sandwich", "BLT2", "Tuna", "Veggie3", "Egg Sandwich2", "Steak N Cheese 2",
+                        "Vegan Sandwich", "BLT3", "Tuna", "Veggie4", "Egg Sandwich3", "Steak N Cheese 3"],
+            "Sandwiches": ["Chicken Club6", "BLT5", "Tuna8", "Veggie5", "Egg Sandwich4", 
+                        "Steak N Cheese", "Vegan Sandwich"],
             "Snacks": ["Chips", "Popcorn", "Nuts", "Pretzels"],
             "Beverages": ["Coffee", "Tea", "Soda", "Soda Diet", "Lemonade", "Water"],
             "Desserts": ["Cookies", "Brownies", "Muffins", "Fruit Cup"]
@@ -684,7 +737,7 @@ class POSView(QWidget):
                 }
             """)
             btn.setFixedSize(120, 60)
-            btn.clicked.connect(lambda checked, name=item: self.add_order_item(name))  # Connect click to add_order_item
+            btn.clicked.connect(lambda checked, name=item: self.add_order_item(name))
             row = i // 3
             col = i % 3
             self.products_grid.addWidget(btn, row, col)
