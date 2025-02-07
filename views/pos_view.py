@@ -92,7 +92,7 @@ class POSView(QWidget):
         layout = QHBoxLayout(self.top_bar)
         layout.setContentsMargins(15, 0, 15, 0)
         
-        # Employee Zone
+        # Employee Zone with DateTime
         emp_zone = QFrame()
         emp_zone.setStyleSheet("background: transparent; border: none;")
         emp_layout = QHBoxLayout(emp_zone)
@@ -108,15 +108,10 @@ class POSView(QWidget):
         renderer.render(painter)
         painter.end()
         emp_icon.setPixmap(pixmap)
-        # user_name = "Fadi"
-        # emp_id = QLabel(f"{user_name}")
         emp_id = QLabel(f"Emp ID: {self.user_id}")
         emp_id.setStyleSheet("color: #333; font-weight: 500;")
         
-        emp_layout.addWidget(emp_icon)
-        emp_layout.addWidget(emp_id)
-        
-        # DateTime Zone
+        # DateTime Zone - Now vertically aligned
         time_zone = QFrame()
         time_zone.setStyleSheet("""
             QFrame {
@@ -124,22 +119,76 @@ class POSView(QWidget):
                 border: none;
             }
         """)
-        time_layout = QHBoxLayout(time_zone)
+        time_layout = QVBoxLayout(time_zone)  # Changed to QVBoxLayout for vertical alignment
         time_layout.setContentsMargins(10, 5, 10, 5)
+        time_layout.setSpacing(2)  # Reduced spacing between date and time
         
         self.date_label = QLabel()
-        self.date_label.setStyleSheet("color: #666; margin-right: 10px;")
-        
-        separator = QFrame()
-        separator.setFrameShape(QFrame.VLine)
-        separator.setStyleSheet("background: #DEDEDE;")
+        self.date_label.setStyleSheet("color: #666;")
         
         self.time_label = QLabel()
-        self.time_label.setStyleSheet("color: #333; font-weight: 500; margin-left: 10px;")
+        self.time_label.setStyleSheet("color: #333; font-weight: 500; padding-left: 4px;")
         
         time_layout.addWidget(self.date_label)
-        time_layout.addWidget(separator)
         time_layout.addWidget(self.time_label)
+        
+        # Add widgets to employee zone
+        emp_layout.addWidget(emp_icon)
+        emp_layout.addWidget(emp_id)
+        emp_layout.addWidget(time_zone)
+
+        # First VLine separator after employee zone
+        first_separator = QFrame()
+        first_separator.setFrameShape(QFrame.VLine)
+        first_separator.setStyleSheet("""
+            background: #DEDEDE;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        """)
+
+        # Button styles
+        button_style = """
+            QPushButton {
+                background: white;
+                border: 1px solid #DEDEDE;
+                border-radius: 4px;
+                padding: 8px 16px;
+                color: #333;
+                font-size: 13px;
+                height: 36px;
+            }
+            QPushButton:hover {
+                background: #F8F9FA;
+                border-color: #2196F3;
+            }
+            QPushButton:checked {
+                background: #2196F3;
+                border-color: #2196F3;
+                color: white;
+            }
+        """
+
+        # Center buttons zone
+        center_buttons_zone = QFrame()
+        center_buttons_layout = QHBoxLayout(center_buttons_zone)
+        center_buttons_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Add initial spacer
+        center_buttons_layout.addStretch(1)
+        
+        # Create order type buttons
+        order_types = ["Dine In", "Take-Away", "Delivery"]
+        for i, order_type in enumerate(order_types):
+            btn = QPushButton(order_type)
+            btn.setStyleSheet(button_style)
+            btn.setCheckable(True)
+            btn.setFixedWidth(100)  # Fixed width for all buttons
+            center_buttons_layout.addWidget(btn)
+            if order_type == "Dine In":
+                btn.setChecked(True)
+                
+            # Add spacer after each button
+            center_buttons_layout.addStretch(1)
         
         # Controls Zone
         controls_zone = QFrame()
@@ -147,6 +196,15 @@ class POSView(QWidget):
         controls_layout.setSpacing(8)
         controls_layout.setContentsMargins(0, 0, 0, 0)
         
+        # Second VLine separator before controls
+        second_separator = QFrame()
+        second_separator.setFrameShape(QFrame.VLine)
+        second_separator.setStyleSheet("""
+            background: #DEDEDE;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        """)
+
         # Lock button with modern style
         lock_btn = QPushButton()
         renderer = QSvgRenderer("assets/images/lock_screen.svg")
@@ -164,20 +222,19 @@ class POSView(QWidget):
                 padding: 0px;
             }
             QPushButton:hover {
-                background: rgba(229, 57, 53, 0.1);  /* E53935 with 10% opacity */
+                background: rgba(229, 57, 53, 0.1);
                 border-radius: 4px;
             }
         """)
         lock_btn.clicked.connect(self._handle_lock)
         
         controls_layout.addWidget(lock_btn)
-        # controls_layout.addWidget(exit_btn)
         
         # Add all zones to layout
         layout.addWidget(emp_zone)
-        layout.addStretch()
-        layout.addWidget(time_zone)
-        layout.addStretch()
+        # layout.addWidget(first_separator)
+        layout.addWidget(center_buttons_zone)
+        # layout.addWidget(second_separator)
         layout.addWidget(controls_zone)
         
         # Timer for updating time
@@ -613,7 +670,7 @@ class POSView(QWidget):
                 QPushButton {
                     background: white;
                     border: 1px solid #DEDEDE;
-                    border-radius: 4px;
+                    border-radius: 16px;
                     padding: 8px;
                     color: #333;
                     font-size: 13px;
@@ -626,7 +683,7 @@ class POSView(QWidget):
                     background: #F1F1F1;
                 }
             """)
-            btn.setFixedSize(100, 50)
+            btn.setFixedSize(120, 60)
             btn.clicked.connect(lambda checked, name=item: self.add_order_item(name))  # Connect click to add_order_item
             row = i // 3
             col = i % 3
@@ -658,16 +715,16 @@ class POSView(QWidget):
         
         layout = QHBoxLayout(self.bottom_bar)
         layout.setContentsMargins(10, 5, 10, 10)  # Increased bottom margin to 10
-        layout.setSpacing(10)
+        layout.setSpacing(6)
         
         # Transaction buttons with modern styling
         transaction_buttons = {
             "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
             "Void": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
             "Discount": {"bg": "#4CAF50", "hover": "#43A047", "text": "#FFFFFF"},
-            "BLANK1": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-            "BLANK2": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-            "BLANK3": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
+            "PAID IN": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+            "PAID OUT": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+            "NO SALE": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
         }
 
         for btn_text, colors in transaction_buttons.items():
@@ -678,8 +735,8 @@ class POSView(QWidget):
                     color: {colors['text']};
                     border: none;
                     border-radius: 10px;
-                    padding: 8px;
-                    margin: 5px;
+                    padding: 5px;
+                    margin: 3px;
                     font-size: 13px;
                     font-weight: 500;
                     min-height: 60px;
@@ -699,11 +756,11 @@ class POSView(QWidget):
         
         layout.addStretch()
         
-        # COD Payment button
-        pay_cod_btn = QPushButton("C.O.D")
-        pay_cod_btn.setStyleSheet("""
+        # CREDIT Payment button
+        pay_crd_btn = QPushButton("CREDIT")
+        pay_crd_btn.setStyleSheet("""
             QPushButton {
-                background-color: blue;
+                background-color: #FFBF00;
                 color: white;
                 border: none;
                 border-radius: 4px;
@@ -714,11 +771,11 @@ class POSView(QWidget):
                 max-height: 60px;
             }
             QPushButton:hover {
-                background-color: lightblue;
+                background-color: #FFB300;
             }
         """)
-        pay_cod_btn.setFixedSize(120, 60)
-        layout.addWidget(pay_cod_btn)
+        pay_crd_btn.setFixedSize(120, 60)
+        layout.addWidget(pay_crd_btn)
 
         # Cash Payment button
         pay_cash_btn = QPushButton("CASH")
@@ -729,7 +786,7 @@ class POSView(QWidget):
                 border: none;
                 border-radius: 4px;
                 padding: 8px 20px;
-                font-size: 14px;
+                font-size: 20px;
                 font-weight: 500;
                 min-height: 60px;
                 max-height: 60px;
@@ -744,7 +801,7 @@ class POSView(QWidget):
     def _update_time(self):
         current = QDateTime.currentDateTime()
         self.date_label.setText(current.toString("dd-MM-yyyy"))
-        self.time_label.setText(current.toString("hh:mm AP"))
+        self.time_label.setText(current.toString("h:mm AP"))
 
     def on_dots_clicked(self):
         """Handle three dots menu click with various order options"""
