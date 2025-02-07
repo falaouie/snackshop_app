@@ -540,7 +540,7 @@ class POSView(QWidget):
 
         # Horizontal category buttons
         self.horizontal_category_buttons = {}
-        self.categories = ["Main Screen", "Sandwiches", "Snacks", "Beverages", "Desserts"]
+        self.categories = ["Main", "Sandwiches", "Snacks", "Beverages", "Desserts"]
         self.selected_horizontal_category = None
 
         for category in self.categories:
@@ -550,7 +550,7 @@ class POSView(QWidget):
                     background: white;
                     border: 1px solid #DEDEDE;
                     border-radius: 4px;
-                    padding: 8px;
+                    padding: 4px;
                     color: #333;
                     text-align: center;
                     font-size: 13px;
@@ -560,7 +560,7 @@ class POSView(QWidget):
                     border-color: #2196F3;
                 }
             """)
-            btn.setFixedSize(150, 40)
+            btn.setFixedSize(120, 40)
             btn.clicked.connect(lambda checked, c=category: self._show_category_items(c))
             horizontal_layout.addWidget(btn)
             self.horizontal_category_buttons[category] = btn
@@ -706,7 +706,7 @@ class POSView(QWidget):
         
         # Sample items (this would typically come from a database)
         items = {
-            "Main Screen": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
+            "Main": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
                         "Vegan Sandwich", "BLT2", "Tuna", "Veggie3", "Egg Sandwich2", "Steak N Cheese 2",
                         "Vegan Sandwich", "BLT3", "Tuna", "Veggie4", "Egg Sandwich3", "Steak N Cheese 3"],
             "Sandwiches": ["Chicken Club6", "BLT5", "Tuna8", "Veggie5", "Egg Sandwich4", 
@@ -726,7 +726,7 @@ class POSView(QWidget):
                     border-radius: 16px;
                     padding: 8px;
                     color: #333;
-                    font-size: 13px;
+                    font-size: 14px;
                 }
                 QPushButton:hover {
                     background: #F8F9FA;
@@ -736,7 +736,7 @@ class POSView(QWidget):
                     background: #F1F1F1;
                 }
             """)
-            btn.setFixedSize(120, 60)
+            btn.setFixedSize(140, 60)
             btn.clicked.connect(lambda checked, name=item: self.add_order_item(name))
             row = i // 3
             col = i % 3
@@ -773,8 +773,8 @@ class POSView(QWidget):
         # Transaction buttons with modern styling
         transaction_buttons = {
             "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
-            "Void": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
-            "Discount": {"bg": "#4CAF50", "hover": "#43A047", "text": "#FFFFFF"},
+            "VOID": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
+            "DISCOUNT": {"bg": "#4CAF50", "hover": "#43A047", "text": "#FFFFFF"},
             "PAID IN": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
             "PAID OUT": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
             "NO SALE": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
@@ -799,10 +799,10 @@ class POSView(QWidget):
                     background-color: {colors['hover']};
                 }}
             """)
-            btn.setFixedSize(80, 50)
+            btn.setFixedSize(90, 40)
             
             # Connect void functionality to the Void button
-            if btn_text == "Void":
+            if btn_text == "VOID":
                 btn.clicked.connect(self._clear_order)
                 # btn.clicked.connect(self._void_selected_item)
             layout.addWidget(btn)
@@ -816,7 +816,7 @@ class POSView(QWidget):
                 background-color: #FFBF00;
                 color: white;
                 border: none;
-                border-radius: 4px;
+                border-radius: 8px;
                 padding: 8px 20px;
                 font-size: 14px;
                 font-weight: 500;
@@ -827,7 +827,7 @@ class POSView(QWidget):
                 background-color: #FFB300;
             }
         """)
-        pay_crd_btn.setFixedSize(120, 60)
+        pay_crd_btn.setFixedSize(120, 40)
         layout.addWidget(pay_crd_btn)
 
         # Cash Payment button
@@ -837,7 +837,7 @@ class POSView(QWidget):
                 background-color: darkgreen;
                 color: white;
                 border: none;
-                border-radius: 4px;
+                border-radius: 8px;
                 padding: 8px 20px;
                 font-size: 20px;
                 font-weight: 500;
@@ -848,7 +848,7 @@ class POSView(QWidget):
                 background-color: #48A848;
             }
         """)
-        pay_cash_btn.setFixedSize(120, 60)
+        pay_cash_btn.setFixedSize(120, 40)
         layout.addWidget(pay_cash_btn)
 
     def _update_time(self):
