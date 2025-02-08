@@ -190,7 +190,7 @@ class POSView(QWidget):
             btn = QPushButton(order_type)
             btn.setStyleSheet(button_style)
             btn.setCheckable(True)
-            btn.setFixedWidth(100)  # Fixed width for all buttons
+            btn.setFixedSize(100, 40)  # Fixed width for all buttons
             center_buttons_layout.addWidget(btn)
             if order_type == "Dine In":
                 btn.setChecked(True)
@@ -524,10 +524,10 @@ class POSView(QWidget):
         
         # Main layout for products area
         main_layout = QVBoxLayout(products_frame)
-        main_layout.setContentsMargins(10, 10, 10, 10)
-        main_layout.setSpacing(10)
+        main_layout.setContentsMargins(0, 5, 0, 5)
+        main_layout.setSpacing(8)
 
-        # Horizontal Categories Row - Full width including right panel space
+        # Horizontal Categories Row
         horizontal_categories = QFrame()
         horizontal_categories.setStyleSheet("""
             QFrame {
@@ -568,12 +568,71 @@ class POSView(QWidget):
         horizontal_layout.addStretch()
         main_layout.addWidget(horizontal_categories)
 
-        # Container for products grid and right panel
+        # Container for products grid and center panel
         content_container = QWidget()
         content_layout = QHBoxLayout(content_container)
         content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(10)
 
+        # Center buttons panel
+        center_panel = QFrame()
+        center_panel.setFixedWidth(120)
+        center_panel.setStyleSheet("""
+            QFrame {
+                background: white;
+                border-left: 1px solid #DEDEDE;
+                border-right: 1px solid #DEDEDE;
+            }
+        """)
+        
+        center_layout = QVBoxLayout(center_panel)
+        center_layout.setContentsMargins(0, 0, 0, 0)
+        center_layout.setSpacing(8)
+
+        transaction_buttons = {
+            "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
+            "VOID": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
+            "PAID IN": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+            "PAID OUT": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+            "NO SALE": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+            "DISCOUNT": {"bg": "#4CAF50", "hover": "#43A047", "text": "#FFFFFF"},
+            "NUM PAD": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
+        }
+
+        for btn_text, colors in transaction_buttons.items():
+            button_container = QHBoxLayout()  # Create a horizontal container for each button
+            button_container.setContentsMargins(0, 0, 0, 0)
+
+            btn = QPushButton(btn_text)
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {colors['bg']};
+                    color: {colors['text']};
+                    border: none;
+                    border-radius: 10px;
+                    padding: 5px;
+                    margin: 3px;
+                    font-size: 13px;
+                    font-weight: 500;
+                }}
+                QPushButton:hover {{
+                    background-color: {colors['hover']};
+                }}
+            """)
+
+            btn.setFixedSize(100, 60)
+
+            # Connect void functionality to the Void button
+            if btn_text == "VOID":
+                btn.clicked.connect(self._clear_order)
+                # btn.clicked.connect(self._void_selected_item)
+            
+            # button_container.addStretch()  # Add stretch before button
+            button_container.addWidget(btn)  # Add the button
+            # button_container.addStretch()  # Add stretch after button
+            
+            center_layout.addLayout(button_container)  # Add the horizontal container to the main layout
+        center_layout.addStretch()
         # Products Grid Area
         products_scroll = QScrollArea()
         products_scroll.setWidgetResizable(True)
@@ -604,47 +663,10 @@ class POSView(QWidget):
         self.products_grid.setSpacing(10)
         self.products_grid.setContentsMargins(5, 5, 5, 5)
         products_scroll.setWidget(products_container)
-        content_layout.addWidget(products_scroll, 1)
-
-        # Right side buttons panel
-        right_panel = QFrame()
-        right_panel.setFixedWidth(120)
-        right_panel.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-left: 1px solid #DEDEDE;
-            }
-        """)
         
-        right_layout = QVBoxLayout(right_panel)
-        right_layout.setContentsMargins(0, 0, 0, 0)
-        right_layout.setSpacing(8)
-
-        # Generic buttons for right panel
-        for i in range(5):
-            btn = QPushButton(f"Button {i+1}")
-            btn.setStyleSheet("""
-                QPushButton {
-                    background: white;
-                    border: 1px solid #DEDEDE;
-                    border-radius: 10px;
-                    padding: 5px;
-                    color: #333;
-                    text-align: center;
-                    font-size: 15px;
-                }
-                QPushButton:hover {
-                    background: #F8F9FA;
-                    border-color: #2196F3;
-                }
-            """)
-            btn.setFixedSize(80, 60)
-            right_layout.addWidget(btn)
-
-        # right_layout.addStretch()
-        
-        content_layout.addWidget(right_panel)
-        
+        # Add widgets to content layout in new order
+        content_layout.addWidget(center_panel)  # Center buttons between order list and products
+        content_layout.addWidget(products_scroll, 1)  # Products grid takes remaining space
         # Add content container to main layout
         main_layout.addWidget(content_container, 1)
         
@@ -703,7 +725,7 @@ class POSView(QWidget):
         items = {
             "Main": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
                         "Vegan Sandwich", "BLT2", "Tuna", "Veggie3", "Egg Sandwich2", "Steak N Cheese 2",
-                        "Vegan Sandwich", "BLT3", "Tuna", "Veggie4", "Egg Sandwich3", "Steak N Cheese 3"],
+                        "Vegan Sandwich", "BLT3", "Tuna", "Another Vegan Sandwich", "Another BLT", "Another Tuna"],
             "Sandwiches": ["Chicken Club6", "BLT5", "Tuna8", "Veggie5", "Egg Sandwich4", 
                         "Steak N Cheese", "Vegan Sandwich"],
             "Snacks": ["Chips", "Popcorn", "Nuts", "Pretzels"],
@@ -737,6 +759,8 @@ class POSView(QWidget):
             col = i % 3
             self.products_grid.addWidget(btn, row, col)
         
+        self.products_grid.setRowStretch(self.products_grid.rowCount(), 1)
+        
         # Fill empty slots
         remaining_slots = 3 - (len(items[category]) % 3)
         if remaining_slots < 3:
@@ -765,85 +789,45 @@ class POSView(QWidget):
         layout.setContentsMargins(10, 5, 10, 10)
         layout.setSpacing(6)
         
-        # Transaction buttons
-        transaction_buttons = {
-            "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
-            "VOID": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
-            "DISCOUNT": {"bg": "#4CAF50", "hover": "#43A047", "text": "#FFFFFF"},
-            "PAID IN": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-            "PAID OUT": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-            "NO SALE": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
-        }
-
-        for btn_text, colors in transaction_buttons.items():
-            btn = QPushButton(btn_text)
-            btn.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: {colors['bg']};
-                    color: {colors['text']};
-                    border: none;
-                    border-radius: 10px;
-                    padding: 5px;
-                    margin: 3px;
-                    font-size: 13px;
-                    font-weight: 500;
-                    min-height: 60px;
-                    max-height: 60px;
-                }}
-                QPushButton:hover {{
-                    background-color: {colors['hover']};
-                }}
-            """)
-            btn.setFixedSize(90, 40)
-            
-            # Connect void functionality to the Void button
-            if btn_text == "VOID":
-                btn.clicked.connect(self._clear_order)
-                # btn.clicked.connect(self._void_selected_item)
-            layout.addWidget(btn)
-        
         layout.addStretch()
         
-        # CREDIT Payment button
-        pay_crd_btn = QPushButton("CREDIT")
-        pay_crd_btn.setStyleSheet("""
+        # OTHER Payment button
+        pay_oth_btn = QPushButton("PAY OTHER")
+        pay_oth_btn.setStyleSheet("""
             QPushButton {
                 background-color: #FFBF00;
                 color: white;
                 border: none;
-                border-radius: 8px;
-                padding: 8px 20px;
-                font-size: 14px;
+                border-radius: 10px;
+                padding: 5px 5px;
+                margin-right: 15px;
+                font-size: 18px;
                 font-weight: 500;
-                min-height: 60px;
-                max-height: 60px;
             }
             QPushButton:hover {
                 background-color: #FFB300;
             }
         """)
-        pay_crd_btn.setFixedSize(120, 40)
-        layout.addWidget(pay_crd_btn)
+        pay_oth_btn.setFixedSize(140, 50)
+        layout.addWidget(pay_oth_btn)
 
         # Cash Payment button
-        pay_cash_btn = QPushButton("CASH")
+        pay_cash_btn = QPushButton("PAY CASH")
         pay_cash_btn.setStyleSheet("""
             QPushButton {
                 background-color: darkgreen;
                 color: white;
                 border: none;
-                border-radius: 8px;
-                padding: 8px 20px;
+                border-radius: 10px;
+                padding: 5px 5px;
                 font-size: 20px;
                 font-weight: 500;
-                min-height: 60px;
-                max-height: 60px;
             }
             QPushButton:hover {
                 background-color: #48A848;
             }
         """)
-        pay_cash_btn.setFixedSize(120, 40)
+        pay_cash_btn.setFixedSize(140, 50)
         layout.addWidget(pay_cash_btn)
 
     def _update_time(self):
