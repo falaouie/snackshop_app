@@ -349,53 +349,48 @@ class POSView(QWidget):
         scroll_area.setWidget(self.order_list_widget)
         layout.addWidget(scroll_area)
         
-        # Totals Section
-        self.totals_frame = QFrame()
-        self.totals_frame.setStyleSheet("""
+        # Add horizontal buttons section
+        horizontal_buttons_frame = QFrame()
+        horizontal_buttons_frame.setStyleSheet("""
             QFrame {
-                background: #F8F9FA;
+                background: white;
+                border-left: 1px solid #DEDEDE;
                 border-top: 1px solid #DEDEDE;
             }
-            QLabel {
-                color: #333;
-            }
-            .currency-usd {
-                font-size: 18px;
-                font-weight: bold;
-                color: #2196F3;
-            }
-            .currency-lbp {
-                font-size: 14px;
-                color: #666;
-            }
         """)
-        totals_layout = QVBoxLayout(self.totals_frame)
-        totals_layout.setContentsMargins(15, 10, 15, 10)
-        totals_layout.setSpacing(8)
         
+        horizontal_layout = QHBoxLayout(horizontal_buttons_frame)
+        horizontal_layout.setContentsMargins(0, 10, 0, 10)
+        horizontal_layout.setSpacing(8)
         
-        # USD Total (Primary)
-        usd_layout = QHBoxLayout()
-        usd_label = QLabel("Total USD")
-        self.usd_amount = QLabel("$0.00")  # Store as instance attribute
-        self.usd_amount.setProperty("class", "currency-usd")
-        usd_layout.addWidget(usd_label)
-        usd_layout.addStretch()
-        usd_layout.addWidget(self.usd_amount)
+        # Add the horizontal buttons
+        horizontal_buttons = {
+            "BTN 1": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+            "BTN 2": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+            "BTN 3": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
+        }
+
+        for btn_text, colors in horizontal_buttons.items():
+            btn = QPushButton(btn_text)
+            btn.setStyleSheet(f"""
+                QPushButton {{
+                    background-color: {colors['bg']};
+                    color: {colors['text']};
+                    border: none;
+                    border-radius: 10px;
+                    padding: 5px;
+                    margin: 3px;
+                    font-size: 13px;
+                    font-weight: 500;
+                }}
+                QPushButton:hover {{
+                    background-color: {colors['hover']};
+                }}
+            """)
+            btn.setFixedSize(100, 60)
+            horizontal_layout.addWidget(btn)
         
-        # LBP Total (Secondary)
-        lbp_layout = QHBoxLayout()
-        lbp_label = QLabel("Total LBP")
-        self.lbp_amount = QLabel("0")  # Store as instance attribute
-        self.lbp_amount.setProperty("class", "currency-lbp")
-        lbp_layout.addWidget(lbp_label)
-        lbp_layout.addStretch()
-        lbp_layout.addWidget(self.lbp_amount)
-        
-        totals_layout.addLayout(usd_layout)
-        totals_layout.addLayout(lbp_layout)
-        
-        layout.addWidget(self.totals_frame)
+        layout.addWidget(horizontal_buttons_frame)
         
         return order_frame
     
@@ -458,7 +453,7 @@ class POSView(QWidget):
         name_label = QLabel(item.name)
         
         # Total
-        total_label = QLabel(f"${item.get_total():.2f}")
+        total_label = QLabel(f"{item.get_total():.2f}")
         total_label.setAlignment(Qt.AlignRight)
         total_label.setFixedWidth(60)
         
@@ -510,8 +505,8 @@ class POSView(QWidget):
         total_usd = sum(item.get_total() for item in self.order_items)
         total_lbp = total_usd * self.exchange_rate
         
-        self.usd_amount.setText(f"${total_usd:.2f}")
-        self.lbp_amount.setText(f"{total_lbp:,.0f}")
+        self.usd_amount.setText(f"$ {total_usd:.2f}")
+        self.lbp_amount.setText(f"LBP {total_lbp:,.0f}")
     
     def _create_products_widget(self):
         """Create products panel"""
@@ -589,6 +584,7 @@ class POSView(QWidget):
         center_layout.setContentsMargins(0, 0, 0, 0)
         center_layout.setSpacing(8)
 
+        # Vertical transaction buttons (main section)
         transaction_buttons = {
             "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
             "VOID": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
@@ -596,11 +592,18 @@ class POSView(QWidget):
             "PAID OUT": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
             "NO SALE": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
             "DISCOUNT": {"bg": "#4CAF50", "hover": "#43A047", "text": "#FFFFFF"},
+            "Blank": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
             "NUM PAD": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
         }
 
+        # Create vertical buttons section
+        vertical_section = QFrame()
+        vertical_layout = QVBoxLayout(vertical_section)
+        vertical_layout.setContentsMargins(0, 0, 0, 0)
+        vertical_layout.setSpacing(8)
+
         for btn_text, colors in transaction_buttons.items():
-            button_container = QHBoxLayout()  # Create a horizontal container for each button
+            button_container = QHBoxLayout()
             button_container.setContentsMargins(0, 0, 0, 0)
 
             btn = QPushButton(btn_text)
@@ -619,20 +622,27 @@ class POSView(QWidget):
                     background-color: {colors['hover']};
                 }}
             """)
-
             btn.setFixedSize(100, 60)
 
-            # Connect void functionality to the Void button
             if btn_text == "VOID":
                 btn.clicked.connect(self._clear_order)
-                # btn.clicked.connect(self._void_selected_item)
             
-            # button_container.addStretch()  # Add stretch before button
-            button_container.addWidget(btn)  # Add the button
-            # button_container.addStretch()  # Add stretch after button
-            
-            center_layout.addLayout(button_container)  # Add the horizontal container to the main layout
-        center_layout.addStretch()
+            button_container.addWidget(btn)
+            vertical_layout.addLayout(button_container)
+
+        # Add stretch after vertical buttons
+        vertical_layout.addStretch()
+
+        # Add both sections to main center layout
+        center_layout.addWidget(vertical_section)
+        # center_layout.addWidget(horizontal_section)
+
+        # Products and Totals Container
+        products_totals_container = QWidget()
+        products_totals_layout = QVBoxLayout(products_totals_container)
+        products_totals_layout.setContentsMargins(0, 0, 0, 0)
+        products_totals_layout.setSpacing(0)
+
         # Products Grid Area
         products_scroll = QScrollArea()
         products_scroll.setWidgetResizable(True)
@@ -664,9 +674,62 @@ class POSView(QWidget):
         self.products_grid.setContentsMargins(5, 5, 5, 5)
         products_scroll.setWidget(products_container)
         
+        # Totals Section
+        self.totals_frame = QFrame()
+        self.totals_frame.setStyleSheet("""
+            QFrame {
+                background: #F8F9FA;
+                border-top: 1px solid #DEDEDE;
+                border: none;
+            }
+            QLabel {
+                color: #333;
+            }
+            .currency-usd {
+                font-size: 24px;
+                font-weight: bold;
+                color:#03991f;
+            }
+            .currency-lbp {
+                font-size: 20px;
+                color: #666;
+            }
+        """)
+        totals_layout = QVBoxLayout(self.totals_frame)
+        totals_layout.setContentsMargins(15, 10, 15, 10)
+        totals_layout.setSpacing(8)
+        
+        # USD Total (Primary)
+        usd_layout = QHBoxLayout()
+        usd_layout.addStretch()
+        # usd_label = QLabel("Total USD")
+        self.usd_amount = QLabel("$ 0.00")
+        self.usd_amount.setProperty("class", "currency-usd")
+        # usd_layout.addWidget(usd_label)
+        # usd_layout.addStretch()
+        usd_layout.addWidget(self.usd_amount)
+        
+        # LBP Total (Secondary)
+        lbp_layout = QHBoxLayout()
+        lbp_layout.addStretch()
+        # lbp_label = QLabel("LBP")
+        self.lbp_amount = QLabel("LBP 000")
+        self.lbp_amount.setProperty("class", "currency-lbp")
+        # lbp_layout.addWidget(lbp_label)
+        # lbp_layout.addStretch()
+        lbp_layout.addWidget(self.lbp_amount)
+        
+        totals_layout.addLayout(usd_layout)
+        totals_layout.addLayout(lbp_layout)
+
+        # Add products and totals to their container
+        products_totals_layout.addWidget(products_scroll, 1)
+        products_totals_layout.addWidget(self.totals_frame)
+
         # Add widgets to content layout in new order
-        content_layout.addWidget(center_panel)  # Center buttons between order list and products
-        content_layout.addWidget(products_scroll, 1)  # Products grid takes remaining space
+        content_layout.addWidget(center_panel)
+        content_layout.addWidget(products_totals_container, 1)
+
         # Add content container to main layout
         main_layout.addWidget(content_container, 1)
         
