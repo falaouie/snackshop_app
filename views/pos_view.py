@@ -87,7 +87,7 @@ class POSView(QWidget):
         main_layout.addWidget(self.bottom_bar, 0)
 
     def _create_top_bar(self):
-        """Create modern top bar with distinct zones"""
+        """Create top bar with distinct zones"""
         self.top_bar = QFrame()
         self.top_bar.setStyleSheet("""
             QFrame {
@@ -213,7 +213,7 @@ class POSView(QWidget):
             margin-bottom: 10px;
         """)
 
-        # Lock button with modern style
+        # Lock button
         lock_btn = QPushButton()
         renderer = QSvgRenderer("assets/images/lock_screen.svg")
         pixmap = QPixmap(55, 55)
@@ -514,7 +514,7 @@ class POSView(QWidget):
         self.lbp_amount.setText(f"{total_lbp:,.0f}")
     
     def _create_products_widget(self):
-        """Create products panel with modern styling"""
+        """Create products panel"""
         products_frame = QFrame()
         products_frame.setStyleSheet("""
             QFrame {
@@ -617,14 +617,9 @@ class POSView(QWidget):
         """)
         
         right_layout = QVBoxLayout(right_panel)
-        right_layout.setContentsMargins(8, 8, 8, 8)
+        right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(8)
-        
-        # Add spacing widget to push down the first button
-        # spacer = QWidget()
-        # spacer.setFixedHeight(48)  # Height of category button + spacing
-        # right_layout.addWidget(spacer)
-        
+
         # Generic buttons for right panel
         for i in range(5):
             btn = QPushButton(f"Button {i+1}")
@@ -632,21 +627,21 @@ class POSView(QWidget):
                 QPushButton {
                     background: white;
                     border: 1px solid #DEDEDE;
-                    border-radius: 4px;
-                    padding: 8px;
+                    border-radius: 10px;
+                    padding: 5px;
                     color: #333;
                     text-align: center;
-                    font-size: 13px;
+                    font-size: 15px;
                 }
                 QPushButton:hover {
                     background: #F8F9FA;
                     border-color: #2196F3;
                 }
             """)
-            btn.setFixedHeight(40)
+            btn.setFixedSize(80, 60)
             right_layout.addWidget(btn)
 
-        right_layout.addStretch()
+        # right_layout.addStretch()
         
         content_layout.addWidget(right_panel)
         
@@ -716,7 +711,7 @@ class POSView(QWidget):
             "Desserts": ["Cookies", "Brownies", "Muffins", "Fruit Cup"]
         }
         
-        # Add product buttons with modern styling
+        # Add product buttons
         for i, item in enumerate(items[category]):
             btn = QPushButton(item)
             btn.setStyleSheet("""
@@ -753,7 +748,7 @@ class POSView(QWidget):
                 self.products_grid.addWidget(empty_widget, row, col)
 
     def _create_bottom_bar(self):
-        """Create bottom action bar with modern styling and proper margins"""
+        """Create bottom action bar"""
         self.bottom_bar = QFrame()
         self.bottom_bar.setFixedHeight(80)
         self.bottom_bar.setStyleSheet("""
@@ -767,10 +762,10 @@ class POSView(QWidget):
         """)
         
         layout = QHBoxLayout(self.bottom_bar)
-        layout.setContentsMargins(10, 5, 10, 10)  # Increased bottom margin to 10
+        layout.setContentsMargins(10, 5, 10, 10)
         layout.setSpacing(6)
         
-        # Transaction buttons with modern styling
+        # Transaction buttons
         transaction_buttons = {
             "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
             "VOID": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
