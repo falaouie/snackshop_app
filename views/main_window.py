@@ -12,13 +12,21 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Snack Shop POS - Silver System")
         self.setStyleSheet(styles.AppStyles.WINDOW_MAIN)
-        # self.setFixedSize(800, 600)
-        self.setFixedSize(1024, 768)
-        # Get the screen dimensions
-        # screen_width, screen_height = screen_config.get_screen_dimensions()
-        # Set the main window size based on the screen dimensions
-        # self.setGeometry(100, 100, screen_width // 2, screen_height // 2)
-        # self.setFixedSize(window_width, window_height)
+        
+        # Get screen dimensions from config
+        screen_width, screen_height = screen_config.get_screen_dimensions()
+        
+        # Set window size to 80% of screen dimensions (adjust ratio as needed)
+        self.window_width = int(screen_width)
+        self.window_height = int(screen_height)
+        self.setFixedSize(self.window_width, self.window_height)
+        
+        # Center window on screen
+        self.move(
+            (screen_width - self.window_width) // 2,
+            (screen_height - self.window_height) // 2
+        )
+        
         self._setup_ui()
 
     def _setup_ui(self):
