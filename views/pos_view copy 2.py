@@ -52,15 +52,14 @@ class POSView(QWidget):
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 10)  # Added bottom margin
+        main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
         # Initialize selected item tracking
         self.selected_item = None
         
-        # Add top bar - call only once and store the result
-        top_bar_container = self._create_top_bar()
-        main_layout.addWidget(top_bar_container)
+        # Add top bar
+        main_layout.addWidget(self._create_top_bar())
 
         # Main Content Area with Splitter
         content_splitter = QSplitter(Qt.Horizontal)
@@ -76,16 +75,12 @@ class POSView(QWidget):
         self.order_widget.setFixedWidth(350)
         content_splitter.addWidget(self.order_widget)
         
-        # Middle - Products Grid
+        # Right Side - Products Grid
         self.products_widget = self._create_products_widget()
         content_splitter.addWidget(self.products_widget)
         
-        # Add splitter to main layout with spacing at the bottom
+        # Add splitter to main layout
         main_layout.addWidget(content_splitter, 1)
-
-        # Create and add bottom bar with proper spacing
-        self._create_bottom_bar()
-        main_layout.addWidget(self.bottom_bar, 0)
 
     def _create_top_bar(self):
         """Create top bar with employee info, search, and lock button"""
@@ -161,7 +156,6 @@ class POSView(QWidget):
 
         # Create search input
         self.search_input = QLineEdit()
-        self.search_input.textChanged.connect(self._filter_products)
         self.search_input.setPlaceholderText("Search products...")
         self.search_input.setStyleSheet("""
             QLineEdit {
@@ -248,6 +242,11 @@ class POSView(QWidget):
         self._update_time()
 
         return self.top_bar
+        
+        # Create a container widget to hold everything
+        container = QWidget()
+        container.setLayout(main_layout)
+        return container
 
     def _create_order_widget(self):
         """Create order panel"""
