@@ -58,9 +58,9 @@ class POSView(QWidget):
         # Initialize selected item tracking
         self.selected_item = None
         
-        # Top Bar
-        self._create_top_bar()
-        main_layout.addWidget(self._create_top_bar())
+        # Add top bar - call only once and store the result
+        top_bar_container = self._create_top_bar()
+        main_layout.addWidget(top_bar_container)
 
         # Main Content Area with Splitter
         content_splitter = QSplitter(Qt.Horizontal)
@@ -88,7 +88,7 @@ class POSView(QWidget):
         main_layout.addWidget(self.bottom_bar, 0)
 
     def _create_top_bar(self):
-        """Create top bar with distinct zones"""
+        """Create top bar with employee info, search, and lock button"""
         self.top_bar = QFrame()
         self.top_bar.setStyleSheet("""
             QFrame {
@@ -96,9 +96,9 @@ class POSView(QWidget):
                 border-bottom: 1px solid #DEDEDE;
             }
         """)
-        self.top_bar.setFixedHeight(60)
+        self.top_bar.setFixedHeight(60)  # Reduced height
         
-        # Main top bar layout
+        # Main layout
         layout = QHBoxLayout(self.top_bar)
         layout.setContentsMargins(15, 0, 15, 0)
         
@@ -109,7 +109,7 @@ class POSView(QWidget):
         emp_layout.setSpacing(8)
         emp_layout.setContentsMargins(0, 0, 0, 0) 
         
-        # Employee icon (using SVG)
+        # Employee icon
         emp_icon = QLabel()
         renderer = QSvgRenderer("assets/images/employee_icon.svg")
         pixmap = QPixmap(40, 40)
@@ -121,17 +121,12 @@ class POSView(QWidget):
         emp_id = QLabel(f"Emp ID: {self.user_id}")
         emp_id.setStyleSheet("color: #333; font-weight: 500;")
         
-        # DateTime Zone - Now vertically aligned
+        # DateTime Zone
         time_zone = QFrame()
-        time_zone.setStyleSheet("""
-            QFrame {
-                background: transparent;
-                border: none;
-            }
-        """)
-        time_layout = QVBoxLayout(time_zone)  # Changed to QVBoxLayout for vertical alignment
+        time_zone.setStyleSheet("QFrame { background: transparent; border: none; }")
+        time_layout = QVBoxLayout(time_zone)
         time_layout.setContentsMargins(10, 5, 10, 5)
-        time_layout.setSpacing(2)  # Reduced spacing between date and time
+        time_layout.setSpacing(2)
         
         self.date_label = QLabel()
         self.date_label.setStyleSheet("color: #666;")
@@ -147,51 +142,45 @@ class POSView(QWidget):
         emp_layout.addWidget(emp_id)
         emp_layout.addWidget(time_zone)
 
-        # Center buttons zone
-        center_buttons_zone = QFrame()
-        center_buttons_layout = QHBoxLayout(center_buttons_zone)
-        center_buttons_layout.setContentsMargins(0, 0, 0, 0)
+        # Search Section (Centered)
+        search_container = QFrame()
+        search_container.setStyleSheet("background: transparent;")
+        search_layout = QHBoxLayout(search_container)
+        search_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Add initial spacer
-        center_buttons_layout.addStretch(1)
+        # Create search input with embedded icon
+        self.search_input = SearchLineEdit()
+        self.search_input.textChanged.connect(self._filter_products)
+        self.search_input.setPlaceholderText("Search products...")
+        self.search_input.setFixedHeight(40)
         
-        # Button styles
-        button_style = """
+        # Create clear/backspace button
+        keyboard_btn = QPushButton()
+        keyboard_btn.setIcon(QIcon("assets/images/keyboard.svg"))
+        keyboard_btn.setStyleSheet("""
             QPushButton {
-                background: white;
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-                padding: 8px 16px;
-                color: #333;
-                font-size: 13px;
-                height: 36px;
+                background: transparent;
+                border: none;
+                padding: 5px;
             }
             QPushButton:hover {
-                background: #F8F9FA;
-                border-color: #2196F3;
+                background: #F0F0F0;
+                border-radius: 12px;
             }
-            QPushButton:checked {
-                background: #2196F3;
-                border-color: #2196F3;
-                color: white;
-            }
-        """
+        """)
+        keyboard_btn.setIconSize(QSize(70, 40))
+        keyboard_btn.clicked.connect(self._backspace_search)
 
-        # Create order type buttons
-        order_types = ["Dine In", "Take-Away", "Delivery"]
-        for i, order_type in enumerate(order_types):
-            btn = QPushButton(order_type)
-            btn.setStyleSheet(button_style)
-            btn.setCheckable(True)
-            btn.setFixedSize(100, 40)  # Fixed width for all buttons
-            center_buttons_layout.addWidget(btn)
-            if order_type == "Dine In":
-                btn.setChecked(True)
-                
-            # Add spacer after each button
-            center_buttons_layout.addStretch(1)
-        
-        # Controls Zone
+        # Add search elements to search layout and keyboard button
+        search_layout.addStretch(1)
+        search_layout.addWidget(self.search_input)
+        search_layout.addWidget(keyboard_btn)
+        search_layout.addStretch(1)
+
+        # Install event filter for keyboard events
+        self.search_input.installEventFilter(self)
+
+        # Controls Zone (Lock Button)
         controls_zone = QFrame()
         controls_layout = QHBoxLayout(controls_zone)
         controls_layout.setSpacing(8)
@@ -222,99 +211,18 @@ class POSView(QWidget):
         
         controls_layout.addWidget(lock_btn)
         
-        # Add all zones to layout
+        # Add all zones to main layout
         layout.addWidget(emp_zone)
-        layout.addWidget(center_buttons_zone)
+        layout.addWidget(search_container, 1)  # Give search container stretch priority
         layout.addWidget(controls_zone)
-
-        # Create new horizontal container for search bar
-        search_container = QFrame()
-        search_container.setStyleSheet("""
-            QFrame {
-                background: #F8F9FA;
-                border-bottom: 1px solid #DEDEDE;
-            }
-        """)
-        search_container.setFixedHeight(60)
-        search_layout = QHBoxLayout(search_container)
-        search_layout.setContentsMargins(15, 0, 15, 0)
-        
-        # Create search icon
-        search_icon = QLabel()
-        renderer = QSvgRenderer("assets/images/search.svg")
-        pixmap = QPixmap(20, 20)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-        search_icon.setPixmap(pixmap)
-        search_icon.setStyleSheet("margin-left: 10px;")
-
-        # Create search input
-        self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Search products...")
-        self.search_input.setStyleSheet("""
-            QLineEdit {
-                background: white;
-                border: 1px solid #DEDEDE;
-                border-radius: 20px;
-                padding: 8px 12px 8px 35px;
-                font-size: 14px;
-                color: #333;
-            }
-            QLineEdit:focus {
-                border-color: #2196F3;
-                outline: none;
-            }
-        """)
-        self.search_input.setFixedHeight(40)
-
-        # Create clear button
-        clear_btn = QPushButton()
-        clear_btn.setIcon(QIcon("assets/images/clear.svg"))
-        clear_btn.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                border: none;
-                padding: 5px;
-            }
-            QPushButton:hover {
-                background: #F0F0F0;
-                border-radius: 12px;
-            }
-        """)
-        clear_btn.setFixedSize(24, 24)
-        clear_btn.clicked.connect(self._clear_search)
-
-        # Add widgets to search layout with proper spacing
-        search_layout.addStretch(1)
-        search_layout.addWidget(search_icon)
-        search_layout.addWidget(self.search_input)
-        search_layout.addWidget(clear_btn)
-        search_layout.addStretch(1)
-
-        # Connect search input to filter function
-        self.search_input.textChanged.connect(self._filter_products)
-
-        # Create vertical layout for top section
-        main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
-        
-        # Add top bar and search container to main layout
-        main_layout.addWidget(self.top_bar)
-        main_layout.addWidget(search_container)
         
         # Timer for updating time
         self.timer = QTimer()
         self.timer.timeout.connect(self._update_time)
         self.timer.start(1000)
         self._update_time()
-        
-        # Create a container widget to hold everything
-        container = QWidget()
-        container.setLayout(main_layout)
-        return container
+
+        return self.top_bar
 
     def _create_order_widget(self):
         """Create order panel"""
@@ -584,7 +492,7 @@ class POSView(QWidget):
         
         # Main layout for products area
         main_layout = QVBoxLayout(products_frame)
-        main_layout.setContentsMargins(0, 5, 0, 5)
+        main_layout.setContentsMargins(0, 5, 0, 0)  # Removed bottom margin
         main_layout.setSpacing(8)
 
         # Horizontal Categories Row
@@ -649,7 +557,7 @@ class POSView(QWidget):
         center_layout.setContentsMargins(0, 0, 0, 0)
         center_layout.setSpacing(8)
 
-        # Vertical transaction buttons (main section)
+        # Vertical transaction buttons
         transaction_buttons = {
             "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
             "VOID": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
@@ -695,18 +603,8 @@ class POSView(QWidget):
             button_container.addWidget(btn)
             vertical_layout.addLayout(button_container)
 
-        # Add stretch after vertical buttons
         vertical_layout.addStretch()
-
-        # Add both sections to main center layout
         center_layout.addWidget(vertical_section)
-        # center_layout.addWidget(horizontal_section)
-
-        # Products and Totals Container
-        products_totals_container = QWidget()
-        products_totals_layout = QVBoxLayout(products_totals_container)
-        products_totals_layout.setContentsMargins(0, 0, 0, 0)
-        products_totals_layout.setSpacing(0)
 
         # Products Grid Area
         products_scroll = QScrollArea()
@@ -739,13 +637,29 @@ class POSView(QWidget):
         self.products_grid.setContentsMargins(5, 5, 5, 5)
         products_scroll.setWidget(products_container)
         
-        # Totals Section
+        # Add products scroll area to content layout
+        content_layout.addWidget(center_panel)
+        content_layout.addWidget(products_scroll, 1)
+
+        # Add content container to main layout
+        main_layout.addWidget(content_container, 1)
+        
+        # Create and add totals frame with order type buttons
+        totals_frame = self._create_totals_frame()
+        main_layout.addWidget(totals_frame)
+        
+        # Initialize first category
+        self._show_category_items(self.categories[0])
+        
+        return products_frame
+    
+    def _create_totals_frame(self):
+        """Create totals frame with order type buttons and amounts"""
         self.totals_frame = QFrame()
         self.totals_frame.setStyleSheet("""
             QFrame {
                 background: #F8F9FA;
                 border-top: 1px solid #DEDEDE;
-                border: none;
             }
             QLabel {
                 color: #333;
@@ -753,55 +667,88 @@ class POSView(QWidget):
             .currency-usd {
                 font-size: 24px;
                 font-weight: bold;
-                color:#03991f;
+                color: #03991f;
             }
             .currency-lbp {
                 font-size: 20px;
                 color: #666;
             }
         """)
-        totals_layout = QVBoxLayout(self.totals_frame)
-        totals_layout.setContentsMargins(15, 10, 15, 10)
-        totals_layout.setSpacing(8)
         
-        # USD Total (Primary)
+        # Main horizontal layout
+        totals_layout = QHBoxLayout(self.totals_frame)
+        totals_layout.setContentsMargins(15, 10, 15, 10)
+        totals_layout.setSpacing(20)  # Increased spacing between sections
+        
+        # Order Type Buttons Section (Left)
+        order_buttons_container = QFrame()
+        order_buttons_layout = QHBoxLayout(order_buttons_container)
+        order_buttons_layout.setContentsMargins(0, 0, 0, 0)
+        order_buttons_layout.setSpacing(10)
+        
+        # Button styles
+        button_style = """
+            QPushButton {
+                background: white;
+                border: 1px solid #DEDEDE;
+                border-radius: 4px;
+                padding: 8px 16px;
+                color: #333;
+                font-size: 13px;
+                height: 36px;
+                min-width: 100px;
+            }
+            QPushButton:hover {
+                background: #F8F9FA;
+                border-color: #2196F3;
+            }
+            QPushButton:checked {
+                background: #2196F3;
+                border-color: #2196F3;
+                color: white;
+            }
+        """
+        
+        # Create order type buttons
+        order_types = ["Dine In", "Take-Away", "Delivery"]
+        for order_type in order_types:
+            btn = QPushButton(order_type)
+            btn.setStyleSheet(button_style)
+            btn.setCheckable(True)
+            if order_type == "Dine In":
+                btn.setChecked(True)
+            order_buttons_layout.addWidget(btn)
+        
+        # Amounts Section (Right)
+        amounts_container = QFrame()
+        amounts_layout = QVBoxLayout(amounts_container)
+        amounts_layout.setContentsMargins(0, 0, 0, 0)
+        amounts_layout.setSpacing(4)
+        
+        # USD Total
         usd_layout = QHBoxLayout()
-        usd_layout.addStretch()
-        # usd_label = QLabel("Total USD")
         self.usd_amount = QLabel("$ 0.00")
         self.usd_amount.setProperty("class", "currency-usd")
-        # usd_layout.addWidget(usd_label)
-        # usd_layout.addStretch()
+        usd_layout.addStretch()
         usd_layout.addWidget(self.usd_amount)
         
-        # LBP Total (Secondary)
+        # LBP Total
         lbp_layout = QHBoxLayout()
-        lbp_layout.addStretch()
-        # lbp_label = QLabel("LBP")
         self.lbp_amount = QLabel("LBP 000")
         self.lbp_amount.setProperty("class", "currency-lbp")
-        # lbp_layout.addWidget(lbp_label)
-        # lbp_layout.addStretch()
+        lbp_layout.addStretch()
         lbp_layout.addWidget(self.lbp_amount)
         
-        totals_layout.addLayout(usd_layout)
-        totals_layout.addLayout(lbp_layout)
-
-        # Add products and totals to their container
-        products_totals_layout.addWidget(products_scroll, 1)
-        products_totals_layout.addWidget(self.totals_frame)
-
-        # Add widgets to content layout in new order
-        content_layout.addWidget(center_panel)
-        content_layout.addWidget(products_totals_container, 1)
-
-        # Add content container to main layout
-        main_layout.addWidget(content_container, 1)
+        # Add layouts to amounts container
+        amounts_layout.addLayout(usd_layout)
+        amounts_layout.addLayout(lbp_layout)
         
-        # Initialize first category
-        self._show_category_items(self.categories[0])
+        # Add sections to main layout
+        totals_layout.addWidget(order_buttons_container)
+        totals_layout.addStretch(1)  # Add stretch to push amounts to the right
+        totals_layout.addWidget(amounts_container)
         
-        return products_frame
+        return self.totals_frame
 
     def _show_category_items(self, category):
         """Display product items for selected category"""
@@ -1119,10 +1066,39 @@ class POSView(QWidget):
             # Delete current POS view
             self.deleteLater()
 
-    def _clear_search(self):
-        """Clear search input and reset product display"""
-        self.search_input.clear()
-        self._show_category_items(self.selected_horizontal_category or self.categories[0])
+    # def _clear_search(self):
+    #     """Clear search input and reset product display"""
+    #     self.search_input.clear()
+    #     self._show_category_items(self.selected_horizontal_category or self.categories[0])
+
+    def _backspace_search(self):
+        """Remove last character from search input"""
+        current_text = self.search_input.text()
+        if current_text:
+            # Remove last character
+            new_text = current_text[:-1]
+            self.search_input.setText(new_text)
+            # Trigger search filter with new text
+            self._filter_products()
+
+    def eventFilter(self, obj, event):
+        """Handle keyboard events for search input"""
+        if obj == self.search_input and event.type() == event.KeyPress:
+            if event.key() == Qt.Key_Backspace:
+                # If text is selected, let default backspace behavior handle it
+                if self.search_input.hasSelectedText():
+                    return False
+                
+                # Get cursor position
+                cursor_pos = self.search_input.cursorPosition()
+                current_text = self.search_input.text()
+                
+                # Only override default behavior if cursor is at the end
+                if cursor_pos == len(current_text):
+                    self._backspace_search()
+                    return True
+                
+        return super().eventFilter(obj, event)
 
     def _filter_products(self):
         """Filter products based on search input"""
@@ -1197,3 +1173,71 @@ class OrderItem:
 
     def get_total(self):
         return self.price * self.quantity
+    
+class SearchLineEdit(QLineEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        
+        # Load search icon (left)
+        search_icon = QSvgRenderer("assets/images/search.svg")
+        self.search_pixmap = QPixmap(20, 20)
+        self.search_pixmap.fill(Qt.transparent)
+        painter = QPainter(self.search_pixmap)
+        search_icon.render(painter)
+        painter.end()
+
+        # Load backspace icon (right)
+        backspace_icon = QSvgRenderer("assets/images/backspace.svg")
+        self.backspace_pixmap = QPixmap(20, 20)
+        self.backspace_pixmap.fill(Qt.transparent)
+        painter = QPainter(self.backspace_pixmap)
+        backspace_icon.render(painter)
+        painter.end()
+        
+        # Adjust style to leave space for both icons
+        self.setStyleSheet("""
+            QLineEdit {
+                border: 1px solid #DEDEDE;
+                border-radius: 20px;
+                padding: 8px 40px 8px 40px; /* Left 40px for search, Right 40px for backspace */
+                font-size: 14px;
+                color: #333;
+                min-width: 300px;
+                max-width: 400px;
+                background: white;
+            }
+            QLineEdit:focus {
+                border-color: #2196F3;
+                outline: none;
+            }
+        """)
+
+    def paintEvent(self, event):
+        """Draw search icon on the left and backspace icon on the right."""
+        super().paintEvent(event)
+        painter = QPainter(self)
+
+        # Draw search icon (left)
+        painter.drawPixmap(12, (self.height() - 20) // 2, self.search_pixmap)
+
+        # Draw backspace icon (right)
+        if self.text():
+            painter.drawPixmap(self.width() - 32, (self.height() - 20) // 2, self.backspace_pixmap)
+
+    def mousePressEvent(self, event):
+        """Detect clicks on the backspace icon and remove one character at a time."""
+        if self.text():
+            backspace_x_start = self.width() - 32
+            if backspace_x_start <= event.x() <= self.width() - 12:
+                # Simulate backspace key behavior: remove the last character
+                current_text = self.text()
+                new_text = current_text[:-1]  # Remove last character
+                self.setText(new_text)
+                
+                # Prevent event propagation
+                event.accept()
+                return
+        
+        # If not clicking the backspace icon, handle event normally
+        super().mousePressEvent(event)
+

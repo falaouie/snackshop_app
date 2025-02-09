@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox,
                              QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter,
                              QToolButton, QMenu, QMainWindow, QLineEdit)
-from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
+from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime, QPropertyAnimation, QPoint
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 from . import styles
@@ -13,16 +13,14 @@ class POSView(QWidget):
         super().__init__(parent)
         self.user_id = user_id
         self.screen_config = screen_config
-        self.order_items = []  # List to store order items
-        self.exchange_rate = 90000  # LBP per USD
-        
-        # Add these new attributes for tracking horizontal category buttons
+        self.order_items = []
+        self.exchange_rate = 90000
         self.horizontal_category_buttons = {}
         self.selected_horizontal_category = None
-        
-        # Existing attributes
         self.category_buttons = {}
         self.selected_category = None
+        self.keyboard_visible = False
+        self.virtual_keyboard = None
         
         # Sample prices (you would typically get these from a database)
         self.prices = {
@@ -52,14 +50,15 @@ class POSView(QWidget):
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setContentsMargins(0, 0, 0, 10)  # Added bottom margin
         main_layout.setSpacing(0)
 
         # Initialize selected item tracking
         self.selected_item = None
         
-        # Add top bar
-        main_layout.addWidget(self._create_top_bar())
+        # Add top bar - call only once and store the result
+        top_bar_container = self._create_top_bar()
+        main_layout.addWidget(top_bar_container)
 
         # Main Content Area with Splitter
         content_splitter = QSplitter(Qt.Horizontal)
@@ -75,12 +74,21 @@ class POSView(QWidget):
         self.order_widget.setFixedWidth(350)
         content_splitter.addWidget(self.order_widget)
         
-        # Right Side - Products Grid
+        # Middle - Products Grid
         self.products_widget = self._create_products_widget()
+
+        # Create virtual keyboard after products widget
+        self.virtual_keyboard = VirtualKeyboard(self)
+        self.virtual_keyboard.hide()  # Initially hidden
+
         content_splitter.addWidget(self.products_widget)
         
-        # Add splitter to main layout
+        # Add splitter to main layout with spacing at the bottom
         main_layout.addWidget(content_splitter, 1)
+
+        # Create and add bottom bar with proper spacing
+        self._create_bottom_bar()
+        main_layout.addWidget(self.bottom_bar, 0)
 
     def _create_top_bar(self):
         """Create top bar with employee info, search, and lock button"""
@@ -143,42 +151,16 @@ class POSView(QWidget):
         search_layout = QHBoxLayout(search_container)
         search_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Create search icon
-        search_icon = QLabel()
-        renderer = QSvgRenderer("assets/images/search.svg")
-        pixmap = QPixmap(20, 20)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-        search_icon.setPixmap(pixmap)
-        search_icon.setStyleSheet("margin-left: 10px;")
-
-        # Create search input
-        self.search_input = QLineEdit()
+        # Create search input with embedded icon
+        self.search_input = SearchLineEdit()
+        self.search_input.textChanged.connect(self._filter_products)
         self.search_input.setPlaceholderText("Search products...")
-        self.search_input.setStyleSheet("""
-            QLineEdit {
-                background: white;
-                border: 1px solid #DEDEDE;
-                border-radius: 20px;
-                padding: 8px 12px 8px 35px;
-                font-size: 14px;
-                color: #333;
-                min-width: 300px;
-                max-width: 400px;
-            }
-            QLineEdit:focus {
-                border-color: #2196F3;
-                outline: none;
-            }
-        """)
         self.search_input.setFixedHeight(40)
-
-        # Create clear button
-        clear_btn = QPushButton()
-        clear_btn.setIcon(QIcon("assets/images/clear.svg"))
-        clear_btn.setStyleSheet("""
+        
+        # Create clear/backspace button
+        keyboard_btn = QPushButton()
+        keyboard_btn.setIcon(QIcon("assets/images/keyboard.svg"))
+        keyboard_btn.setStyleSheet("""
             QPushButton {
                 background: transparent;
                 border: none;
@@ -189,15 +171,17 @@ class POSView(QWidget):
                 border-radius: 12px;
             }
         """)
-        clear_btn.setFixedSize(24, 24)
-        clear_btn.clicked.connect(self._clear_search)
+        keyboard_btn.setIconSize(QSize(70, 40))
+        keyboard_btn.clicked.connect(self._toggle_keyboard)
 
-        # Add search elements to search layout
+        # Add search elements to search layout and keyboard button
         search_layout.addStretch(1)
-        search_layout.addWidget(search_icon)
         search_layout.addWidget(self.search_input)
-        search_layout.addWidget(clear_btn)
+        search_layout.addWidget(keyboard_btn)
         search_layout.addStretch(1)
+
+        # Install event filter for keyboard events
+        self.search_input.installEventFilter(self)
 
         # Controls Zone (Lock Button)
         controls_zone = QFrame()
@@ -242,11 +226,42 @@ class POSView(QWidget):
         self._update_time()
 
         return self.top_bar
+    
+    def _toggle_keyboard(self):
+        """Toggle virtual keyboard visibility"""
+        if not self.keyboard_visible:
+            # Calculate available space for products
+            total_height = self.products_widget.height()
+            keyboard_height = self.virtual_keyboard.height()
+            
+            # Show keyboard
+            self.virtual_keyboard.set_search_input(self.search_input)
+            self.virtual_keyboard.show()
+            
+            # Adjust scroll area if needed
+            scroll_area = self.findChild(QScrollArea)
+            if scroll_area:
+                scroll_area.setFixedHeight(total_height - keyboard_height)
+            
+            self.keyboard_visible = True
+        else:
+            # Hide keyboard
+            self.virtual_keyboard.hide()
+            
+            # Reset scroll area height
+            scroll_area = self.findChild(QScrollArea)
+            if scroll_area:
+                scroll_area.setFixedHeight(16777215)  # QWIDGETSIZE_MAX
+            
+            self.keyboard_visible = False
         
-        # Create a container widget to hold everything
-        container = QWidget()
-        container.setLayout(main_layout)
-        return container
+        self.search_input.setFocus()
+
+    def resizeEvent(self, event):
+        """Handle resize events to maintain keyboard positioning"""
+        super().resizeEvent(event)
+        if self.keyboard_visible and self.virtual_keyboard:
+            self.virtual_keyboard.showEvent(event)  # Trigger repositioning
 
     def _create_order_widget(self):
         """Create order panel"""
@@ -1090,10 +1105,39 @@ class POSView(QWidget):
             # Delete current POS view
             self.deleteLater()
 
-    def _clear_search(self):
-        """Clear search input and reset product display"""
-        self.search_input.clear()
-        self._show_category_items(self.selected_horizontal_category or self.categories[0])
+    # def _clear_search(self):
+    #     """Clear search input and reset product display"""
+    #     self.search_input.clear()
+    #     self._show_category_items(self.selected_horizontal_category or self.categories[0])
+
+    def _backspace_search(self):
+        """Remove last character from search input"""
+        current_text = self.search_input.text()
+        if current_text:
+            # Remove last character
+            new_text = current_text[:-1]
+            self.search_input.setText(new_text)
+            # Trigger search filter with new text
+            self._filter_products()
+
+    def eventFilter(self, obj, event):
+        """Handle keyboard events for search input"""
+        if obj == self.search_input and event.type() == event.KeyPress:
+            if event.key() == Qt.Key_Backspace:
+                # If text is selected, let default backspace behavior handle it
+                if self.search_input.hasSelectedText():
+                    return False
+                
+                # Get cursor position
+                cursor_pos = self.search_input.cursorPosition()
+                current_text = self.search_input.text()
+                
+                # Only override default behavior if cursor is at the end
+                if cursor_pos == len(current_text):
+                    self._backspace_search()
+                    return True
+                
+        return super().eventFilter(obj, event)
 
     def _filter_products(self):
         """Filter products based on search input"""
@@ -1168,3 +1212,265 @@ class OrderItem:
 
     def get_total(self):
         return self.price * self.quantity
+    
+class SearchLineEdit(QLineEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        
+        # Load search icon (left)
+        search_icon = QSvgRenderer("assets/images/search.svg")
+        self.search_pixmap = QPixmap(20, 20)
+        self.search_pixmap.fill(Qt.transparent)
+        painter = QPainter(self.search_pixmap)
+        search_icon.render(painter)
+        painter.end()
+
+        # Load backspace icon (right)
+        backspace_icon = QSvgRenderer("assets/images/backspace.svg")
+        self.backspace_pixmap = QPixmap(20, 20)
+        self.backspace_pixmap.fill(Qt.transparent)
+        painter = QPainter(self.backspace_pixmap)
+        backspace_icon.render(painter)
+        painter.end()
+        
+        # Adjust style to leave space for both icons
+        self.setStyleSheet("""
+            QLineEdit {
+                border: 1px solid #DEDEDE;
+                border-radius: 20px;
+                padding: 8px 40px 8px 40px; /* Left 40px for search, Right 40px for backspace */
+                font-size: 14px;
+                color: #333;
+                min-width: 300px;
+                max-width: 400px;
+                background: white;
+            }
+            QLineEdit:focus {
+                border-color: #2196F3;
+                outline: none;
+            }
+        """)
+
+    def paintEvent(self, event):
+        """Draw search icon on the left and backspace icon on the right."""
+        super().paintEvent(event)
+        painter = QPainter(self)
+
+        # Draw search icon (left)
+        painter.drawPixmap(12, (self.height() - 20) // 2, self.search_pixmap)
+
+        # Draw backspace icon (right)
+        if self.text():
+            painter.drawPixmap(self.width() - 32, (self.height() - 20) // 2, self.backspace_pixmap)
+
+    def mousePressEvent(self, event):
+        """Detect clicks on the backspace icon and remove one character at a time."""
+        if self.text():
+            backspace_x_start = self.width() - 32
+            if backspace_x_start <= event.x() <= self.width() - 12:
+                # Simulate backspace key behavior: remove the last character
+                current_text = self.text()
+                new_text = current_text[:-1]  # Remove last character
+                self.setText(new_text)
+                
+                # Prevent event propagation
+                event.accept()
+                return
+        
+        # If not clicking the backspace icon, handle event normally
+        super().mousePressEvent(event)
+
+
+class VirtualKeyboard(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.search_input = None
+        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_StyledBackground, True)  # Enable stylesheet on widget
+        self._setup_ui()
+        self.hide()
+
+    def _setup_ui(self):
+        # Main layout
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(10)
+
+        # Container for QWERTY and Numpad
+        keyboard_container = QHBoxLayout()
+        keyboard_container.setSpacing(15)  # Space between QWERTY and numpad
+
+        # QWERTY Section (Left side)
+        qwerty_widget = QWidget()
+        qwerty_layout = QGridLayout(qwerty_widget)
+        qwerty_layout.setSpacing(5)
+
+        # QWERTY Keys
+        qwerty_rows = [
+            list('QWERTYUIOP'),
+            list('ASDFGHJKL'),
+            list('ZXCVBNM')
+        ]
+
+        # Create and add QWERTY keys
+        for row, letters in enumerate(qwerty_rows):
+            for col, letter in enumerate(letters):
+                btn = QPushButton(letter)
+                btn.setFixedSize(45, 45)
+                btn.clicked.connect(lambda checked, l=letter: self._on_key_press(l))
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background: white;
+                        border: 1px solid #DEDEDE;
+                        border-radius: 8px;
+                        color: #333;
+                        font-size: 16px;
+                    }
+                    QPushButton:hover {
+                        background: #F8F9FA;
+                        border-color: #2196F3;
+                    }
+                """)
+                # Center-align shorter rows
+                offset = (10 - len(letters)) // 2 if row == 2 else 0
+                qwerty_layout.addWidget(btn, row, col + offset)
+
+        keyboard_container.addWidget(qwerty_widget, stretch=7)
+
+        # Numpad Section (Right side)
+        numpad_widget = QWidget()
+        numpad_layout = QGridLayout(numpad_widget)
+        numpad_layout.setSpacing(5)
+
+        # Numpad keys layout
+        numpad_keys = [
+            ['7', '8', '9'],
+            ['4', '5', '6'],
+            ['1', '2', '3'],
+            ['0', 'Enter']
+        ]
+
+        # Add backspace key at top of numpad
+        backspace_btn = QPushButton('⌫')
+        backspace_btn.setFixedSize(145, 45)
+        backspace_btn.clicked.connect(self._on_backspace)
+        backspace_btn.setStyleSheet("""
+            QPushButton {
+                background: #F44336;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 20px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background: #E53935;
+            }
+        """)
+        numpad_layout.addWidget(backspace_btn, 0, 0, 1, 3)  # Span all columns
+
+        # Create and add numpad keys
+        for row, keys in enumerate(numpad_keys):
+            for col, key in enumerate(keys):
+                btn = QPushButton(key)
+                btn.setFixedSize(45, 45)
+                if key == 'Enter':
+                    btn.setFixedSize(95, 45)  # Wider enter key
+                    btn.clicked.connect(self._on_enter)
+                    btn.setStyleSheet("""
+                        QPushButton {
+                            background: #2196F3;
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 14px;
+                            font-weight: bold;
+                        }
+                        QPushButton:hover {
+                            background: #1E88E5;
+                        }
+                    """)
+                    numpad_layout.addWidget(btn, row + 1, col, 1, 2)  # Span 2 columns
+                else:
+                    btn.clicked.connect(lambda checked, k=key: self._on_key_press(k))
+                    btn.setStyleSheet("""
+                        QPushButton {
+                            background: white;
+                            border: 1px solid #DEDEDE;
+                            border-radius: 8px;
+                            color: #333;
+                            font-size: 16px;
+                        }
+                        QPushButton:hover {
+                            background: #F8F9FA;
+                            border-color: #2196F3;
+                        }
+                    """)
+                    numpad_layout.addWidget(btn, row + 1, col)
+
+        keyboard_container.addWidget(numpad_widget, stretch=3)
+
+        # Add keyboard container to main layout
+        main_layout.addLayout(keyboard_container)
+
+        # Space bar
+        space_btn = QPushButton('Space')
+        space_btn.setFixedHeight(45)
+        space_btn.clicked.connect(lambda: self._on_key_press(' '))
+        space_btn.setStyleSheet("""
+            QPushButton {
+                background: white;
+                border: 1px solid #DEDEDE;
+                border-radius: 8px;
+                color: #333;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background: #F8F9FA;
+                border-color: #2196F3;
+            }
+        """)
+        main_layout.addWidget(space_btn)
+
+        # Set fixed height for keyboard
+        self.setFixedHeight(300)
+        self.setStyleSheet("""
+            VirtualKeyboard {
+                background: #F8F9FA;
+                border-top: 1px solid #DEDEDE;
+            }
+        """)
+
+    def showEvent(self, event):
+        """Override show event to ensure proper positioning"""
+        super().showEvent(event)
+        if self.parent():
+            # Position at the bottom of the parent widget
+            parent_rect = self.parent().rect()
+            self.setFixedWidth(parent_rect.width())
+            x = 0
+            y = parent_rect.height() - self.height()
+            self.move(x, y)
+
+    def _on_key_press(self, key):
+        if self.search_input:
+            current_text = self.search_input.text()
+            new_text = current_text + key
+            self.search_input.setText(new_text)
+            self.search_input.setFocus()
+
+    def _on_backspace(self):
+        if self.search_input:
+            current_text = self.search_input.text()
+            if current_text:
+                new_text = current_text[:-1]
+                self.search_input.setText(new_text)
+            self.search_input.setFocus()
+
+    def _on_enter(self):
+        if self.search_input:
+            self.hide()
+            self.search_input.setFocus()
+
+    def set_search_input(self, search_input):
+        self.search_input = search_input

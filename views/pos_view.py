@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox,
                              QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter,
                              QToolButton, QMenu, QMainWindow, QLineEdit)
-from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
+from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime, QPropertyAnimation, QPoint
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 from . import styles
@@ -13,16 +13,14 @@ class POSView(QWidget):
         super().__init__(parent)
         self.user_id = user_id
         self.screen_config = screen_config
-        self.order_items = []  # List to store order items
-        self.exchange_rate = 90000  # LBP per USD
-        
-        # Add these new attributes for tracking horizontal category buttons
+        self.order_items = []
+        self.exchange_rate = 90000
         self.horizontal_category_buttons = {}
         self.selected_horizontal_category = None
-        
-        # Existing attributes
         self.category_buttons = {}
         self.selected_category = None
+        self.keyboard_visible = False
+        self.virtual_keyboard = None
         
         # Sample prices (you would typically get these from a database)
         self.prices = {
@@ -78,6 +76,11 @@ class POSView(QWidget):
         
         # Middle - Products Grid
         self.products_widget = self._create_products_widget()
+
+        # Create virtual keyboard after products widget
+        self.virtual_keyboard = VirtualKeyboard(self)
+        self.virtual_keyboard.hide()  # Initially hidden
+
         content_splitter.addWidget(self.products_widget)
         
         # Add splitter to main layout with spacing at the bottom
@@ -96,7 +99,7 @@ class POSView(QWidget):
                 border-bottom: 1px solid #DEDEDE;
             }
         """)
-        self.top_bar.setFixedHeight(60)  # Reduced height
+        self.top_bar.setFixedHeight(60)
         
         # Main layout
         layout = QHBoxLayout(self.top_bar)
@@ -169,7 +172,7 @@ class POSView(QWidget):
             }
         """)
         keyboard_btn.setIconSize(QSize(70, 40))
-        keyboard_btn.clicked.connect(self._backspace_search)
+        keyboard_btn.clicked.connect(self._toggle_keyboard)
 
         # Add search elements to search layout and keyboard button
         search_layout.addStretch(1)
@@ -223,6 +226,26 @@ class POSView(QWidget):
         self._update_time()
 
         return self.top_bar
+    
+    def _toggle_keyboard(self):
+        """Toggle virtual keyboard visibility"""
+        if not self.keyboard_visible:
+            # Show keyboard
+            self.virtual_keyboard.set_search_input(self.search_input)
+            self.virtual_keyboard.show()            
+            self.keyboard_visible = True
+        else:
+            # Hide keyboard
+            self.virtual_keyboard.hide()
+            self.keyboard_visible = False
+        
+        self.search_input.setFocus()
+
+    def resizeEvent(self, event):
+        """Handle resize events to maintain keyboard positioning"""
+        super().resizeEvent(event)
+        if self.keyboard_visible and self.virtual_keyboard:
+            self.virtual_keyboard.showEvent(event)  # Trigger repositioning
 
     def _create_order_widget(self):
         """Create order panel"""
@@ -799,8 +822,8 @@ class POSView(QWidget):
         # Sample items (this would typically come from a database)
         items = {
             "Main": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
-                        "Vegan Sandwich", "BLT2", "Tuna", "Veggie3", "Egg Sandwich2", "Steak N Cheese 2",
-                        "Vegan Sandwich", "BLT3", "Tuna", "Another Vegan Sandwich", "Another BLT", "Another Tuna"],
+                        "Vegan Sandwich", "BLT 2", "Tuna", "Veggie 3", "Egg Sandwich 2", "Steak N Cheese 2",
+                        "Vegan Sandwich", "BLT 3", "Tuna", "Another Vegan Sandwich", "Another BLT", "Another Tuna"],
             "Sandwiches": ["Chicken Club6", "BLT5", "Tuna8", "Veggie5", "Egg Sandwich4", 
                         "Steak N Cheese", "Vegan Sandwich"],
             "Snacks": ["Chips", "Popcorn", "Nuts", "Pretzels"],
@@ -940,7 +963,7 @@ class POSView(QWidget):
         # Add Clear Order action
         clear_action = menu.addAction("Cancel Order")
         clear_item = menu.addAction("Remove Selected Item")
-        clear_action.setIcon(QIcon("assets/images/clear.png"))  # Assuming you have this icon
+        clear_action.setIcon(QIcon("assets/images/clear.png"))
         
         # Show menu at button position
         action = menu.exec_(self.sender().mapToGlobal(self.sender().rect().bottomLeft()))
@@ -1241,3 +1264,198 @@ class SearchLineEdit(QLineEdit):
         # If not clicking the backspace icon, handle event normally
         super().mousePressEvent(event)
 
+
+class VirtualKeyboard(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.search_input = None
+        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_StyledBackground, True)  # Enable stylesheet on widget
+        self._setup_ui()
+        self.hide()
+
+    def _setup_ui(self):
+        # Main layout
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(5, 5, 5, 5)
+        main_layout.setSpacing(5)
+
+        # Container for QWERTY and Numpad
+        keyboard_container = QHBoxLayout()
+        keyboard_container.setSpacing(5)  # Space between QWERTY and numpad
+
+        # QWERTY Section (Left side)
+        qwerty_widget = QWidget()
+        qwerty_layout = QGridLayout(qwerty_widget)
+        qwerty_layout.setSpacing(5)
+
+        # QWERTY Keys
+        qwerty_rows = [
+            list('QWERTYUIOP'),
+            list('ASDFGHJKL'),
+            list('ZXCVBNM')
+        ]
+
+        # Create and add QWERTY keys
+        for row, letters in enumerate(qwerty_rows):
+            for col, letter in enumerate(letters):
+                btn = QPushButton(letter)
+                btn.setFixedSize(40, 40)
+                btn.clicked.connect(lambda checked, l=letter: self._on_key_press(l))
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background: white;
+                        border: 1px solid #DEDEDE;
+                        border-radius: 8px;
+                        color: #333;
+                        font-size: 16px;
+                    }
+                    QPushButton:hover {
+                        background: #F8F9FA;
+                        border-color: #2196F3;
+                    }
+                """)
+                # Center-align shorter rows
+                offset = (10 - len(letters)) // 2 if row == 2 else 0
+                qwerty_layout.addWidget(btn, row, col + offset)
+
+        keyboard_container.addWidget(qwerty_widget, stretch=7)
+
+        # Numpad Section (Right side)
+        numpad_widget = QWidget()
+        numpad_layout = QGridLayout(numpad_widget)
+        numpad_layout.setSpacing(5)
+
+        # Numpad keys layout
+        numpad_keys = [
+            ['7', '8', '9'],
+            ['4', '5', '6'],
+            ['1', '2', '3'],
+            ['','0', '']
+        ]
+
+        # # Add backspace key at top of numpad
+        # backspace_btn = QPushButton('⌫')
+        # backspace_btn.setFixedSize(145, 45)
+        # backspace_btn.clicked.connect(self._on_backspace)
+        # backspace_btn.setStyleSheet("""
+        #     QPushButton {
+        #         background: #F44336;
+        #         color: white;
+        #         border: none;
+        #         border-radius: 8px;
+        #         font-size: 20px;
+        #         font-weight: bold;
+        #     }
+        #     QPushButton:hover {
+        #         background: #E53935;
+        #     }
+        # """)
+        # numpad_layout.addWidget(backspace_btn, 0, 0, 1, 3)  # Span all columns
+
+        # Create and add numpad keys
+        for row, keys in enumerate(numpad_keys):
+            for col, key in enumerate(keys):
+                btn = QPushButton(key)
+                btn.setFixedSize(45, 45)
+                if key == 'Enter':
+                    btn.setFixedSize(95, 45)  # Wider enter key
+                    btn.clicked.connect(self._on_enter)
+                    btn.setStyleSheet("""
+                        QPushButton {
+                            background: #2196F3;
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 14px;
+                            font-weight: bold;
+                        }
+                        QPushButton:hover {
+                            background: #1E88E5;
+                        }
+                    """)
+                    numpad_layout.addWidget(btn, row + 1, col, 1, 2)  # Span 2 columns
+                else:
+                    if key == '':
+                        pass
+                    else:
+                        btn.clicked.connect(lambda checked, k=key: self._on_key_press(k))
+                        btn.setStyleSheet("""
+                            QPushButton {
+                                background: white;
+                                border: 1px solid #DEDEDE;
+                                border-radius: 8px;
+                                color: #333;
+                                font-size: 16px;
+                            }
+                            QPushButton:hover {
+                                background: #F8F9FA;
+                                border-color: #2196F3;
+                            }
+                        """)
+                        numpad_layout.addWidget(btn, row + 1, col)
+
+        keyboard_container.addWidget(numpad_widget, stretch=3)
+
+        # Add keyboard container to main layout
+        main_layout.addLayout(keyboard_container)
+
+        # Space bar
+        space_btn = QPushButton('Space')
+        space_btn.setFixedSize(500, 40)
+        space_btn.clicked.connect(lambda: self._on_key_press(' '))
+        space_btn.setStyleSheet("""
+            QPushButton {
+                background: white;
+                border: 1px solid #DEDEDE;
+                border-radius: 8px;
+                color: #333;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background: #F8F9FA;
+                border-color: #2196F3;
+            }
+        """)
+
+        main_layout.addWidget(space_btn)
+        self.setStyleSheet("""
+            VirtualKeyboard {
+                background: #F8F9FA;
+                border-top: 1px solid #DEDEDE;
+            }
+        """)
+
+    def showEvent(self, event):
+        """Override show event to ensure proper positioning"""
+        super().showEvent(event)
+        if self.parent():
+            # # Position at the bottom of the parent widget
+            # parent_rect = self.parent().rect()
+            # self.setFixedWidth(parent_rect.width())
+            x = 750
+            y = 600
+            self.move(x, y)
+
+    def _on_key_press(self, key):
+        if self.search_input:
+            current_text = self.search_input.text()
+            new_text = current_text + key
+            self.search_input.setText(new_text)
+            self.search_input.setFocus()
+
+    def _on_backspace(self):
+        if self.search_input:
+            current_text = self.search_input.text()
+            if current_text:
+                new_text = current_text[:-1]
+                self.search_input.setText(new_text)
+            self.search_input.setFocus()
+
+    def _on_enter(self):
+        if self.search_input:
+            self.hide()
+            self.search_input.setFocus()
+
+    def set_search_input(self, search_input):
+        self.search_input = search_input
