@@ -148,43 +148,16 @@ class POSView(QWidget):
         search_layout = QHBoxLayout(search_container)
         search_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Create search icon
-        search_icon = QLabel()
-        renderer = QSvgRenderer("assets/images/search.svg")
-        pixmap = QPixmap(20, 20)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-        search_icon.setPixmap(pixmap)
-        search_icon.setStyleSheet("margin-left: 10px;")
-
-        # Create search input
-        self.search_input = QLineEdit()
+        # Create search input with embedded icon
+        self.search_input = SearchLineEdit()
         self.search_input.textChanged.connect(self._filter_products)
         self.search_input.setPlaceholderText("Search products...")
-        self.search_input.setStyleSheet("""
-            QLineEdit {
-                background: white;
-                border: 1px solid #DEDEDE;
-                border-radius: 20px;
-                padding: 8px 12px 8px 35px;
-                font-size: 14px;
-                color: #333;
-                min-width: 300px;
-                max-width: 400px;
-            }
-            QLineEdit:focus {
-                border-color: #2196F3;
-                outline: none;
-            }
-        """)
         self.search_input.setFixedHeight(40)
-
-        # Create clear button
-        clear_btn = QPushButton()
-        clear_btn.setIcon(QIcon("assets/images/clear.svg"))
-        clear_btn.setStyleSheet("""
+        
+        # Create clear/backspace button
+        keyboard_btn = QPushButton()
+        keyboard_btn.setIcon(QIcon("assets/images/keyboard.svg"))
+        keyboard_btn.setStyleSheet("""
             QPushButton {
                 background: transparent;
                 border: none;
@@ -195,15 +168,17 @@ class POSView(QWidget):
                 border-radius: 12px;
             }
         """)
-        clear_btn.setFixedSize(24, 24)
-        clear_btn.clicked.connect(self._clear_search)
+        keyboard_btn.setIconSize(QSize(70, 40))
+        keyboard_btn.clicked.connect(self._backspace_search)
 
-        # Add search elements to search layout
+        # Add search elements to search layout and keyboard button
         search_layout.addStretch(1)
-        search_layout.addWidget(search_icon)
         search_layout.addWidget(self.search_input)
-        search_layout.addWidget(clear_btn)
+        search_layout.addWidget(keyboard_btn)
         search_layout.addStretch(1)
+
+        # Install event filter for keyboard events
+        self.search_input.installEventFilter(self)
 
         # Controls Zone (Lock Button)
         controls_zone = QFrame()
@@ -1091,10 +1066,39 @@ class POSView(QWidget):
             # Delete current POS view
             self.deleteLater()
 
-    def _clear_search(self):
-        """Clear search input and reset product display"""
-        self.search_input.clear()
-        self._show_category_items(self.selected_horizontal_category or self.categories[0])
+    # def _clear_search(self):
+    #     """Clear search input and reset product display"""
+    #     self.search_input.clear()
+    #     self._show_category_items(self.selected_horizontal_category or self.categories[0])
+
+    def _backspace_search(self):
+        """Remove last character from search input"""
+        current_text = self.search_input.text()
+        if current_text:
+            # Remove last character
+            new_text = current_text[:-1]
+            self.search_input.setText(new_text)
+            # Trigger search filter with new text
+            self._filter_products()
+
+    def eventFilter(self, obj, event):
+        """Handle keyboard events for search input"""
+        if obj == self.search_input and event.type() == event.KeyPress:
+            if event.key() == Qt.Key_Backspace:
+                # If text is selected, let default backspace behavior handle it
+                if self.search_input.hasSelectedText():
+                    return False
+                
+                # Get cursor position
+                cursor_pos = self.search_input.cursorPosition()
+                current_text = self.search_input.text()
+                
+                # Only override default behavior if cursor is at the end
+                if cursor_pos == len(current_text):
+                    self._backspace_search()
+                    return True
+                
+        return super().eventFilter(obj, event)
 
     def _filter_products(self):
         """Filter products based on search input"""
@@ -1169,3 +1173,71 @@ class OrderItem:
 
     def get_total(self):
         return self.price * self.quantity
+    
+class SearchLineEdit(QLineEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        
+        # Load search icon (left)
+        search_icon = QSvgRenderer("assets/images/search.svg")
+        self.search_pixmap = QPixmap(20, 20)
+        self.search_pixmap.fill(Qt.transparent)
+        painter = QPainter(self.search_pixmap)
+        search_icon.render(painter)
+        painter.end()
+
+        # Load backspace icon (right)
+        backspace_icon = QSvgRenderer("assets/images/backspace.svg")
+        self.backspace_pixmap = QPixmap(20, 20)
+        self.backspace_pixmap.fill(Qt.transparent)
+        painter = QPainter(self.backspace_pixmap)
+        backspace_icon.render(painter)
+        painter.end()
+        
+        # Adjust style to leave space for both icons
+        self.setStyleSheet("""
+            QLineEdit {
+                border: 1px solid #DEDEDE;
+                border-radius: 20px;
+                padding: 8px 40px 8px 40px; /* Left 40px for search, Right 40px for backspace */
+                font-size: 14px;
+                color: #333;
+                min-width: 300px;
+                max-width: 400px;
+                background: white;
+            }
+            QLineEdit:focus {
+                border-color: #2196F3;
+                outline: none;
+            }
+        """)
+
+    def paintEvent(self, event):
+        """Draw search icon on the left and backspace icon on the right."""
+        super().paintEvent(event)
+        painter = QPainter(self)
+
+        # Draw search icon (left)
+        painter.drawPixmap(12, (self.height() - 20) // 2, self.search_pixmap)
+
+        # Draw backspace icon (right)
+        if self.text():
+            painter.drawPixmap(self.width() - 32, (self.height() - 20) // 2, self.backspace_pixmap)
+
+    def mousePressEvent(self, event):
+        """Detect clicks on the backspace icon and remove one character at a time."""
+        if self.text():
+            backspace_x_start = self.width() - 32
+            if backspace_x_start <= event.x() <= self.width() - 12:
+                # Simulate backspace key behavior: remove the last character
+                current_text = self.text()
+                new_text = current_text[:-1]  # Remove last character
+                self.setText(new_text)
+                
+                # Prevent event propagation
+                event.accept()
+                return
+        
+        # If not clicking the backspace icon, handle event normally
+        super().mousePressEvent(event)
+
