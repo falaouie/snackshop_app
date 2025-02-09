@@ -1427,16 +1427,23 @@ class VirtualKeyboard(QWidget):
         """)
 
     def showEvent(self, event):
-        """Override show event to ensure proper positioning"""
+        """Override show event to position keyboard at bottom-right"""
         super().showEvent(event)
         if self.parent():
-            # Adjust the keyboard's size based on its content
-            self.adjustSize()
+            self.adjustSize()  # Ensure keyboard has correct dimensions
             parent = self.parent()
-            # Calculate x to center the keyboard horizontally within the parent
-            x = (parent.width() - self.width()) // 2
-            # Position the keyboard 20 pixels above the parent's bottom
-            y = parent.height() - self.height() - 20
+            
+            # Calculate position
+            right_padding = 20  # Pixels from right edge (adjust as needed)
+            bottom_padding = 20  # Pixels from bottom edge
+            
+            x = parent.width() - self.width() - right_padding
+            y = parent.height() - self.height() - bottom_padding
+            
+            # Ensure it doesn't go off-screen
+            x = max(0, x)  # Never go beyond left edge
+            y = max(0, y)  # Never go above top edge
+            
             self.move(x, y)
 
     def _on_key_press(self, key):
