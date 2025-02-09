@@ -1400,9 +1400,40 @@ class VirtualKeyboard(QWidget):
         # Add keyboard container to main layout
         main_layout.addLayout(keyboard_container)
 
-        # Space bar
+
+        # # Space bar
+        # space_btn = QPushButton('Space')
+        # space_btn.setFixedSize(500, 40)
+        # space_btn.clicked.connect(lambda: self._on_key_press(' '))
+        # space_btn.setStyleSheet("""
+        #     QPushButton {
+        #         background: white;
+        #         border: 1px solid #DEDEDE;
+        #         border-radius: 8px;
+        #         color: #333;
+        #         font-size: 14px;
+        #     }
+        #     QPushButton:hover {
+        #         background: #F8F9FA;
+        #         border-color: #2196F3;
+        #     }
+        # """)
+
+        # main_layout.addWidget(space_btn)
+        # self.setStyleSheet("""
+        #     VirtualKeyboard {
+        #         background: #F8F9FA;
+        #         border-top: 1px solid #DEDEDE;
+        #     }
+        # """)
+
+        # Space bar and backspace row
+        bottom_row = QHBoxLayout()
+        bottom_row.setSpacing(5)
+
+        # Space bar (reduced width)
         space_btn = QPushButton('Space')
-        space_btn.setFixedSize(500, 40)
+        space_btn.setFixedHeight(40)
         space_btn.clicked.connect(lambda: self._on_key_press(' '))
         space_btn.setStyleSheet("""
             QPushButton {
@@ -1411,18 +1442,44 @@ class VirtualKeyboard(QWidget):
                 border-radius: 8px;
                 color: #333;
                 font-size: 14px;
+                min-width: 300px;
             }
             QPushButton:hover {
                 background: #F8F9FA;
                 border-color: #2196F3;
             }
         """)
+        bottom_row.addWidget(space_btn, 70)  # 70% width
 
-        main_layout.addWidget(space_btn)
+        # Backspace button
+        backspace_btn = QPushButton('⌫')
+        backspace_btn.setFixedHeight(40)
+        backspace_btn.clicked.connect(self._on_backspace)
+        backspace_btn.setStyleSheet("""
+            QPushButton {
+                background: #F44336;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 20px;
+                min-width: 100px;
+            }
+            QPushButton:hover {
+                background: #E53935;
+            }
+            QPushButton:pressed {
+                background: #D32F2F;
+            }
+        """)
+        bottom_row.addWidget(backspace_btn, 30)  # 30% width
+
+        main_layout.addLayout(bottom_row)
+
         self.setStyleSheet("""
             VirtualKeyboard {
                 background: #F8F9FA;
                 border-top: 1px solid #DEDEDE;
+                padding: 5px;
             }
         """)
 
@@ -1457,8 +1514,7 @@ class VirtualKeyboard(QWidget):
         if self.search_input:
             current_text = self.search_input.text()
             if current_text:
-                new_text = current_text[:-1]
-                self.search_input.setText(new_text)
+                self.search_input.setText(current_text[:-1])
             self.search_input.setFocus()
 
     def _on_enter(self):
