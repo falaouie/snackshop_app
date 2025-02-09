@@ -1433,8 +1433,8 @@ class VirtualKeyboard(QWidget):
             # # Position at the bottom of the parent widget
             # parent_rect = self.parent().rect()
             # self.setFixedWidth(parent_rect.width())
-            x = 750
-            y = 600
+            x = 370
+            y = 475
             self.move(x, y)
 
     def _on_key_press(self, key):
