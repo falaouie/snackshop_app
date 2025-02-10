@@ -1208,14 +1208,6 @@ class SearchLineEdit(QLineEdit):
         painter = QPainter(self.search_pixmap)
         search_icon.render(painter)
         painter.end()
-
-        # Load backspace icon (right)
-        backspace_icon = QSvgRenderer("assets/images/backspace.svg")
-        self.backspace_pixmap = QPixmap(20, 20)
-        self.backspace_pixmap.fill(Qt.transparent)
-        painter = QPainter(self.backspace_pixmap)
-        backspace_icon.render(painter)
-        painter.end()
         
         # Adjust style to leave space for both icons
         self.setStyleSheet("""
@@ -1236,34 +1228,12 @@ class SearchLineEdit(QLineEdit):
         """)
 
     def paintEvent(self, event):
-        """Draw search icon on the left and backspace icon on the right."""
+        """Draw search icon on the left"""
         super().paintEvent(event)
         painter = QPainter(self)
 
         # Draw search icon (left)
         painter.drawPixmap(12, (self.height() - 20) // 2, self.search_pixmap)
-
-        # Draw backspace icon (right)
-        if self.text():
-            painter.drawPixmap(self.width() - 32, (self.height() - 20) // 2, self.backspace_pixmap)
-
-    def mousePressEvent(self, event):
-        """Detect clicks on the backspace icon and remove one character at a time."""
-        if self.text():
-            backspace_x_start = self.width() - 32
-            if backspace_x_start <= event.x() <= self.width() - 12:
-                # Simulate backspace key behavior: remove the last character
-                current_text = self.text()
-                new_text = current_text[:-1]  # Remove last character
-                self.setText(new_text)
-                
-                # Prevent event propagation
-                event.accept()
-                return
-        
-        # If not clicking the backspace icon, handle event normally
-        super().mousePressEvent(event)
-
 
 class VirtualKeyboard(QWidget):
     def __init__(self, parent=None):
@@ -1331,109 +1301,59 @@ class VirtualKeyboard(QWidget):
             ['7', '8', '9'],
             ['4', '5', '6'],
             ['1', '2', '3'],
-            ['','0', '']
+            ['CL','0', '⌫']
         ]
-
-        # # Add backspace key at top of numpad
-        # backspace_btn = QPushButton('⌫')
-        # backspace_btn.setFixedSize(145, 45)
-        # backspace_btn.clicked.connect(self._on_backspace)
-        # backspace_btn.setStyleSheet("""
-        #     QPushButton {
-        #         background: #F44336;
-        #         color: white;
-        #         border: none;
-        #         border-radius: 8px;
-        #         font-size: 20px;
-        #         font-weight: bold;
-        #     }
-        #     QPushButton:hover {
-        #         background: #E53935;
-        #     }
-        # """)
-        # numpad_layout.addWidget(backspace_btn, 0, 0, 1, 3)  # Span all columns
 
         # Create and add numpad keys
         for row, keys in enumerate(numpad_keys):
             for col, key in enumerate(keys):
                 btn = QPushButton(key)
-                btn.setFixedSize(45, 45)
-                if key == 'Enter':
-                    btn.setFixedSize(95, 45)  # Wider enter key
-                    btn.clicked.connect(self._on_enter)
+                btn.setFixedSize(50, 50)
+                if key == '⌫':
+                    btn.clicked.connect(self._on_backspace)
                     btn.setStyleSheet("""
                         QPushButton {
-                            background: #2196F3;
-                            color: white;
-                            border: none;
+                            background: white;
+                            border: 1px solid #DEDEDE;
                             border-radius: 8px;
-                            font-size: 14px;
-                            font-weight: bold;
+                            color: #333;
+                            font-size: 16px;
                         }
                         QPushButton:hover {
-                            background: #1E88E5;
+                            background: #F8F9FA;
+                            border-color: #2196F3;
                         }
                     """)
-                    numpad_layout.addWidget(btn, row + 1, col, 1, 2)  # Span 2 columns
+                    numpad_layout.addWidget(btn, row + 1, col)
                 else:
-                    if key == '':
-                        pass
-                    else:
-                        btn.clicked.connect(lambda checked, k=key: self._on_key_press(k))
-                        btn.setStyleSheet("""
-                            QPushButton {
-                                background: white;
-                                border: 1px solid #DEDEDE;
-                                border-radius: 8px;
-                                color: #333;
-                                font-size: 16px;
-                            }
-                            QPushButton:hover {
-                                background: #F8F9FA;
-                                border-color: #2196F3;
-                            }
-                        """)
-                        numpad_layout.addWidget(btn, row + 1, col)
+                    btn.clicked.connect(lambda checked, k=key: self._on_key_press(k))
+                    btn.setStyleSheet("""
+                        QPushButton {
+                            background: white;
+                            border: 1px solid #DEDEDE;
+                            border-radius: 8px;
+                            color: #333;
+                            font-size: 16px;
+                        }
+                        QPushButton:hover {
+                            background: #F8F9FA;
+                            border-color: #2196F3;
+                        }
+                    """)
+                    numpad_layout.addWidget(btn, row + 1, col)
 
         keyboard_container.addWidget(numpad_widget, stretch=3)
 
         # Add keyboard container to main layout
         main_layout.addLayout(keyboard_container)
 
-
-        # # Space bar
-        # space_btn = QPushButton('Space')
-        # space_btn.setFixedSize(500, 40)
-        # space_btn.clicked.connect(lambda: self._on_key_press(' '))
-        # space_btn.setStyleSheet("""
-        #     QPushButton {
-        #         background: white;
-        #         border: 1px solid #DEDEDE;
-        #         border-radius: 8px;
-        #         color: #333;
-        #         font-size: 14px;
-        #     }
-        #     QPushButton:hover {
-        #         background: #F8F9FA;
-        #         border-color: #2196F3;
-        #     }
-        # """)
-
-        # main_layout.addWidget(space_btn)
-        # self.setStyleSheet("""
-        #     VirtualKeyboard {
-        #         background: #F8F9FA;
-        #         border-top: 1px solid #DEDEDE;
-        #     }
-        # """)
-
-        # Space bar and backspace row
+        # Space bar
         bottom_row = QHBoxLayout()
         bottom_row.setSpacing(5)
 
         # Space bar (reduced width)
         space_btn = QPushButton('Space')
-        space_btn.setFixedHeight(40)
+        space_btn.setFixedHeight(45)
         space_btn.clicked.connect(lambda: self._on_key_press(' '))
         space_btn.setStyleSheet("""
             QPushButton {
@@ -1451,35 +1371,33 @@ class VirtualKeyboard(QWidget):
         """)
         bottom_row.addWidget(space_btn, 70)  # 70% width
 
-        # Backspace button
-        backspace_btn = QPushButton('⌫')
-        backspace_btn.setFixedHeight(40)
-        backspace_btn.clicked.connect(self._on_backspace)
-        backspace_btn.setStyleSheet("""
+        # enter button
+        enter_btn = QPushButton('↵')  # Enter/Return symbol
+        enter_btn.setFixedHeight(45)
+        enter_btn.clicked.connect(self._on_enter)
+        enter_btn.setStyleSheet("""
             QPushButton {
-                background: #F44336;
+                background: #2196F3;
                 color: white;
                 border: none;
                 border-radius: 8px;
                 font-size: 20px;
-                min-width: 100px;
+                font-weight: bold;
             }
             QPushButton:hover {
-                background: #E53935;
-            }
-            QPushButton:pressed {
-                background: #D32F2F;
+                background: #1E88E5;
             }
         """)
-        bottom_row.addWidget(backspace_btn, 30)  # 30% width
+        bottom_row.addWidget(enter_btn, 30)  # 30% width
 
         main_layout.addLayout(bottom_row)
 
         self.setStyleSheet("""
             VirtualKeyboard {
-                background: #F8F9FA;
-                border-top: 1px solid #DEDEDE;
-                padding: 5px;
+                background: darkgrey;
+                border-top: none;
+                border-radius: 10px;
+                padding: 10px;
             }
         """)
 
@@ -1487,12 +1405,12 @@ class VirtualKeyboard(QWidget):
         """Override show event to position keyboard at bottom-right"""
         super().showEvent(event)
         if self.parent():
-            self.adjustSize()  # Ensure keyboard has correct dimensions
+            self.adjustSize()
             parent = self.parent()
             
             # Calculate position
             right_padding = 20  # Pixels from right edge (adjust as needed)
-            bottom_padding = 20  # Pixels from bottom edge
+            bottom_padding = 40  # Pixels from bottom edge
             
             x = parent.width() - self.width() - right_padding
             y = parent.height() - self.height() - bottom_padding
