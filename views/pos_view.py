@@ -1340,7 +1340,7 @@ class VirtualKeyboard(QWidget):
         bottom_row.setSpacing(5)
 
         # Space bar (reduced width)
-        space_btn = QPushButton('Space')
+        space_btn = QPushButton(' ')
         space_btn.setFixedHeight(45)
         space_btn.clicked.connect(lambda: self._on_key_press(' '))
         space_btn.setStyleSheet("""
@@ -1351,8 +1351,8 @@ class VirtualKeyboard(QWidget):
                 color: #333;
                 font-size: 14px;
                 min-width: 300px;
-                margin-left: 20px;
-                margin-right: 40px;
+                margin-left: 40px;
+                margin-right: 50px;
                 margin-bottom: 10px;
             }
             QPushButton:hover {
@@ -1363,7 +1363,7 @@ class VirtualKeyboard(QWidget):
         bottom_row.addWidget(space_btn, 70)  # 70% width
 
         # enter button
-        enter_btn = QPushButton('↵')  # Enter/Return symbol
+        enter_btn = QPushButton('↵  ENTER')  # Enter/Return symbol
         enter_btn.setFixedSize(175, 45)
         enter_btn.clicked.connect(self._on_enter)
         enter_btn.setStyleSheet("""
