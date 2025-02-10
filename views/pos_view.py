@@ -1257,7 +1257,7 @@ class VirtualKeyboard(QWidget):
         # QWERTY Section (Left side)
         qwerty_widget = QWidget()
         qwerty_layout = QGridLayout(qwerty_widget)
-        qwerty_layout.setSpacing(5)
+        qwerty_layout.setSpacing(10)
 
         # QWERTY Keys
         qwerty_rows = [
@@ -1270,15 +1270,16 @@ class VirtualKeyboard(QWidget):
         for row, letters in enumerate(qwerty_rows):
             for col, letter in enumerate(letters):
                 btn = QPushButton(letter)
-                btn.setFixedSize(40, 40)
+                btn.setFixedSize(50, 50)
                 btn.clicked.connect(lambda checked, l=letter: self._on_key_press(l))
                 btn.setStyleSheet("""
                     QPushButton {
                         background: white;
                         border: 1px solid #DEDEDE;
-                        border-radius: 8px;
+                        border-radius: 10px;
+                        padding: 8px;
                         color: #333;
-                        font-size: 16px;
+                        font-size: 18px;
                     }
                     QPushButton:hover {
                         background: #F8F9FA;
@@ -1294,7 +1295,7 @@ class VirtualKeyboard(QWidget):
         # Numpad Section (Right side)
         numpad_widget = QWidget()
         numpad_layout = QGridLayout(numpad_widget)
-        numpad_layout.setSpacing(5)
+        numpad_layout.setSpacing(10)
 
         # Numpad keys layout
         numpad_keys = [
@@ -1315,7 +1316,25 @@ class VirtualKeyboard(QWidget):
                         QPushButton {
                             background: white;
                             border: 1px solid #DEDEDE;
-                            border-radius: 8px;
+                            border-radius: 10px;
+                            padding: 8px;
+                            color: #333;
+                            font-size: 16px;
+                        }
+                        QPushButton:hover {
+                            background: #F8F9FA;
+                            border-color: #2196F3;
+                        }
+                    """)
+                    numpad_layout.addWidget(btn, row + 1, col)
+                elif key == 'CL':
+                    # btn.clicked.connect(self._on_backspace)
+                    btn.setStyleSheet("""
+                        QPushButton {
+                            background: white;
+                            border: 1px solid #DEDEDE;
+                            border-radius: 10px;
+                            padding: 8px;
                             color: #333;
                             font-size: 16px;
                         }
