@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox,
                              QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter,
                              QToolButton, QMenu, QMainWindow, QLineEdit)
-from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime, QPropertyAnimation, QPoint
+from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime, QPropertyAnimation, QRect, QEasingCurve
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 from . import styles
@@ -1210,6 +1210,12 @@ class VirtualKeyboard(QWidget):
         self.search_input = None
         self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint | Qt.WindowDoesNotAcceptFocus)
         self.setAttribute(Qt.WA_StyledBackground, True)  # Enable stylesheet on widget
+        
+        # Initialize animation properties
+        self.animation = QPropertyAnimation(self, b"geometry")
+        self.animation.setDuration(1000)  # 1 second duration
+        self.animation.setEasingCurve(QEasingCurve.InOutCubic)  # Smooth easing
+        
         self._setup_ui()
         self.hide()
 
@@ -1417,26 +1423,97 @@ class VirtualKeyboard(QWidget):
         """)
 
     def showEvent(self, event):
-        """Override show event to position keyboard at bottom-right"""
+        """Override show event to animate keyboard sliding up"""
         super().showEvent(event)
         if self.parent():
             self.adjustSize()
             parent = self.parent()
             
-            # Calculate position
-            right_padding = 20  # Pixels from right edge (adjust as needed)
-            bottom_padding = 40  # Pixels from bottom edge
-            
-            x = parent.width() - self.width() - right_padding
-            y = parent.height() - self.height() - bottom_padding
+            # Calculate final position (where keyboard should end up)
+            right_padding = 20
+            bottom_padding = 40
+            target_x = parent.width() - self.width() - right_padding
+            target_y = parent.height() - self.height() - bottom_padding
             
             # Ensure it doesn't go off-screen
-            x = max(0, x)  # Never go beyond left edge
-            y = max(0, y)  # Never go above top edge
+            target_x = max(0, target_x)
+            target_y = max(0, target_y)
             
-            self.move(x, y)
+            # Set up animation from bottom of screen to target position
+            start_rect = QRect(target_x, parent.height(), self.width(), self.height())
+            end_rect = QRect(target_x, target_y, self.width(), self.height())
+            
+            self.animation.setStartValue(start_rect)
+            self.animation.setEndValue(end_rect)
+            
+            # Start animation
+            self.animation.start()
 
-        self.search_input.setFocus()
+        if self.search_input:
+            self.search_input.setFocus()
+
+    def hideEvent(self, event):
+        """Override hide event to animate keyboard sliding down"""
+        super().hideEvent(event)
+        if self.parent() and not self.animation.state() == QPropertyAnimation.Running:
+            current_geometry = self.geometry()
+            end_rect = QRect(
+                current_geometry.x(),
+                self.parent().height(),
+                self.width(),
+                self.height()
+            )
+            
+            # Set up hide animation
+            self.animation.setStartValue(current_geometry)
+            self.animation.setEndValue(end_rect)
+            
+            # Connect animation finished signal to actually hide the widget
+            self.animation.finished.connect(self._finish_hide)
+            self.animation.start()
+            
+            # Don't call parent's hide event yet - wait for animation
+            event.ignore()
+        else:
+            super().hideEvent(event)
+
+    def _finish_hide(self):
+        """Called when hide animation completes"""
+        super().hide()
+        # Disconnect to prevent memory leaks
+        try:
+            self.animation.finished.disconnect(self._finish_hide)
+        except TypeError:
+            pass  # In case it's already disconnected
+
+    def show(self):
+        """Override show to ensure proper animation handling"""
+        if not self.isVisible():
+            super().show()
+        elif self.animation.state() == QPropertyAnimation.Running:
+            self.animation.stop()
+            super().show()
+
+    def hide(self):
+        """Override hide to start the sliding down animation"""
+        if self.isVisible() and self.parent():
+            current_geometry = self.geometry()
+            end_rect = QRect(
+                current_geometry.x(),
+                self.parent().height(),
+                self.width(),
+                self.height()
+            )
+            
+            # Set up hide animation
+            self.animation.setStartValue(current_geometry)
+            self.animation.setEndValue(end_rect)
+            
+            # Connect animation finished signal to actually hide the widget
+            self.animation.finished.connect(self._finish_hide)
+            self.animation.start()
+        else:
+            super().hide()
 
     def _on_key_press(self, key):
         """Handle virtual keyboard key presses"""
