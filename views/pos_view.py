@@ -1219,6 +1219,28 @@ class VirtualKeyboard(QWidget):
         main_layout.setContentsMargins(5, 5, 5, 5)
         main_layout.setSpacing(5)
 
+        # Close button
+        close_btn = QPushButton("×")
+        close_btn.setFixedSize(24, 24)
+        close_btn.clicked.connect(self._on_close)
+        close_btn.setStyleSheet("""
+            QPushButton {
+                color: white;
+                border: none;
+                border-radius: 12px;
+                font-size: 24px;
+                font-weight: bold;
+                margin: 5px;
+                padding: 0px;
+            }
+        """)
+        
+        # Add close button to top-left
+        close_layout = QHBoxLayout()
+        close_layout.addWidget(close_btn)
+        close_layout.addStretch()
+        main_layout.addLayout(close_layout)
+
         # Container for QWERTY and Numpad
         keyboard_container = QHBoxLayout()
         keyboard_container.setSpacing(5)  # Space between QWERTY and numpad
@@ -1460,3 +1482,14 @@ class VirtualKeyboard(QWidget):
         self.search_input = search_input
         if self.search_input:
             self.search_input.setFocus()
+            
+    def keyPressEvent(self, event):
+        """Handle key press events"""
+        if event.key() == Qt.Key_Escape:
+            self._on_close()
+            
+    def _on_close(self):
+        """Handle closing the keyboard"""
+        self.hide()
+        if self.parent():
+            self.parent().keyboard_visible = False
