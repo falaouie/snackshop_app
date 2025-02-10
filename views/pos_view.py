@@ -1137,7 +1137,7 @@ class POSView(QWidget):
                 }
             """)
             btn.setFixedSize(140, 60)
-            btn.clicked.connect(lambda checked, name=item: self.add_order_item(name))
+            btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
             row = i // 3
             col = i % 3
             self.products_grid.addWidget(btn, row, col)
@@ -1153,6 +1153,16 @@ class POSView(QWidget):
                 self.products_grid.addWidget(empty_widget, row, col)
         
         self.products_grid.setRowStretch(self.products_grid.rowCount(), 1)
+
+    def _handle_product_click(self, item_name):
+        """Handle product button click - add item and clear search"""
+        self.add_order_item(item_name)
+        # Clear search field
+        self.search_input.clear()
+        # Optionally hide keyboard if it's visible
+        # if self.keyboard_visible:
+        #     self.virtual_keyboard.hide()
+        #     self.keyboard_visible = False
 
 class OrderItem:
     def __init__(self, name, price):
