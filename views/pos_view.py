@@ -157,7 +157,7 @@ class POSView(QWidget):
         self.search_input.setPlaceholderText("Search products...")
         self.search_input.setFixedHeight(40)
         
-        # Create clear/backspace button
+        # Create keyboard toggle button
         keyboard_btn = QPushButton()
         keyboard_btn.setIcon(QIcon("assets/images/keyboard.svg"))
         keyboard_btn.setStyleSheet("""
@@ -167,7 +167,7 @@ class POSView(QWidget):
                 padding: 5px;
             }
             QPushButton:hover {
-                background: #F0F0F0;
+                background: #F8F9FA;
                 border-radius: 12px;
             }
         """)
@@ -179,9 +179,6 @@ class POSView(QWidget):
         search_layout.addWidget(self.search_input)
         search_layout.addWidget(keyboard_btn)
         search_layout.addStretch(1)
-
-        # Install event filter for keyboard events
-        self.search_input.installEventFilter(self)
 
         # Controls Zone (Lock Button)
         controls_zone = QFrame()
@@ -227,19 +224,20 @@ class POSView(QWidget):
 
         return self.top_bar
     
+    def _show_keyboard(self):
+        """Show virtual keyboard and set focus"""
+        if not self.keyboard_visible:
+            self.virtual_keyboard.set_search_input(self.search_input)
+            self.virtual_keyboard.show()
+            self.keyboard_visible = True
+
     def _toggle_keyboard(self):
         """Toggle virtual keyboard visibility"""
         if not self.keyboard_visible:
-            # Show keyboard
-            self.virtual_keyboard.set_search_input(self.search_input)
-            self.virtual_keyboard.show()            
-            self.keyboard_visible = True
+            self._show_keyboard()
         else:
-            # Hide keyboard
             self.virtual_keyboard.hide()
             self.keyboard_visible = False
-        
-        self.search_input.setFocus()
 
     def resizeEvent(self, event):
         """Handle resize events to maintain keyboard positioning"""
@@ -461,28 +459,30 @@ class POSView(QWidget):
         item_widget.order_item = item
         
         # Add click handling
-        item_widget.mousePressEvent = lambda event, widget=item_widget: self._on_item_clicked(widget)
+        item_widget.mousePressEvent = lambda event, widget=item_widget: self._on_item_clicked(widget, event)
         
         self.order_list_layout.addWidget(item_widget)
         self.order_list_layout.addStretch()
 
-    def _on_item_clicked(self, clicked_widget):
-        """Handle item selection"""
-        # Deselect all other items
-        for i in range(self.order_list_layout.count()):
-            widget = self.order_list_layout.itemAt(i).widget()
-            if widget and isinstance(widget, QFrame):
-                widget.setProperty('selected', False)
-                widget.style().unpolish(widget)
-                widget.style().polish(widget)
-        
-        # Select clicked item
-        clicked_widget.setProperty('selected', True)
-        clicked_widget.style().unpolish(clicked_widget)
-        clicked_widget.style().polish(clicked_widget)
-        
-        # Store reference to selected item
-        self.selected_item = clicked_widget
+    def _on_item_clicked(self, widget, event):
+        """Handle item selection but allow the event to propagate."""
+        if event.button() == Qt.LeftButton:
+            # Handle item selection
+            for i in range(self.order_list_layout.count()):
+                item = self.order_list_layout.itemAt(i).widget()
+                if item and isinstance(item, QFrame):
+                    item.setProperty('selected', False)
+                    item.style().unpolish(item)
+                    item.style().polish(item)
+            
+            widget.setProperty('selected', True)
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+            self.selected_item = widget
+
+        # Pass event to the default handler
+        QWidget.mousePressEvent(widget, event)
+
 
     def _update_order_display(self):
         """Update the entire order display"""
@@ -1089,40 +1089,6 @@ class POSView(QWidget):
             # Delete current POS view
             self.deleteLater()
 
-    # def _clear_search(self):
-    #     """Clear search input and reset product display"""
-    #     self.search_input.clear()
-    #     self._show_category_items(self.selected_horizontal_category or self.categories[0])
-
-    def _backspace_search(self):
-        """Remove last character from search input"""
-        current_text = self.search_input.text()
-        if current_text:
-            # Remove last character
-            new_text = current_text[:-1]
-            self.search_input.setText(new_text)
-            # Trigger search filter with new text
-            self._filter_products()
-
-    def eventFilter(self, obj, event):
-        """Handle keyboard events for search input"""
-        if obj == self.search_input and event.type() == event.KeyPress:
-            if event.key() == Qt.Key_Backspace:
-                # If text is selected, let default backspace behavior handle it
-                if self.search_input.hasSelectedText():
-                    return False
-                
-                # Get cursor position
-                cursor_pos = self.search_input.cursorPosition()
-                current_text = self.search_input.text()
-                
-                # Only override default behavior if cursor is at the end
-                if cursor_pos == len(current_text):
-                    self._backspace_search()
-                    return True
-                
-        return super().eventFilter(obj, event)
-
     def _filter_products(self):
         """Filter products based on search input"""
         search_text = self.search_input.text().lower()
@@ -1200,7 +1166,8 @@ class OrderItem:
 class SearchLineEdit(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
-        
+        self.parent_view = parent
+
         # Load search icon (left)
         search_icon = QSvgRenderer("assets/images/search.svg")
         self.search_pixmap = QPixmap(20, 20)
@@ -1228,18 +1195,20 @@ class SearchLineEdit(QLineEdit):
         """)
 
     def paintEvent(self, event):
-        """Draw search icon on the left"""
         super().paintEvent(event)
         painter = QPainter(self)
-
-        # Draw search icon (left)
         painter.drawPixmap(12, (self.height() - 20) // 2, self.search_pixmap)
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        if self.parent_view:
+            self.parent_view._show_keyboard()
 
 class VirtualKeyboard(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.search_input = None
-        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint)
+        self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint | Qt.WindowDoesNotAcceptFocus)
         self.setAttribute(Qt.WA_StyledBackground, True)  # Enable stylesheet on widget
         self._setup_ui()
         self.hide()
@@ -1328,7 +1297,7 @@ class VirtualKeyboard(QWidget):
                     """)
                     numpad_layout.addWidget(btn, row + 1, col)
                 elif key == 'CL':
-                    # btn.clicked.connect(self._on_backspace)
+                    btn.clicked.connect(self._on_clear) 
                     btn.setStyleSheet("""
                         QPushButton {
                             background: white;
@@ -1360,7 +1329,7 @@ class VirtualKeyboard(QWidget):
                         }
                     """)
                     numpad_layout.addWidget(btn, row + 1, col)
-
+        
         keyboard_container.addWidget(numpad_widget, stretch=3)
 
         # Add keyboard container to main layout
@@ -1382,6 +1351,9 @@ class VirtualKeyboard(QWidget):
                 color: #333;
                 font-size: 14px;
                 min-width: 300px;
+                margin-left: 20px;
+                margin-right: 40px;
+                margin-bottom: 10px;
             }
             QPushButton:hover {
                 background: #F8F9FA;
@@ -1392,7 +1364,7 @@ class VirtualKeyboard(QWidget):
 
         # enter button
         enter_btn = QPushButton('↵')  # Enter/Return symbol
-        enter_btn.setFixedHeight(45)
+        enter_btn.setFixedSize(175, 45)
         enter_btn.clicked.connect(self._on_enter)
         enter_btn.setStyleSheet("""
             QPushButton {
@@ -1402,6 +1374,8 @@ class VirtualKeyboard(QWidget):
                 border-radius: 8px;
                 font-size: 20px;
                 font-weight: bold;
+                margin-bottom: 10px;
+                margin-right: 15px;
             }
             QPushButton:hover {
                 background: #1E88E5;
@@ -1440,24 +1414,49 @@ class VirtualKeyboard(QWidget):
             
             self.move(x, y)
 
+        self.search_input.setFocus()
+
     def _on_key_press(self, key):
+        """Handle virtual keyboard key presses"""
         if self.search_input:
+            # Get current cursor position
+            cursor_pos = self.search_input.cursorPosition()
             current_text = self.search_input.text()
-            new_text = current_text + key
+            
+            # Insert the key at cursor position
+            new_text = current_text[:cursor_pos] + key + current_text[cursor_pos:]
             self.search_input.setText(new_text)
-            self.search_input.setFocus()
+            
+            # Move cursor after inserted character
+            self.search_input.setCursorPosition(cursor_pos + 1)
+            self.search_input.setFocus()  # Maintain focus on input
 
     def _on_backspace(self):
+        """Handle virtual keyboard backspace"""
         if self.search_input:
+            cursor_pos = self.search_input.cursorPosition()
             current_text = self.search_input.text()
-            if current_text:
-                self.search_input.setText(current_text[:-1])
+            
+            if cursor_pos > 0:
+                # Remove character before cursor
+                new_text = current_text[:cursor_pos-1] + current_text[cursor_pos:]
+                self.search_input.setText(new_text)
+                self.search_input.setCursorPosition(cursor_pos - 1)
+        self.search_input.setFocus()  # Maintain focus
+
+    def _on_clear(self):
+        if self.search_input:
+            self.search_input.clear()
             self.search_input.setFocus()
 
     def _on_enter(self):
         if self.search_input:
             self.hide()
-            self.search_input.setFocus()
+            if self.parent():
+                self.parent().keyboard_visible = False
 
     def set_search_input(self, search_input):
+        """Set the input field and ensure it has focus"""
         self.search_input = search_input
+        if self.search_input:
+            self.search_input.setFocus()
