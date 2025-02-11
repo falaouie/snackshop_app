@@ -41,8 +41,9 @@ class AuthenticationContainer(QFrame):
         spacing = screen_config.get_size('section_spacing')
         layout.setContentsMargins(margin, margin, margin, margin)
         layout.setSpacing(spacing)
-
+        
         # User ID Label
+        label_container = QHBoxLayout()
         self.lbl_user_id = QLabel("User ID", alignment=Qt.AlignCenter)
 
         width = screen_config.get_size('auth_label_width')
@@ -53,7 +54,13 @@ class AuthenticationContainer(QFrame):
             screen_config.get_size('label_padding'),
             screen_config.get_size('label_font_size')
         ))
-        layout.addWidget(self.lbl_user_id)
+        
+        # Add stretch before and after the label to center it
+        label_container.addStretch()
+        label_container.addWidget(self.lbl_user_id)
+        label_container.addStretch()
+        
+        layout.addLayout(label_container)
 
         # Input Fields
         self.user_input = UserInput()

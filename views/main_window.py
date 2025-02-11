@@ -69,10 +69,6 @@ class MainWindow(QMainWindow):
                 border: none;
                 padding: 0px;
             }
-            QPushButton:hover {
-                background: rgba(229, 57, 53, 0.1);  /* E53935 with 10% opacity */
-                border-radius: 4px;
-            }
         """)
         app_utils = ApplicationUtils()
         exit_btn.clicked.connect(app_utils.close_application)

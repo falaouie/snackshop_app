@@ -56,16 +56,16 @@ class ScreenConfig:
         'auth_container_height': 500,
 
         # user id and password label
-        'auth_label_width': 250,
+        'auth_label_width': 300,
         'auth_label_height': 60,
 
         # Input field sizes
-        'digit_input_width': 40,
-        'digit_input_height': 40,
+        'digit_input_width': 45,
+        'digit_input_height': 45,
 
         # Button sizes
-        'keypad_button_width': 50,
-        'keypad_button_height': 50,
+        'keypad_button_width': 55,
+        'keypad_button_height': 55,
         'action_button_width': 80,
         'action_button_height': 50,
         'signin_button_width': 160,
@@ -74,7 +74,7 @@ class ScreenConfig:
         'top_bar_btn_height': 40,
 
         # Font sizes
-        'keypad_font_size': 18,
+        'keypad_font_size': 20,
         'label_font_size': 18,
         'digit_font_size': 16,
         'top_bar_btn_font_size': 16,
@@ -153,7 +153,7 @@ class ScreenConfig:
 
     def _set_size_config(self):
         """Determine which size configuration to use based on screen resolution"""
-        if self.width >= 1280 and self.height >= 1080:
+        if self.width >= 1280 and self.height >= 768:
             self.current_config = self.LARGE
             print(f"size: Large")
         elif self.width >= 1024 and self.height >= 768:

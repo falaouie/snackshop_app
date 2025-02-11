@@ -621,7 +621,7 @@ class POSView(QWidget):
                     background-color: {colors['hover']};
                 }}
             """)
-            btn.setFixedSize(100, 60)
+            btn.setFixedSize(100, 50)
 
             if btn_text == "VOID":
                 btn.clicked.connect(self._clear_order)
@@ -1109,10 +1109,6 @@ class POSView(QWidget):
                     background: transparent;
                     border: none;
                     padding: 0px;
-                }
-                QPushButton:hover {
-                    background: rgba(229, 57, 53, 0.1);
-                    border-radius: 4px;
                 }
             """)
             from utilities.utils import ApplicationUtils

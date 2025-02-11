@@ -31,12 +31,22 @@ class PinView(QWidget):
         layout.setSpacing(spacing)
 
         # PIN Label
+        label_container = QHBoxLayout()
         self.lbl_pin = QLabel(f"PIN for User ID {self.user_id}", alignment=Qt.AlignCenter)
         self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT.format(
             screen_config.get_size('label_padding'),
             screen_config.get_size('label_font_size')
         ))
-        layout.addWidget(self.lbl_pin)
+        width = screen_config.get_size('auth_label_width')
+        height = screen_config.get_size('auth_label_height')
+        self.lbl_pin.setFixedSize(width, height)
+        
+        # Add stretch before and after the label to center it
+        label_container.addStretch()
+        label_container.addWidget(self.lbl_pin)
+        label_container.addStretch()
+        
+        layout.addLayout(label_container)
 
         # Input Fields
         self.pin_input = UserInput(is_pin=True)

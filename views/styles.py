@@ -16,7 +16,7 @@ class AuthStyles:
         QFrame {{
             background: white;
             border: 1px solid #ddd;
-            border-radius: 10px;
+            border-radius: 15px;
             padding: {}px;
         }}
     """
@@ -25,6 +25,7 @@ class AuthStyles:
         QLabel {{
             color: #333;
             background: transparent;
+            border-radius: 15px;
             padding: {}px;
             font-size: {}px;
         }}
@@ -34,6 +35,7 @@ class AuthStyles:
         QLabel {{
             color: red;
             background: white;
+            border-radius: 15px;
             padding: {}px;
             font-size: {}px;
         }}
@@ -52,6 +54,7 @@ class AuthStyles:
         QLabel {{
             border: 2px solid #3498db;
             background-color: #f8f8f8;
+            border-radius: 15px;
             padding: {}px;
             font-size: {}px;
         }}
@@ -61,7 +64,7 @@ class AuthStyles:
         QPushButton {{
             font-size: {}px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 15px;
             padding: {}px;
         }}
         QPushButton:hover {{
@@ -73,7 +76,7 @@ class AuthStyles:
         QPushButton {{
             background-color: #3498db;
             color: white;
-            border-radius: 5px;
+            border-radius: 15px;
             font-size: {}px;
             padding: {}px;
         }}
