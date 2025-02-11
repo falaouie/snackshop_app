@@ -1160,9 +1160,9 @@ class POSView(QWidget):
         # Clear search field
         self.search_input.clear()
         # Optionally hide keyboard if it's visible
-        # if self.keyboard_visible:
-        #     self.virtual_keyboard.hide()
-        #     self.keyboard_visible = False
+        if self.keyboard_visible:
+            self.virtual_keyboard.hide()
+            self.keyboard_visible = False
 
 class OrderItem:
     def __init__(self, name, price):
@@ -1225,7 +1225,11 @@ class VirtualKeyboard(QWidget):
         self.animation = QPropertyAnimation(self, b"geometry")
         self.animation.setDuration(1000)  # 1 second duration
         self.animation.setEasingCurve(QEasingCurve.InOutCubic)  # Smooth easing
-        
+
+        # drag function initiation
+        self.dragging = False
+        self.drag_position = None
+
         self._setup_ui()
         self.hide()
 
@@ -1235,27 +1239,56 @@ class VirtualKeyboard(QWidget):
         main_layout.setContentsMargins(5, 5, 5, 5)
         main_layout.setSpacing(5)
 
+        # Create drag handle bar
+        drag_handle = QFrame()
+        drag_handle.setFixedHeight(40)
+        drag_handle.setStyleSheet("""
+            QFrame {
+                background: #444444;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+            }
+        """)
+        
+        # Handle layout
+        handle_layout = QHBoxLayout(drag_handle)
+        handle_layout.setContentsMargins(10, 0, 10, 0)
+        handle_layout.setSpacing(0)
+
+        # Drag icon label
+        drag_icon = QLabel()
+        renderer = QSvgRenderer("assets/images/drag_icon.svg")
+        pixmap = QPixmap(24, 24)
+        pixmap.fill(Qt.transparent)
+        painter = QPainter(pixmap)
+        renderer.render(painter)
+        painter.end()
+        drag_icon.setPixmap(pixmap)
+        drag_icon.setStyleSheet("padding: 8px;")
+
+        handle_layout.addWidget(drag_icon)
+        handle_layout.addStretch()
+        
         # Close button
         close_btn = QPushButton("×")
-        close_btn.setFixedSize(24, 24)
+        close_btn.setFixedSize(40, 40)
         close_btn.clicked.connect(self._on_close)
         close_btn.setStyleSheet("""
             QPushButton {
                 color: white;
                 border: none;
-                border-radius: 12px;
+                border-radius: 4px;
                 font-size: 24px;
                 font-weight: bold;
-                margin: 5px;
                 padding: 0px;
+            }
+            QPushButton:hover {
+                background: rgba(255, 255, 255, 0.1);
             }
         """)
         
-        # Add close button to top-left
-        close_layout = QHBoxLayout()
-        close_layout.addWidget(close_btn)
-        close_layout.addStretch()
-        main_layout.addLayout(close_layout)
+        handle_layout.addWidget(close_btn)
+        main_layout.addWidget(drag_handle)
 
         # Container for QWERTY and Numpad
         keyboard_container = QHBoxLayout()
@@ -1580,3 +1613,21 @@ class VirtualKeyboard(QWidget):
         self.hide()
         if self.parent():
             self.parent().keyboard_visible = False
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            # Check if click is in drag handle area
+            if event.pos().y() <= 40:  # drag handle height
+                self.dragging = True
+                self.drag_position = event.globalPos() - self.frameGeometry().topLeft()
+                event.accept()
+
+    def mouseMoveEvent(self, event):
+        if self.dragging and event.buttons() & Qt.LeftButton:
+            self.move(event.globalPos() - self.drag_position)
+            event.accept()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.dragging = False
+            event.accept()
