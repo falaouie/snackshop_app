@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox,
                              QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter,
-                             QToolButton, QMenu, QMainWindow, QLineEdit)
-from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime, QPropertyAnimation, QRect, QEasingCurve
+                             QToolButton, QMenu, QMainWindow, QLineEdit, qApp)
+
+from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime, QEvent
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 from . import styles
@@ -49,6 +50,7 @@ class POSView(QWidget):
         self._setup_ui()
 
     def _setup_ui(self):
+        qApp.installEventFilter(self)
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 10)  # Added bottom margin
         main_layout.setSpacing(0)
@@ -152,32 +154,15 @@ class POSView(QWidget):
         search_layout.setContentsMargins(0, 0, 0, 0)
         
         # Create search input with embedded icon
-        self.search_input = SearchLineEdit()
+        self.search_input = SearchLineEdit(self)
         self.search_input.textChanged.connect(self._filter_products)
         self.search_input.setPlaceholderText("Search products...")
         self.search_input.setFixedHeight(40)
-        
-        # Create keyboard toggle button
-        keyboard_btn = QPushButton()
-        keyboard_btn.setIcon(QIcon("assets/images/keyboard.svg"))
-        keyboard_btn.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                border: none;
-                padding: 5px;
-            }
-            QPushButton:hover {
-                background: #F8F9FA;
-                border-radius: 12px;
-            }
-        """)
-        keyboard_btn.setIconSize(QSize(70, 40))
-        keyboard_btn.clicked.connect(self._toggle_keyboard)
 
         # Add search elements to search layout and keyboard button
         search_layout.addStretch(1)
         search_layout.addWidget(self.search_input)
-        search_layout.addWidget(keyboard_btn)
+        # search_layout.addWidget(keyboard_btn)
         search_layout.addStretch(1)
 
         # Controls Zone (Lock Button)
@@ -224,6 +209,17 @@ class POSView(QWidget):
 
         return self.top_bar
     
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.MouseButtonPress:
+            if self.keyboard_visible:
+                # Get keyboard widget geometry
+                keyboard_geo = self.virtual_keyboard.geometry()
+                # Check if click is outside keyboard
+                if not keyboard_geo.contains(event.globalPos()):
+                    self.virtual_keyboard.hide()
+                    self.keyboard_visible = False
+        return super().eventFilter(obj, event)
+    
     def _show_keyboard(self):
         """Show virtual keyboard and set focus"""
         if not self.keyboard_visible:
@@ -231,19 +227,11 @@ class POSView(QWidget):
             self.virtual_keyboard.show()
             self.keyboard_visible = True
 
-    def _toggle_keyboard(self):
-        """Toggle virtual keyboard visibility"""
-        if not self.keyboard_visible:
-            self._show_keyboard()
-        else:
-            self.virtual_keyboard.hide()
-            self.keyboard_visible = False
-
     def resizeEvent(self, event):
         """Handle resize events to maintain keyboard positioning"""
         super().resizeEvent(event)
         if self.keyboard_visible and self.virtual_keyboard:
-            self.virtual_keyboard.showEvent(event)  # Trigger repositioning
+            self.virtual_keyboard.show() # Trigger repositioning
 
     def _create_order_widget(self):
         """Create order panel"""
@@ -1214,17 +1202,19 @@ class SearchLineEdit(QLineEdit):
         if self.parent_view:
             self.parent_view._show_keyboard()
 
+    def focusInEvent(self, event):
+        """Show virtual keyboard when search field gains focus"""
+        super().focusInEvent(event)
+        if self.parent_view and not self.parent_view.keyboard_visible:
+            self.parent_view._show_keyboard()
+
+
 class VirtualKeyboard(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.search_input = None
         self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint | Qt.WindowDoesNotAcceptFocus)
         self.setAttribute(Qt.WA_StyledBackground, True)  # Enable stylesheet on widget
-        
-        # Initialize animation properties
-        self.animation = QPropertyAnimation(self, b"geometry")
-        self.animation.setDuration(1000)  # 1 second duration
-        self.animation.setEasingCurve(QEasingCurve.InOutCubic)  # Smooth easing
 
         # drag function initiation
         self.dragging = False
@@ -1464,99 +1454,6 @@ class VirtualKeyboard(QWidget):
                 padding: 10px;
             }
         """)
-
-    def showEvent(self, event):
-        """Override show event to animate keyboard sliding up"""
-        super().showEvent(event)
-        if self.parent():
-            self.adjustSize()
-            parent = self.parent()
-            
-            # Calculate final position (where keyboard should end up)
-            right_padding = 20
-            bottom_padding = 40
-            target_x = parent.width() - self.width() - right_padding
-            target_y = parent.height() - self.height() - bottom_padding
-            
-            # Ensure it doesn't go off-screen
-            target_x = max(0, target_x)
-            target_y = max(0, target_y)
-            
-            # Set up animation from bottom of screen to target position
-            start_rect = QRect(target_x, parent.height(), self.width(), self.height())
-            end_rect = QRect(target_x, target_y, self.width(), self.height())
-            
-            self.animation.setStartValue(start_rect)
-            self.animation.setEndValue(end_rect)
-            
-            # Start animation
-            self.animation.start()
-
-        if self.search_input:
-            self.search_input.setFocus()
-
-    def hideEvent(self, event):
-        """Override hide event to animate keyboard sliding down"""
-        super().hideEvent(event)
-        if self.parent() and not self.animation.state() == QPropertyAnimation.Running:
-            current_geometry = self.geometry()
-            end_rect = QRect(
-                current_geometry.x(),
-                self.parent().height(),
-                self.width(),
-                self.height()
-            )
-            
-            # Set up hide animation
-            self.animation.setStartValue(current_geometry)
-            self.animation.setEndValue(end_rect)
-            
-            # Connect animation finished signal to actually hide the widget
-            self.animation.finished.connect(self._finish_hide)
-            self.animation.start()
-            
-            # Don't call parent's hide event yet - wait for animation
-            event.ignore()
-        else:
-            super().hideEvent(event)
-
-    def _finish_hide(self):
-        """Called when hide animation completes"""
-        super().hide()
-        # Disconnect to prevent memory leaks
-        try:
-            self.animation.finished.disconnect(self._finish_hide)
-        except TypeError:
-            pass  # In case it's already disconnected
-
-    def show(self):
-        """Override show to ensure proper animation handling"""
-        if not self.isVisible():
-            super().show()
-        elif self.animation.state() == QPropertyAnimation.Running:
-            self.animation.stop()
-            super().show()
-
-    def hide(self):
-        """Override hide to start the sliding down animation"""
-        if self.isVisible() and self.parent():
-            current_geometry = self.geometry()
-            end_rect = QRect(
-                current_geometry.x(),
-                self.parent().height(),
-                self.width(),
-                self.height()
-            )
-            
-            # Set up hide animation
-            self.animation.setStartValue(current_geometry)
-            self.animation.setEndValue(end_rect)
-            
-            # Connect animation finished signal to actually hide the widget
-            self.animation.finished.connect(self._finish_hide)
-            self.animation.start()
-        else:
-            super().hide()
 
     def _on_key_press(self, key):
         """Handle virtual keyboard key presses"""
