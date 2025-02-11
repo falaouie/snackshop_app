@@ -50,7 +50,6 @@ class POSView(QWidget):
         self._setup_ui()
 
     def _setup_ui(self):
-        qApp.installEventFilter(self)
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 10)  # Added bottom margin
         main_layout.setSpacing(0)
@@ -82,7 +81,8 @@ class POSView(QWidget):
         # Create virtual keyboard after products widget
         self.virtual_keyboard = VirtualKeyboard(self)
         self.virtual_keyboard.hide()  # Initially hidden
-
+        qApp.installEventFilter(self)
+        
         content_splitter.addWidget(self.products_widget)
         
         # Add splitter to main layout with spacing at the bottom
@@ -221,7 +221,12 @@ class POSView(QWidget):
         return super().eventFilter(obj, event)
     
     def _show_keyboard(self):
+        """Show virtual keyboard and ensure it's in full show mode"""
         if not self.keyboard_visible:
+            # Reset keyboard state to full show
+            if self.virtual_keyboard.is_minimized:
+                self.virtual_keyboard._on_restore()
+                
             # Get main window
             main_window = self.window()
             
@@ -1224,38 +1229,38 @@ class VirtualKeyboard(QWidget):
         super().__init__(parent)
         self.search_input = None
         self.setWindowFlags(Qt.Tool | Qt.FramelessWindowHint | Qt.WindowDoesNotAcceptFocus)
-        self.setAttribute(Qt.WA_StyledBackground, True)  # Enable stylesheet on widget
-
-        # drag function initiation
+        self.setAttribute(Qt.WA_StyledBackground, True)
         self.dragging = False
         self.drag_position = None
-
+        self.is_minimized = False
         self._setup_ui()
         self.hide()
 
     def _setup_ui(self):
-        # Main layout
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(5, 5, 5, 5)
-        main_layout.setSpacing(5)
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(5, 5, 5, 5)
+        self.main_layout.setSpacing(5)
 
-        # Create drag handle bar
-        drag_handle = QFrame()
-        drag_handle.setFixedHeight(40)
-        drag_handle.setStyleSheet("""
+        # Handle bar
+        self.handle_height = 40
+        self.handle_styles = """
             QFrame {
                 background: #444444;
                 border-top-left-radius: 10px;
                 border-top-right-radius: 10px;
             }
-        """)
+        """
+        
+        self.drag_handle = QFrame()
+        self.drag_handle.setFixedHeight(self.handle_height)
+        self.drag_handle.setStyleSheet(self.handle_styles)
         
         # Handle layout
-        handle_layout = QHBoxLayout(drag_handle)
-        handle_layout.setContentsMargins(10, 0, 10, 0)
-        handle_layout.setSpacing(0)
+        self.handle_layout = QHBoxLayout(self.drag_handle)
+        self.handle_layout.setContentsMargins(10, 0, 10, 0)
+        self.handle_layout.setSpacing(8)
 
-        # Drag icon label
+        # Drag icon
         drag_icon = QLabel()
         renderer = QSvgRenderer("assets/images/drag_icon.svg")
         pixmap = QPixmap(24, 24)
@@ -1265,155 +1270,141 @@ class VirtualKeyboard(QWidget):
         painter.end()
         drag_icon.setPixmap(pixmap)
         drag_icon.setStyleSheet("padding: 8px;")
-
-        handle_layout.addWidget(drag_icon)
-        handle_layout.addStretch()
         
-        # Close button
-        close_btn = QPushButton("×")
-        close_btn.setFixedSize(40, 40)
-        close_btn.clicked.connect(self._on_close)
-        close_btn.setStyleSheet("""
+        self.handle_layout.addWidget(drag_icon)
+        self.handle_layout.addStretch()
+
+        # Control buttons
+        self.control_button_styles = """
             QPushButton {
                 color: white;
                 border: none;
                 border-radius: 4px;
-                font-size: 24px;
+                font-size: 20px;
                 font-weight: bold;
-                padding: 0px;
+                width: 40px;
             }
             QPushButton:hover {
                 background: rgba(255, 255, 255, 0.1);
             }
-        """)
+        """
+
+        self.minimize_btn = QPushButton("−")
+        self.restore_btn = QPushButton("□")
+        self.minimize_btn.setFixedSize(40, 40)
+        self.restore_btn.setFixedSize(40, 40)
+        self.minimize_btn.setStyleSheet(self.control_button_styles)
+        self.restore_btn.setStyleSheet(self.control_button_styles)
         
-        handle_layout.addWidget(close_btn)
-        main_layout.addWidget(drag_handle)
+        self.minimize_btn.clicked.connect(self._on_minimize)
+        self.restore_btn.clicked.connect(self._on_restore)
+        
+        self.handle_layout.addWidget(self.minimize_btn)
+        self.handle_layout.addWidget(self.restore_btn)
+        self.restore_btn.hide()
 
-        # Container for QWERTY and Numpad
-        keyboard_container = QHBoxLayout()
-        keyboard_container.setSpacing(5)  # Space between QWERTY and numpad
+        self.main_layout.addWidget(self.drag_handle)
 
-        # QWERTY Section (Left side)
+        # Keyboard container
+        self.keyboard_container = QWidget()
+        keyboard_layout = QHBoxLayout(self.keyboard_container)
+        keyboard_layout.setSpacing(5)
+
+        # QWERTY Section
+        qwerty_widget = self._create_qwerty_section()
+        keyboard_layout.addWidget(qwerty_widget, stretch=7)
+
+        # Numpad Section
+        numpad_widget = self._create_numpad_section()
+        keyboard_layout.addWidget(numpad_widget, stretch=3)
+
+        self.main_layout.addWidget(self.keyboard_container)
+
+        # Create bottom row widget and add to main layout
+        self.bottom_row_widget = self._create_bottom_row()
+        self.main_layout.addWidget(self.bottom_row_widget)
+
+        self.setStyleSheet("""
+            VirtualKeyboard {
+                background: darkgrey;
+                border-radius: 10px;
+                padding: 10px;
+            }
+        """)
+
+    def _create_qwerty_section(self):
         qwerty_widget = QWidget()
         qwerty_layout = QGridLayout(qwerty_widget)
         qwerty_layout.setSpacing(10)
 
-        # QWERTY Keys
         qwerty_rows = [
             list('QWERTYUIOP'),
             list('ASDFGHJKL'),
             list('ZXCVBNM')
         ]
 
-        # Create and add QWERTY keys
+        self.key_button_styles = """
+            QPushButton {
+                background: white;
+                border: 1px solid #DEDEDE;
+                border-radius: 10px;
+                padding: 8px;
+                color: #333;
+                font-size: 18px;
+            }
+            QPushButton:hover {
+                background: #F8F9FA;
+                border-color: #2196F3;
+            }
+        """
+
         for row, letters in enumerate(qwerty_rows):
+            offset = (10 - len(letters)) // 2 if row == 2 else 0
             for col, letter in enumerate(letters):
                 btn = QPushButton(letter)
                 btn.setFixedSize(50, 50)
+                btn.setStyleSheet(self.key_button_styles)
                 btn.clicked.connect(lambda checked, l=letter: self._on_key_press(l))
-                btn.setStyleSheet("""
-                    QPushButton {
-                        background: white;
-                        border: 1px solid #DEDEDE;
-                        border-radius: 10px;
-                        padding: 8px;
-                        color: #333;
-                        font-size: 18px;
-                    }
-                    QPushButton:hover {
-                        background: #F8F9FA;
-                        border-color: #2196F3;
-                    }
-                """)
-                # Center-align shorter rows
-                offset = (10 - len(letters)) // 2 if row == 2 else 0
                 qwerty_layout.addWidget(btn, row, col + offset)
 
-        keyboard_container.addWidget(qwerty_widget, stretch=7)
+        return qwerty_widget
 
-        # Numpad Section (Right side)
+    def _create_numpad_section(self):
         numpad_widget = QWidget()
         numpad_layout = QGridLayout(numpad_widget)
         numpad_layout.setSpacing(10)
 
-        # Numpad keys layout
         numpad_keys = [
             ['7', '8', '9'],
             ['4', '5', '6'],
             ['1', '2', '3'],
-            ['CL','0', '⌫']
+            ['CL', '0', '⌫']
         ]
 
-        # Create and add numpad keys
         for row, keys in enumerate(numpad_keys):
             for col, key in enumerate(keys):
                 btn = QPushButton(key)
                 btn.setFixedSize(50, 50)
+                btn.setStyleSheet(self.key_button_styles)
+                
                 if key == '⌫':
                     btn.clicked.connect(self._on_backspace)
-                    btn.setStyleSheet("""
-                        QPushButton {
-                            background: white;
-                            border: 1px solid #DEDEDE;
-                            border-radius: 10px;
-                            padding: 8px;
-                            color: #333;
-                            font-size: 16px;
-                        }
-                        QPushButton:hover {
-                            background: #F8F9FA;
-                            border-color: #2196F3;
-                        }
-                    """)
-                    numpad_layout.addWidget(btn, row + 1, col)
                 elif key == 'CL':
-                    btn.clicked.connect(self._on_clear) 
-                    btn.setStyleSheet("""
-                        QPushButton {
-                            background: white;
-                            border: 1px solid #DEDEDE;
-                            border-radius: 10px;
-                            padding: 8px;
-                            color: #333;
-                            font-size: 16px;
-                        }
-                        QPushButton:hover {
-                            background: #F8F9FA;
-                            border-color: #2196F3;
-                        }
-                    """)
-                    numpad_layout.addWidget(btn, row + 1, col)
+                    btn.clicked.connect(self._on_clear)
                 else:
                     btn.clicked.connect(lambda checked, k=key: self._on_key_press(k))
-                    btn.setStyleSheet("""
-                        QPushButton {
-                            background: white;
-                            border: 1px solid #DEDEDE;
-                            border-radius: 8px;
-                            color: #333;
-                            font-size: 16px;
-                        }
-                        QPushButton:hover {
-                            background: #F8F9FA;
-                            border-color: #2196F3;
-                        }
-                    """)
-                    numpad_layout.addWidget(btn, row + 1, col)
-        
-        keyboard_container.addWidget(numpad_widget, stretch=3)
+                
+                numpad_layout.addWidget(btn, row, col)
 
-        # Add keyboard container to main layout
-        main_layout.addLayout(keyboard_container)
+        return numpad_widget
 
-        # Space bar
-        bottom_row = QHBoxLayout()
-        bottom_row.setSpacing(5)
+    def _create_bottom_row(self):
+        bottom_row_widget = QWidget()
+        bottom_row_layout = QHBoxLayout(bottom_row_widget)
+        bottom_row_layout.setSpacing(5)
 
-        # Space bar (reduced width)
         space_btn = QPushButton(' ')
         space_btn.setFixedHeight(45)
-        space_btn.clicked.connect(lambda: self._on_key_press(' '))
         space_btn.setStyleSheet("""
             QPushButton {
                 background: white;
@@ -1431,12 +1422,11 @@ class VirtualKeyboard(QWidget):
                 border-color: #2196F3;
             }
         """)
-        bottom_row.addWidget(space_btn, 70)  # 70% width
+        space_btn.clicked.connect(lambda: self._on_key_press(' '))
+        bottom_row_layout.addWidget(space_btn, 70)
 
-        # enter button
-        enter_btn = QPushButton('↵  ENTER')  # Enter/Return symbol
+        enter_btn = QPushButton('↵  ENTER')
         enter_btn.setFixedSize(175, 45)
-        enter_btn.clicked.connect(self._on_enter)
         enter_btn.setStyleSheet("""
             QPushButton {
                 background: #2196F3;
@@ -1452,46 +1442,48 @@ class VirtualKeyboard(QWidget):
                 background: #1E88E5;
             }
         """)
-        bottom_row.addWidget(enter_btn, 30)  # 30% width
+        enter_btn.clicked.connect(self._on_enter)
+        bottom_row_layout.addWidget(enter_btn, 30)
 
-        main_layout.addLayout(bottom_row)
+        return bottom_row_widget
 
-        self.setStyleSheet("""
-            VirtualKeyboard {
-                background: darkgrey;
-                border-top: none;
-                border-radius: 10px;
-                padding: 10px;
-            }
-        """)
+    def _on_minimize(self):
+        current_width = self.width()  # Store current width before hiding components
+        
+        self.keyboard_container.hide()
+        self.bottom_row_widget.hide()
+        self.minimize_btn.hide()
+        self.restore_btn.show()
+        self.is_minimized = True
+        
+        self.adjustSize()  # Let it adjust size based on visible components
+        self.setFixedWidth(current_width)  # Force the original width
+
+    def _on_restore(self):
+        self.keyboard_container.show()
+        self.bottom_row_widget.show()
+        self.restore_btn.hide()
+        self.minimize_btn.show()
+        self.is_minimized = False
 
     def _on_key_press(self, key):
-        """Handle virtual keyboard key presses"""
         if self.search_input:
-            # Get current cursor position
             cursor_pos = self.search_input.cursorPosition()
             current_text = self.search_input.text()
-            
-            # Insert the key at cursor position
             new_text = current_text[:cursor_pos] + key + current_text[cursor_pos:]
             self.search_input.setText(new_text)
-            
-            # Move cursor after inserted character
             self.search_input.setCursorPosition(cursor_pos + 1)
-            self.search_input.setFocus()  # Maintain focus on input
+            self.search_input.setFocus()
 
     def _on_backspace(self):
-        """Handle virtual keyboard backspace"""
         if self.search_input:
             cursor_pos = self.search_input.cursorPosition()
             current_text = self.search_input.text()
-            
             if cursor_pos > 0:
-                # Remove character before cursor
                 new_text = current_text[:cursor_pos-1] + current_text[cursor_pos:]
                 self.search_input.setText(new_text)
                 self.search_input.setCursorPosition(cursor_pos - 1)
-        self.search_input.setFocus()  # Maintain focus
+            self.search_input.setFocus()
 
     def _on_clear(self):
         if self.search_input:
@@ -1500,31 +1492,21 @@ class VirtualKeyboard(QWidget):
 
     def _on_enter(self):
         if self.search_input:
+            # If minimized, restore before hiding to ensure next show is in full mode
+            if self.is_minimized:
+                self._on_restore()
             self.hide()
             if self.parent():
                 self.parent().keyboard_visible = False
 
     def set_search_input(self, search_input):
-        """Set the input field and ensure it has focus"""
         self.search_input = search_input
         if self.search_input:
             self.search_input.setFocus()
-            
-    def keyPressEvent(self, event):
-        """Handle key press events"""
-        if event.key() == Qt.Key_Escape:
-            self._on_close()
-            
-    def _on_close(self):
-        """Handle closing the keyboard"""
-        self.hide()
-        if self.parent():
-            self.parent().keyboard_visible = False
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            # Check if click is in drag handle area
-            if event.pos().y() <= 40:  # drag handle height
+            if event.pos().y() <= self.handle_height:
                 self.dragging = True
                 self.drag_position = event.globalPos() - self.frameGeometry().topLeft()
                 event.accept()
@@ -1538,3 +1520,9 @@ class VirtualKeyboard(QWidget):
         if event.button() == Qt.LeftButton:
             self.dragging = False
             event.accept()
+
+    def hide(self):
+        # Always restore before hiding to ensure next show is in full mode
+        if self.is_minimized:
+            self._on_restore()
+        super().hide()
