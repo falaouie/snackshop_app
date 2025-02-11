@@ -221,8 +221,18 @@ class POSView(QWidget):
         return super().eventFilter(obj, event)
     
     def _show_keyboard(self):
-        """Show virtual keyboard and set focus"""
         if not self.keyboard_visible:
+            # Get main window
+            main_window = self.window()
+            
+            # Calculate keyboard position
+            keyboard_width = self.virtual_keyboard.sizeHint().width()
+            keyboard_height = self.virtual_keyboard.sizeHint().height()
+            
+            x = (main_window.width() - keyboard_width) // 2
+            y = main_window.height() - keyboard_height - 20  # 20px margin from bottom
+            
+            self.virtual_keyboard.move(x, y)
             self.virtual_keyboard.set_search_input(self.search_input)
             self.virtual_keyboard.show()
             self.keyboard_visible = True
