@@ -821,45 +821,98 @@ class POSView(QWidget):
             widget = self.products_grid.itemAt(i).widget()
             if widget:
                 widget.deleteLater()
-        
-        # Sample items (this would typically come from a database)
+
+        # Define items dictionary (moved outside the condition)
         items = {
             "Main": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
-                        "Vegan Sandwich", "BLT 2", "Tuna", "Veggie 3", "Egg Sandwich 2", "Steak N Cheese 2",
-                        "Vegan Sandwich", "BLT 3", "Tuna", "Another Vegan Sandwich", "Another BLT", "Another Tuna"],
+                    "Vegan Sandwich", "BLT 2", "Tuna", "Veggie 3", "Egg Sandwich 2", "Steak N Cheese 2",
+                    "Vegan Sandwich", "BLT 3", "Tuna", "Another Vegan Sandwich", "Another BLT", "Another Tuna"],
             "Sandwiches": ["Chicken Club6", "BLT5", "Tuna8", "Veggie5", "Egg Sandwich4", 
                         "Steak N Cheese", "Vegan Sandwich"],
             "Snacks": ["Chips", "Popcorn", "Nuts", "Pretzels"],
             "Beverages": ["Coffee", "Tea", "Soda", "Soda Diet", "Lemonade", "Water"],
             "Desserts": ["Cookies", "Brownies", "Muffins", "Fruit Cup"]
         }
-        
-        # Add product buttons
-        for i, item in enumerate(items[category]):
-            btn = QPushButton(item)
-            btn.setStyleSheet("""
-                QPushButton {
-                    background: white;
-                    border: 1px solid #DEDEDE;
-                    border-radius: 16px;
-                    padding: 8px;
-                    color: #333;
-                    font-size: 14px;
-                }
-                QPushButton:hover {
-                    background: #F8F9FA;
-                    border-color: #2196F3;
-                }
-                QPushButton:pressed {
-                    background: #F1F1F1;
-                }
-            """)
-            btn.setFixedSize(140, 60)
-            btn.clicked.connect(lambda checked, name=item: self.add_order_item(name))
-            row = i // 3
-            col = i % 3
-            self.products_grid.addWidget(btn, row, col)
-        
+
+        # Apply current search filter if exists
+        search_text = self.search_input.text().strip()
+        if search_text:
+            # Filter items based on search text
+            filtered_items = [item for item in items[category] 
+                            if search_text.lower() in item.lower()]
+            
+            # Add filtered product buttons
+            for i, item in enumerate(filtered_items):
+                btn = QPushButton(item)
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background: white;
+                        border: 1px solid #DEDEDE;
+                        border-radius: 16px;
+                        padding: 8px;
+                        color: #333;
+                        font-size: 14px;
+                    }
+                    QPushButton:hover {
+                        background: #F8F9FA;
+                        border-color: #2196F3;
+                    }
+                    QPushButton:pressed {
+                        background: #F1F1F1;
+                    }
+                """)
+                btn.setFixedSize(140, 60)
+                btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
+                row = i // 3
+                col = i % 3
+                self.products_grid.addWidget(btn, row, col)
+                
+            # Fill empty slots
+            remaining_slots = 3 - (len(filtered_items) % 3)
+            if remaining_slots < 3:
+                start_pos = len(filtered_items)
+                for i in range(remaining_slots):
+                    empty_widget = QWidget()
+                    row = start_pos // 3
+                    col = (start_pos + i) % 3
+                    self.products_grid.addWidget(empty_widget, row, col)
+        else:
+            # Add all product buttons for category
+            for i, item in enumerate(items[category]):
+                btn = QPushButton(item)
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background: white;
+                        border: 1px solid #DEDEDE;
+                        border-radius: 16px;
+                        padding: 8px;
+                        color: #333;
+                        font-size: 14px;
+                    }
+                    QPushButton:hover {
+                        background: #F8F9FA;
+                        border-color: #2196F3;
+                    }
+                    QPushButton:pressed {
+                        background: #F1F1F1;
+                    }
+                """)
+                btn.setFixedSize(140, 60)
+                btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
+                row = i // 3
+                col = i % 3
+                self.products_grid.addWidget(btn, row, col)
+            
+            # Fill empty slots
+            remaining_slots = 3 - (len(items[category]) % 3)
+            if remaining_slots < 3:
+                start_pos = len(items[category])
+                for i in range(remaining_slots):
+                    empty_widget = QWidget()
+                    row = start_pos // 3
+                    col = (start_pos + i) % 3
+                    self.products_grid.addWidget(empty_widget, row, col)
+
         self.products_grid.setRowStretch(self.products_grid.rowCount(), 1)
         
         # Fill empty slots
@@ -1160,8 +1213,9 @@ class POSView(QWidget):
     def _handle_product_click(self, item_name):
         """Handle product button click - add item and clear search"""
         self.add_order_item(item_name)
-        # Clear search field
+        # Clear search field and reshow all items in current category
         self.search_input.clear()
+        self._show_category_items(self.selected_horizontal_category)
         # Optionally hide keyboard if it's visible
         if self.keyboard_visible:
             self.virtual_keyboard.hide()
