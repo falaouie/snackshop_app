@@ -1448,7 +1448,9 @@ class VirtualKeyboard(QWidget):
         return bottom_row_widget
 
     def _on_minimize(self):
-        current_width = self.width()  # Store current width before hiding components
+        # Store current dimensions before hiding components
+        current_width = self.width()
+        current_height = self.height()
         
         self.keyboard_container.hide()
         self.bottom_row_widget.hide()
@@ -1458,13 +1460,34 @@ class VirtualKeyboard(QWidget):
         
         self.adjustSize()  # Let it adjust size based on visible components
         self.setFixedWidth(current_width)  # Force the original width
+        
+        # Get main window and reposition
+        main_window = self.parent().window()
+        if main_window:
+            # Calculate position to maintain bottom center with margin
+            x = (main_window.width() - current_width) // 2
+            y = main_window.height() - self.height() - 20  # 20px margin from bottom
+            self.move(x, y)
 
     def _on_restore(self):
+        # Store current width before showing components
+        current_width = self.width()
+        
         self.keyboard_container.show()
         self.bottom_row_widget.show()
         self.restore_btn.hide()
         self.minimize_btn.show()
         self.is_minimized = False
+        
+        # Get main window and reposition
+        main_window = self.parent().window()
+        if main_window:
+            # Calculate position to maintain bottom center with margin
+            keyboard_width = self.sizeHint().width()
+            keyboard_height = self.sizeHint().height()
+            x = (main_window.width() - keyboard_width) // 2
+            y = main_window.height() - keyboard_height - 20  # 20px margin from bottom
+            self.move(x, y)
 
     def _on_key_press(self, key):
         if self.search_input:
