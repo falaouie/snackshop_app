@@ -1384,8 +1384,8 @@ class VirtualKeyboard(QWidget):
 
     def _create_qwerty_section(self):
         qwerty_widget = QWidget()
-        qwerty_layout = QGridLayout(qwerty_widget)
-        qwerty_layout.setSpacing(10)
+        main_layout = QVBoxLayout(qwerty_widget)
+        main_layout.setSpacing(10)
 
         qwerty_rows = [
             list('QWERTYUIOP'),
@@ -1408,14 +1408,26 @@ class VirtualKeyboard(QWidget):
             }
         """
 
-        for row, letters in enumerate(qwerty_rows):
-            offset = (10 - len(letters)) // 2 if row == 2 else 0
-            for col, letter in enumerate(letters):
+        for letters in qwerty_rows:
+            # Create a container for each row
+            row_container = QWidget()
+            row_layout = QHBoxLayout(row_container)
+            
+            # If it's the second row (ASDFGHJKL), add extra margin
+            if len(letters) == 9:  # Second row
+                row_layout.setContentsMargins(30, 0, 25, 0)  # Left and right margins
+            elif len(letters) == 7:  # Third row (ZXCVBNM)
+                row_layout.setContentsMargins(50, 0, 50, 0)
+                
+            # Add buttons
+            for letter in letters:
                 btn = QPushButton(letter)
                 btn.setFixedSize(50, 50)
                 btn.setStyleSheet(self.key_button_styles)
                 btn.clicked.connect(lambda checked, l=letter: self._on_key_press(l))
-                qwerty_layout.addWidget(btn, row, col + offset)
+                row_layout.addWidget(btn)
+                
+            main_layout.addWidget(row_container)
 
         return qwerty_widget
 
@@ -1454,7 +1466,7 @@ class VirtualKeyboard(QWidget):
         bottom_row_layout.setSpacing(5)
 
         space_btn = QPushButton(' ')
-        space_btn.setFixedHeight(45)
+        space_btn.setFixedSize(600, 45)
         space_btn.setStyleSheet("""
             QPushButton {
                 background: white;
@@ -1463,7 +1475,7 @@ class VirtualKeyboard(QWidget):
                 color: #333;
                 font-size: 14px;
                 min-width: 300px;
-                margin-left: 40px;
+                margin-left: 70px;
                 margin-right: 50px;
                 margin-bottom: 10px;
             }
