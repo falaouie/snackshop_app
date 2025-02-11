@@ -346,6 +346,10 @@ class POSView(QWidget):
         scroll_area.setWidget(self.order_list_widget)
         layout.addWidget(scroll_area)
         
+        # Add quantity summary
+        self.quantity_summary = self._create_quantity_summary()
+        layout.addWidget(self.quantity_summary)
+
         # Add horizontal buttons section
         horizontal_buttons_frame = QFrame()
         horizontal_buttons_frame.setStyleSheet("""
@@ -409,6 +413,8 @@ class POSView(QWidget):
             new_item = OrderItem(item_name, price)
             self.order_items.append(new_item)
             self._add_item_to_display(new_item)
+            # Update quantity summary when adding new item
+            self._update_quantity_summary()
         
         self._update_totals()
 
@@ -498,6 +504,9 @@ class POSView(QWidget):
         # Add all items
         for item in self.order_items:
             self._add_item_to_display(item)
+        
+        # Update quantity summary
+        self._update_quantity_summary()
 
     def _update_totals(self):
         """Update the total amounts in USD and LBP"""
@@ -1049,6 +1058,7 @@ class POSView(QWidget):
             # Update display
             self._update_order_display()
             self._update_totals()
+            self._update_quantity_summary() 
 
     def _void_selected_item(self):
         """Remove the selected item from the order"""
@@ -1216,6 +1226,35 @@ class POSView(QWidget):
         if self.keyboard_visible:
             self.virtual_keyboard.hide()
             self.keyboard_visible = False
+
+    def _create_quantity_summary(self):
+        """Create frame showing total quantity and unique items"""
+        summary_frame = QFrame()
+        summary_frame.setStyleSheet("""
+            QFrame {
+                background: white;
+                border-top: 1px solid #DEDEDE;
+            }
+            QLabel {
+                color: #666;
+                font-size: 13px;
+            }
+        """)
+        
+        summary_layout = QHBoxLayout(summary_frame)
+        summary_layout.setContentsMargins(15, 8, 15, 8)
+        
+        self.qty_summary_label = QLabel("Qty: 0 | Items: 0")
+        summary_layout.addWidget(self.qty_summary_label)
+        summary_layout.addStretch()
+        
+        return summary_frame
+
+    def _update_quantity_summary(self):
+        """Update the quantity summary label"""
+        total_qty = sum(item.quantity for item in self.order_items)
+        unique_items = len(self.order_items)
+        self.qty_summary_label.setText(f"Qty: {total_qty} | Items: {unique_items}")
 
 class OrderItem:
     def __init__(self, name, price):
