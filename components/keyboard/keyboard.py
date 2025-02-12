@@ -3,60 +3,8 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QPixmap, QPainter
 from PyQt5.QtSvg import QSvgRenderer
+from .keyboard_manager import KeyboardManager
 from .styles import KeyboardStyles, KeyboardConfig, KeyboardEnabledInputStyles
-
-class KeyboardManager:
-    _instance = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(KeyboardManager, cls).__new__(cls)
-            cls._instance._initialize()
-        return cls._instance
-    
-    def _initialize(self):
-        """Initialize the keyboard manager"""
-        self.current_input = None
-        self.keyboard = None
-        self.registered_inputs = set()
-        
-    def register_keyboard(self, keyboard):
-        """Register the virtual keyboard instance"""
-        self.keyboard = keyboard
-        
-    def register_input(self, input_widget):
-        """Register an input widget to use the virtual keyboard"""
-        self.registered_inputs.add(input_widget)
-        
-    def unregister_input(self, input_widget):
-        """Unregister an input widget"""
-        if input_widget in self.registered_inputs:
-            self.registered_inputs.remove(input_widget)
-            
-    def set_current_input(self, input_widget):
-        """Set the currently focused input widget"""
-        if input_widget in self.registered_inputs:
-            self.current_input = input_widget
-            return True
-        return False
-    
-    def show_keyboard(self, input_widget):
-        """Show keyboard for a specific input widget"""
-        if self.keyboard and input_widget in self.registered_inputs:
-            self.current_input = input_widget
-            self.keyboard.set_input(input_widget)
-            self.keyboard.show()
-            return True
-        return False
-    
-    def hide_keyboard(self):
-        """Hide the virtual keyboard"""
-        if self.keyboard:
-            self.keyboard.hide()
-            
-    def get_current_input(self):
-        """Get the currently focused input widget"""
-        return self.current_input
 
 class KeyboardEnabledInput(QLineEdit):
     def __init__(self, parent=None, style_type='base'):
