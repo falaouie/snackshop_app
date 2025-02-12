@@ -183,10 +183,6 @@ class POSView(QWidget):
                 border: none;
                 padding: 0px;
             }
-            QPushButton:hover {
-                background: rgba(229, 57, 53, 0.1);
-                border-radius: 4px;
-            }
         """)
         lock_btn.clicked.connect(self._handle_lock)
         
