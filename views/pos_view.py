@@ -1,5 +1,4 @@
-# Add at the top with other imports
-from components.keyboard import VirtualKeyboard
+from components.keyboard import KeyboardEnabledInput, VirtualKeyboard, KeyboardType
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter,
                              QToolButton, QMenu, QMainWindow, qApp)
 from components.keyboard import KeyboardEnabledInput
@@ -23,7 +22,7 @@ class POSView(QWidget):
         self.category_buttons = {}
         self.selected_category = None
 
-        self.virtual_keyboard = None
+        self.keyboard = VirtualKeyboard(self)
         
         # Sample prices (you would typically get these from a database)
         self.prices = {
@@ -152,16 +151,14 @@ class POSView(QWidget):
         search_layout = QHBoxLayout(search_container)
         search_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Create search input with embedded icon
+        # Create search input
         self.search_input = SearchLineEdit(self)
-        self.search_input.textChanged.connect(self._filter_products)
         self.search_input.setPlaceholderText("Search products...")
         self.search_input.setFixedHeight(40)
 
-        # Add search elements to search layout and keyboard button
+        # Add search elements to search layout
         search_layout.addStretch(1)
         search_layout.addWidget(self.search_input)
-        # search_layout.addWidget(keyboard_btn)
         search_layout.addStretch(1)
 
         # Controls Zone (Lock Button)
@@ -200,12 +197,6 @@ class POSView(QWidget):
         layout.addWidget(search_container, 1)  # Give search container stretch priority
         layout.addWidget(controls_zone)
         
-        # Timer for updating time
-        self.timer = QTimer()
-        self.timer.timeout.connect(self._update_time)
-        self.timer.start(1000)
-        self._update_time()
-
         return self.top_bar
 
     def _create_order_widget(self):
@@ -1223,7 +1214,7 @@ class OrderItem:
     
 class SearchLineEdit(KeyboardEnabledInput):
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent, style_type='search', keyboard_type=KeyboardType.FULL)
         self.parent_view = parent
         
         # Load search icon (left)
@@ -1233,6 +1224,9 @@ class SearchLineEdit(KeyboardEnabledInput):
         painter = QPainter(self.search_pixmap)
         search_icon.render(painter)
         painter.end()
+
+        # Connect text changed signal for filtering
+        self.textChanged.connect(parent._filter_products)
         
         # Adjust style to leave space for both icons
         self.setStyleSheet("""

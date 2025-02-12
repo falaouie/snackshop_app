@@ -1,5 +1,5 @@
 from typing import Set, Optional, Protocol
-from PyQt5.QtWidgets import QWidget
+from .keyboard_types import KeyboardType
 
 class KeyboardEnabled(Protocol):
     """Protocol defining required methods for keyboard-enabled widgets"""
@@ -20,55 +20,45 @@ class KeyboardEnabled(Protocol):
 
 class KeyboardManager:
     """Singleton manager for virtual keyboard interactions"""
-    _instance: Optional['KeyboardManager'] = None
+    _instance = None
     
-    def __new__(cls) -> 'KeyboardManager':
+    def __new__(cls):
         if cls._instance is None:
             cls._instance = super(KeyboardManager, cls).__new__(cls)
             cls._instance._initialize()
         return cls._instance
     
-    def _initialize(self) -> None:
-        """Initialize the keyboard manager's state"""
-        self.current_input: Optional[KeyboardEnabled] = None
-        self.keyboard: Optional[QWidget] = None
-        self.registered_inputs: Set[KeyboardEnabled] = set()
+    def _initialize(self):
+        """Initialize the keyboard manager"""
+        self.current_input = None
+        self.keyboard = None
+        self.registered_inputs = set()
         
-    def register_keyboard(self, keyboard: QWidget) -> None:
+    def register_keyboard(self, keyboard):
         """Register the virtual keyboard instance"""
         self.keyboard = keyboard
         
-    def register_input(self, input_widget: KeyboardEnabled) -> None:
+    def register_input(self, input_widget):
         """Register an input widget to use the virtual keyboard"""
         self.registered_inputs.add(input_widget)
         
-    def unregister_input(self, input_widget: KeyboardEnabled) -> None:
+    def unregister_input(self, input_widget):
         """Unregister an input widget"""
         if input_widget in self.registered_inputs:
             self.registered_inputs.remove(input_widget)
             
-    def set_current_input(self, input_widget: KeyboardEnabled) -> bool:
-        """
-        Set the currently focused input widget
-        
-        Returns:
-            bool: True if input was set successfully, False otherwise
-        """
+    def set_current_input(self, input_widget):
+        """Set the currently focused input widget"""
         if input_widget in self.registered_inputs:
             self.current_input = input_widget
             return True
         return False
     
-    def show_keyboard(self, input_widget: KeyboardEnabled) -> bool:
-        """
-        Show keyboard for a specific input widget
-        
-        Returns:
-            bool: True if keyboard was shown successfully, False otherwise
-        """
+    def show_keyboard(self, input_widget, keyboard_type=KeyboardType.FULL):
+        """Show keyboard for a specific input widget with specified type"""
         if self.keyboard and input_widget in self.registered_inputs:
             self.current_input = input_widget
-            self.keyboard.set_input(input_widget)
+            self.keyboard.set_input(input_widget, keyboard_type)
             self.keyboard.show()
             return True
         return False
@@ -78,6 +68,6 @@ class KeyboardManager:
         if self.keyboard:
             self.keyboard.hide()
             
-    def get_current_input(self) -> Optional[KeyboardEnabled]:
+    def get_current_input(self):
         """Get the currently focused input widget"""
         return self.current_input

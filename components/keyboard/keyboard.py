@@ -1,33 +1,89 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                             QPushButton, QFrame, QGridLayout, QLineEdit)
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QPixmap, QPainter
+from PyQt5.QtGui import QPixmap, QPainter, QDoubleValidator
 from PyQt5.QtSvg import QSvgRenderer
+from typing import Optional
 from .keyboard_manager import KeyboardManager
 from .styles import KeyboardStyles, KeyboardConfig, KeyboardEnabledInputStyles
+from .keyboard_types import KeyboardType
 
 class KeyboardEnabledInput(QLineEdit):
-    def __init__(self, parent=None, style_type='base'):
+    """Input field that works with the virtual keyboard system"""
+    
+    def __init__(
+        self, 
+        parent=None, 
+        style_type: str = 'base',
+        keyboard_type: KeyboardType = KeyboardType.FULL,
+        keyboard_manager: Optional[KeyboardManager] = None
+    ):
+        """
+        Initialize a keyboard-enabled input field.
+        
+        Args:
+            parent: Parent widget
+            style_type: Visual style to apply ('base' or 'search')
+            keyboard_type: Type of virtual keyboard to display
+            keyboard_manager: Optional custom keyboard manager instance
+        """
         super().__init__(parent)
-        self.keyboard_manager = KeyboardManager()
+        
+        # Store configuration
+        self.keyboard_type = keyboard_type
+        self._style_type = style_type
+        
+        # Initialize keyboard manager
+        self.keyboard_manager = keyboard_manager or KeyboardManager()
         self.keyboard_manager.register_input(self)
+        
+        # Apply styling based on type
+        self._apply_style()
+        
+        # Set input properties based on keyboard type
+        self._configure_input_mode()
 
-        # Apply appropriate style based on input type
-        if style_type == 'search':
+    def _apply_style(self) -> None:
+        """Apply the appropriate visual style"""
+        if self._style_type == 'search':
             self.setStyleSheet(KeyboardEnabledInputStyles.SEARCH_INPUT)
         else:
             self.setStyleSheet(KeyboardEnabledInputStyles.BASE_INPUT)
     
-    def mousePressEvent(self, event):
-        super().mousePressEvent(event)
-        self.keyboard_manager.show_keyboard(self)
-    
-    def focusInEvent(self, event):
-        super().focusInEvent(event)
-        self.keyboard_manager.show_keyboard(self)
+    def _configure_input_mode(self) -> None:
+        """Configure input mode and validation based on keyboard type"""
+        if self.keyboard_type in [KeyboardType.NUMERIC, KeyboardType.DECIMAL, KeyboardType.PHONE]:
+            # For numeric types, only allow numbers
+            self.setInputMethodHints(Qt.ImhDigitsOnly)
+            
+            if self.keyboard_type == KeyboardType.PHONE:
+                self.setInputMask("999-999-9999;_")
+            elif self.keyboard_type == KeyboardType.DECIMAL:
+                self.setValidator(QDoubleValidator())
         
-    def __del__(self):
-        self.keyboard_manager.unregister_input(self)
+        elif self.keyboard_type == KeyboardType.EMAIL:
+            self.setInputMethodHints(Qt.ImhEmailCharactersOnly)
+
+    def show_keyboard(self) -> None:
+        """Show the virtual keyboard with appropriate configuration"""
+        if self.keyboard_manager:
+            # Pass keyboard type to show_keyboard for layout configuration
+            self.keyboard_manager.show_keyboard(self, self.keyboard_type)
+    
+    def mousePressEvent(self, event) -> None:
+        """Handle mouse press events to show keyboard"""
+        super().mousePressEvent(event)
+        self.show_keyboard()
+    
+    def focusInEvent(self, event) -> None:
+        """Handle focus events to show keyboard"""
+        super().focusInEvent(event)
+        self.show_keyboard()
+    
+    def __del__(self) -> None:
+        """Clean up by unregistering from keyboard manager"""
+        if hasattr(self, 'keyboard_manager'):
+            self.keyboard_manager.unregister_input(self)
 
 class VirtualKeyboard(QWidget):
     def __init__(self, parent=None):
@@ -46,15 +102,37 @@ class VirtualKeyboard(QWidget):
         self.dimensions = self.config.get_dimensions()
         self.layout_config = self.config.get_layout()
         
+        # Track current keyboard type
+        self.current_keyboard_type = KeyboardType.FULL
+        
         self._setup_ui()
         self.hide()
 
     def _setup_ui(self):
+        """Initialize the keyboard UI"""
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(*self.layout_config['main_margins'])
         self.main_layout.setSpacing(self.layout_config['main_spacing'])
 
         # Handle bar
+        self._setup_handle_bar()
+
+        # Keyboard container
+        self.keyboard_container = QWidget()
+        self.main_layout.addWidget(self.keyboard_container)
+
+        # Create initial keyboard layout
+        self._update_keyboard_layout()
+
+        # Bottom row with space and enter
+        self.bottom_row_widget = self._create_bottom_row()
+        self.main_layout.addWidget(self.bottom_row_widget)
+
+        # Apply base styles
+        self.setStyleSheet(KeyboardStyles.KEYBOARD_BASE)
+
+    def _setup_handle_bar(self):
+        """Setup the drag handle bar with controls"""
         self.drag_handle = QFrame()
         self.drag_handle.setFixedHeight(self.dimensions['handle_height'])
         self.drag_handle.setStyleSheet(KeyboardStyles.HANDLE_BAR)
@@ -97,8 +175,29 @@ class VirtualKeyboard(QWidget):
 
         self.main_layout.addWidget(self.drag_handle)
 
-        # Keyboard container
-        self.keyboard_container = QWidget()
+    def _update_keyboard_layout(self):
+        """Update the keyboard layout based on current type"""
+        self._clear_keyboard_layout()
+        
+        if self.current_keyboard_type in [KeyboardType.NUMERIC, KeyboardType.DECIMAL, KeyboardType.PHONE]:
+            self._create_numeric_keyboard()
+        elif self.current_keyboard_type == KeyboardType.EMAIL:
+            self._create_email_keyboard()
+        elif self.current_keyboard_type == KeyboardType.SEARCH:
+            self._create_full_keyboard()  # Same as full but with search-specific keys
+        else:
+            self._create_full_keyboard()
+
+    def _clear_keyboard_layout(self):
+        """Remove all widgets from the keyboard container"""
+        if self.keyboard_container.layout():
+            while self.keyboard_container.layout().count():
+                item = self.keyboard_container.layout().takeAt(0)
+                if item.widget():
+                    item.widget().deleteLater()
+
+    def _create_full_keyboard(self):
+        """Create standard QWERTY keyboard layout"""
         keyboard_layout = QHBoxLayout(self.keyboard_container)
         keyboard_layout.setSpacing(5)
 
@@ -110,16 +209,37 @@ class VirtualKeyboard(QWidget):
         numpad_widget = self._create_numpad_section()
         keyboard_layout.addWidget(numpad_widget, stretch=3)
 
-        self.main_layout.addWidget(self.keyboard_container)
-
-        # Bottom row
-        self.bottom_row_widget = self._create_bottom_row()
-        self.main_layout.addWidget(self.bottom_row_widget)
-
-        # Apply base styles
-        self.setStyleSheet(KeyboardStyles.KEYBOARD_BASE)
+    def _create_numeric_keyboard(self):
+        """Create numeric-only keyboard layout"""
+        layout = QGridLayout(self.keyboard_container)
+        layout.setSpacing(10)
+        
+        # Add number keys (0-9)
+        numbers = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0']
+        positions = [(i // 3, i % 3) for i in range(len(numbers))]
+        
+        for number, pos in zip(numbers, positions):
+            btn = self._create_key_button(number)
+            btn.clicked.connect(lambda checked, n=number: self._on_key_press(n))
+            layout.addWidget(btn, *pos)
+        
+        # Add additional keys based on keyboard type
+        if self.current_keyboard_type == KeyboardType.DECIMAL:
+            decimal = self._create_key_button('.')
+            decimal.clicked.connect(lambda: self._on_key_press('.'))
+            layout.addWidget(decimal, 3, 1)
+        
+        # Add backspace and clear
+        backspace = self._create_key_button('⌫')
+        backspace.clicked.connect(self._on_backspace)
+        layout.addWidget(backspace, 3, 2)
+        
+        clear = self._create_key_button('CLR')
+        clear.clicked.connect(self._on_clear)
+        layout.addWidget(clear, 3, 0)
 
     def _create_qwerty_section(self):
+        """Create the QWERTY section of the keyboard"""
         qwerty_widget = QWidget()
         main_layout = QVBoxLayout(qwerty_widget)
         main_layout.setSpacing(10)
@@ -149,6 +269,7 @@ class VirtualKeyboard(QWidget):
         return qwerty_widget
 
     def _create_numpad_section(self):
+        """Create the numpad section of the keyboard"""
         numpad_widget = QWidget()
         numpad_layout = QGridLayout(numpad_widget)
         numpad_layout.setSpacing(10)
@@ -175,7 +296,14 @@ class VirtualKeyboard(QWidget):
 
         return numpad_widget
 
+    def _create_email_keyboard(self):
+        """Create email-specific keyboard layout"""
+        self._create_full_keyboard()
+        # Add email-specific buttons (like @, .com, etc.)
+        # This can be expanded based on requirements
+
     def _create_bottom_row(self):
+        """Create the bottom row with space and enter buttons"""
         bottom_row_widget = QWidget()
         bottom_row_layout = QHBoxLayout(bottom_row_widget)
         bottom_row_layout.setSpacing(5)
@@ -219,8 +347,18 @@ class VirtualKeyboard(QWidget):
         btn.setStyleSheet(KeyboardStyles.ENTER_KEY)
         return btn
 
-    # Event handlers (no changes needed)
+    def set_input(self, input_widget, keyboard_type=KeyboardType.FULL):
+        """Set the current input widget and keyboard type"""
+        self.current_input = input_widget
+        if keyboard_type != self.current_keyboard_type:
+            self.current_keyboard_type = keyboard_type
+            self._update_keyboard_layout()
+        
+        if self.current_input:
+            self.current_input.setFocus()
+
     def _on_key_press(self, key):
+        """Handle key press events"""
         if self.current_input:
             cursor_pos = self.current_input.cursorPosition()
             current_text = self.current_input.text()
@@ -230,6 +368,7 @@ class VirtualKeyboard(QWidget):
             self.current_input.setFocus()
 
     def _on_backspace(self):
+        """Handle backspace key press"""
         if self.current_input:
             cursor_pos = self.current_input.cursorPosition()
             current_text = self.current_input.text()
@@ -240,11 +379,13 @@ class VirtualKeyboard(QWidget):
             self.current_input.setFocus()
 
     def _on_clear(self):
+        """Handle clear key press"""
         if self.current_input:
             self.current_input.clear()
             self.current_input.setFocus()
 
     def _on_enter(self):
+        """Handle enter key press"""
         if self.current_input:
             if self.is_minimized:
                 self._on_restore()
@@ -253,6 +394,7 @@ class VirtualKeyboard(QWidget):
                 self.parent().keyboard_visible = False
 
     def _on_minimize(self):
+        """Handle minimize button press"""
         current_width = self.width()
         
         self.keyboard_container.hide()
@@ -271,6 +413,7 @@ class VirtualKeyboard(QWidget):
             self.move(x, y)
 
     def _on_restore(self):
+        """Handle restore button press"""
         current_width = self.width()
         
         self.keyboard_container.show()
@@ -287,12 +430,6 @@ class VirtualKeyboard(QWidget):
             y = main_window.height() - keyboard_height - 20
             self.move(x, y)
 
-    def set_input(self, input_widget):
-        """Set the current input widget"""
-        self.current_input = input_widget
-        if self.current_input:
-            self.current_input.setFocus()
-
     def show(self):
         """Override show to handle positioning"""
         if self.parent():
@@ -305,7 +442,7 @@ class VirtualKeyboard(QWidget):
                 self.move(x, y)
         super().show()
 
-    # Mouse event handlers for dragging (no changes needed)
+    # Mouse event handlers for dragging
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             if event.pos().y() <= self.dimensions['handle_height']:
