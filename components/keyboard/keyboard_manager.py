@@ -58,6 +58,11 @@ class KeyboardManager:
         """Show keyboard for a specific input widget with specified type"""
         if self.keyboard and input_widget in self.registered_inputs:
             self.current_input = input_widget
+            
+            # If keyboard is minimized, restore it first
+            if self.keyboard.is_minimized:
+                self.keyboard._on_restore()
+                
             self.keyboard.set_input(input_widget, keyboard_type)
             self.keyboard.show()
             return True
