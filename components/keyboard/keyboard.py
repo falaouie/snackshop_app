@@ -159,18 +159,26 @@ class VirtualKeyboard(QWidget):
         # Control buttons
         self.minimize_btn = QPushButton("−")
         self.restore_btn = QPushButton("□")
+        self.close_btn = QPushButton("x")
+        
         self.minimize_btn.setFixedSize(self.dimensions['control_button_size'], 
                                      self.dimensions['control_button_size'])
         self.restore_btn.setFixedSize(self.dimensions['control_button_size'], 
                                     self.dimensions['control_button_size'])
+        self.close_btn.setFixedSize(self.dimensions['control_button_size'], 
+                                     self.dimensions['control_button_size'])
+        
         self.minimize_btn.setStyleSheet(KeyboardStyles.CONTROL_BUTTONS)
         self.restore_btn.setStyleSheet(KeyboardStyles.CONTROL_BUTTONS)
+        self.close_btn.setStyleSheet(KeyboardStyles.CONTROL_BUTTONS)
         
         self.minimize_btn.clicked.connect(self._on_minimize)
         self.restore_btn.clicked.connect(self._on_restore)
+        self.close_btn.clicked.connect(self._on_close)
         
         self.handle_layout.addWidget(self.minimize_btn)
         self.handle_layout.addWidget(self.restore_btn)
+        self.handle_layout.addWidget(self.close_btn)
         self.restore_btn.hide()
 
         self.main_layout.addWidget(self.drag_handle)
@@ -315,7 +323,7 @@ class VirtualKeyboard(QWidget):
 
         # Enter button
         enter_btn = self._create_enter_button()
-        enter_btn.clicked.connect(self._on_enter)
+        enter_btn.clicked.connect(self._on_close)
         bottom_row_layout.addWidget(enter_btn, 30)
 
         return bottom_row_widget
@@ -384,8 +392,8 @@ class VirtualKeyboard(QWidget):
             self.current_input.clear()
             self.current_input.setFocus()
 
-    def _on_enter(self):
-        """Handle enter key press"""
+    def _on_close(self):
+        """Handle enter key press or keyboard x icon"""
         if self.current_input:
             if self.is_minimized:
                 self._on_restore()
@@ -495,7 +503,7 @@ class VirtualKeyboard(QWidget):
                     
                 # Minimize keyboard if visible and not already minimized
                 if self.isVisible() and not self.is_minimized:
-                    self._on_minimize()
+                    self._on_close()
                     
                 return False  # Let the event propagate to handle product clicks
                     
