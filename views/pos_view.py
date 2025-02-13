@@ -8,7 +8,13 @@ from PyQt5.QtSvg import QSvgRenderer
 from . import styles
 # from utilities.utils import ApplicationUtils
 from config.screen_config import screen_config
-
+from models.product_catalog import (
+    CATEGORIES,
+    PRODUCTS_BY_CATEGORY,
+    PRODUCT_PRICES,
+    get_products_for_category,
+    get_product_price
+)
 
 class POSView(QWidget):
     def __init__(self, user_id, parent=None):
@@ -24,31 +30,15 @@ class POSView(QWidget):
 
         self.keyboard = VirtualKeyboard(self)
         
-        # Sample prices (you would typically get these from a database)
-        self.prices = {
-            "Chicken Club": 8.50,
-            "BLT": 6.50,
-            "Tuna": 7.00,
-            "Veggie": 6.00,
-            "Egg Sandwich": 5.50,
-            "Steak N Cheese": 9.50,
-            "Vegan Sandwich": 7.50,
-            "Chips": 2.00,
-            "Popcorn": 2.50,
-            "Nuts": 3.00,
-            "Pretzels": 2.50,
-            "Coffee": 3.50,
-            "Tea": 2.50,
-            "Soda": 2.00,
-            "Soda Diet": 2.00,
-            "Lemonade": 3.00,
-            "Water": 1.50,
-            "Cookies": 2.50,
-            "Brownies": 3.50,
-            "Muffins": 3.00,
-            "Fruit Cup": 4.00
-        }
+        # Use imported prices
+        self.prices = PRODUCT_PRICES
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self._update_time)
+        self.timer.start(1000) 
+
         self._setup_ui()
+        self._update_time()
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
@@ -75,7 +65,8 @@ class POSView(QWidget):
         
         # Left Side - Order Details
         self.order_widget = self._create_order_widget()
-        self.order_widget.setFixedWidth(350)
+        self.order_widget.setFixedWidth(self.screen_config.get_size('pos_order_panel_width'))
+        self.order_widget.setStyleSheet(styles.POSStyles.ORDER_PANEL)
         content_splitter.addWidget(self.order_widget)
         
         # Middle - Products Grid
@@ -99,7 +90,7 @@ class POSView(QWidget):
                 border-bottom: 1px solid #DEDEDE;
             }
         """)
-        self.top_bar.setFixedHeight(60)
+        self.top_bar.setFixedHeight(self.screen_config.get_size('pos_top_bar_height'))
         
         # Main layout
         layout = QHBoxLayout(self.top_bar)
@@ -130,20 +121,20 @@ class POSView(QWidget):
         time_layout = QVBoxLayout(time_zone)
         time_layout.setContentsMargins(10, 5, 10, 5)
         time_layout.setSpacing(2)
-        
+
         self.date_label = QLabel()
         self.date_label.setStyleSheet("color: #666;")
-        
+
         self.time_label = QLabel()
         self.time_label.setStyleSheet("color: #333; font-weight: 500; padding-left: 4px;")
-        
+
         time_layout.addWidget(self.date_label)
         time_layout.addWidget(self.time_label)
-        
+
         # Add widgets to employee zone
         emp_layout.addWidget(emp_icon)
         emp_layout.addWidget(emp_id)
-        emp_layout.addWidget(time_zone)
+        emp_layout.addWidget(time_zone)  # Changed from time_layout to time_zone
 
         # Search Section (Centered)
         search_container = QFrame()
@@ -154,7 +145,11 @@ class POSView(QWidget):
         # Create search input
         self.search_input = SearchLineEdit(self)
         self.search_input.setPlaceholderText("Search products...")
-        self.search_input.setFixedHeight(40)
+        self.search_input.setFixedSize(
+            self.screen_config.get_size('pos_search_input_width'),
+            self.screen_config.get_size('pos_search_input_height')
+        )
+        self.search_input.setStyleSheet(styles.POSStyles.SEARCH_INPUT)
 
         # Add search elements to search layout
         search_layout.addStretch(1)
@@ -254,27 +249,27 @@ class POSView(QWidget):
         # Order Items Area
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
-        scroll_area.setStyleSheet("""
-            QScrollArea {
-                border: none;
-                background: white;
-            }
-            QScrollBar:vertical {
-                border: none;
-                background: #F8F9FA;
-                width: 8px;
-                margin: 0;
-            }
-            QScrollBar::handle:vertical {
-                background: #DEDEDE;
-                border-radius: 4px;
-                min-height: 20px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                border: none;
-                background: none;
-            }
-        """)
+        # scroll_area.setStyleSheet("""
+        #     QScrollArea {
+        #         border: none;
+        #         background: white;
+        #     }
+        #     QScrollBar:vertical {
+        #         border: none;
+        #         background: #F8F9FA;
+        #         width: 8px;
+        #         margin: 0;
+        #     }
+        #     QScrollBar::handle:vertical {
+        #         background: #DEDEDE;
+        #         border-radius: 4px;
+        #         min-height: 20px;
+        #     }
+        #     QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+        #         border: none;
+        #         background: none;
+        #     }
+        # """)
         
         self.order_list_widget = QWidget()
         self.order_list_widget.setStyleSheet("""
@@ -460,7 +455,7 @@ class POSView(QWidget):
         total_usd = sum(item.get_total() for item in self.order_items)
         total_lbp = total_usd * self.exchange_rate
         
-        self.usd_amount.setText(f"$ {total_usd:.2f}")
+        self.usd_amount.setText(f"${total_usd:.2f}")
         self.lbp_amount.setText(f"LBP {total_lbp:,.0f}")
     
     def _create_products_widget(self):
@@ -474,7 +469,7 @@ class POSView(QWidget):
         
         # Main layout for products area
         main_layout = QVBoxLayout(products_frame)
-        main_layout.setContentsMargins(0, 5, 0, 0)  # Removed bottom margin
+        main_layout.setContentsMargins(0, 5, 0, 0)
         main_layout.setSpacing(8)
 
         # Horizontal Categories Row
@@ -490,27 +485,16 @@ class POSView(QWidget):
 
         # Horizontal category buttons
         self.horizontal_category_buttons = {}
-        self.categories = ["Main", "Sandwiches", "Snacks", "Beverages", "Desserts"]
+        self.categories = CATEGORIES
         self.selected_horizontal_category = None
 
         for category in self.categories:
             btn = QPushButton(category)
-            btn.setStyleSheet("""
-                QPushButton {
-                    background: white;
-                    border: 1px solid #DEDEDE;
-                    border-radius: 4px;
-                    padding: 4px;
-                    color: #333;
-                    text-align: center;
-                    font-size: 13px;
-                }
-                QPushButton:hover {
-                    background: #F8F9FA;
-                    border-color: #2196F3;
-                }
-            """)
-            btn.setFixedSize(120, 40)
+            btn.setFixedSize(
+                self.screen_config.get_size('pos_category_button_width'),
+                self.screen_config.get_size('pos_category_button_height')
+            )
+            btn.setStyleSheet(styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON)
             btn.clicked.connect(lambda checked, c=category: self._show_category_items(c))
             horizontal_layout.addWidget(btn)
             self.horizontal_category_buttons[category] = btn
@@ -709,7 +693,7 @@ class POSView(QWidget):
         
         # USD Total
         usd_layout = QHBoxLayout()
-        self.usd_amount = QLabel("$ 0.00")
+        self.usd_amount = QLabel("$0.00")
         self.usd_amount.setProperty("class", "currency-usd")
         usd_layout.addStretch()
         usd_layout.addWidget(self.usd_amount)
@@ -734,42 +718,18 @@ class POSView(QWidget):
 
     def _show_category_items(self, category):
         """Display product items for selected category"""
-        # Update button styles - now handles both horizontal and vertical buttons independently
+        # Update button styles - handles horizontal buttons
         if category in self.horizontal_category_buttons:
-            # Reset previously selected horizontal button
+            # Reset previously selected horizontal button style
             if self.selected_horizontal_category:
-                self.horizontal_category_buttons[self.selected_horizontal_category].setStyleSheet("""
-                    QPushButton {
-                        background: white;
-                        border: 1px solid #DEDEDE;
-                        border-radius: 4px;
-                        padding: 8px;
-                        color: #333;
-                        text-align: center;
-                        font-size: 13px;
-                    }
-                    QPushButton:hover {
-                        background: #F8F9FA;
-                        border-color: #2196F3;
-                    }
-                """)
+                self.horizontal_category_buttons[self.selected_horizontal_category].setStyleSheet(
+                    styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON
+                )
             
-            # Update selected horizontal button
-            self.horizontal_category_buttons[category].setStyleSheet("""
-                QPushButton {
-                    background: #2196F3;
-                    border: none;
-                    border-radius: 4px;
-                    padding: 8px;
-                    color: white;
-                    text-align: center;
-                    font-size: 13px;
-                    font-weight: 500;
-                }
-                QPushButton:hover {
-                    background: #1E88E5;
-                }
-            """)
+            # Update selected horizontal button style
+            self.horizontal_category_buttons[category].setStyleSheet(
+                styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON_SELECTED
+            )
             self.selected_horizontal_category = category
             
         # Clear existing products
@@ -778,17 +738,8 @@ class POSView(QWidget):
             if widget:
                 widget.deleteLater()
 
-        # Define items dictionary (moved outside the condition)
-        items = {
-            "Main": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
-                    "Vegan Sandwich", "BLT 2", "Tuna", "Veggie 3", "Egg Sandwich 2", "Steak N Cheese 2",
-                    "Vegan Sandwich", "BLT 3", "Tuna", "Another Vegan Sandwich", "Another BLT", "Another Tuna"],
-            "Sandwiches": ["Chicken Club6", "BLT5", "Tuna8", "Veggie5", "Egg Sandwich4", 
-                        "Steak N Cheese", "Vegan Sandwich"],
-            "Snacks": ["Chips", "Popcorn", "Nuts", "Pretzels"],
-            "Beverages": ["Coffee", "Tea", "Soda", "Soda Diet", "Lemonade", "Water"],
-            "Desserts": ["Cookies", "Brownies", "Muffins", "Fruit Cup"]
-        }
+        # Get items for current category from product catalog
+        items = PRODUCTS_BY_CATEGORY
 
         # Apply current search filter if exists
         search_text = self.search_input.text().strip()
@@ -800,24 +751,11 @@ class POSView(QWidget):
             # Add filtered product buttons
             for i, item in enumerate(filtered_items):
                 btn = QPushButton(item)
-                btn.setStyleSheet("""
-                    QPushButton {
-                        background: white;
-                        border: 1px solid #DEDEDE;
-                        border-radius: 16px;
-                        padding: 8px;
-                        color: #333;
-                        font-size: 14px;
-                    }
-                    QPushButton:hover {
-                        background: #F8F9FA;
-                        border-color: #2196F3;
-                    }
-                    QPushButton:pressed {
-                        background: #F1F1F1;
-                    }
-                """)
-                btn.setFixedSize(140, 60)
+                btn.setFixedSize(
+                    self.screen_config.get_size('pos_product_button_width'),
+                    self.screen_config.get_size('pos_product_button_height')
+                )
+                btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
                 btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
                 row = i // 3
                 col = i % 3
@@ -836,24 +774,11 @@ class POSView(QWidget):
             # Add all product buttons for category
             for i, item in enumerate(items[category]):
                 btn = QPushButton(item)
-                btn.setStyleSheet("""
-                    QPushButton {
-                        background: white;
-                        border: 1px solid #DEDEDE;
-                        border-radius: 16px;
-                        padding: 8px;
-                        color: #333;
-                        font-size: 14px;
-                    }
-                    QPushButton:hover {
-                        background: #F8F9FA;
-                        border-color: #2196F3;
-                    }
-                    QPushButton:pressed {
-                        background: #F1F1F1;
-                    }
-                """)
-                btn.setFixedSize(140, 60)
+                btn.setFixedSize(
+                    self.screen_config.get_size('pos_product_button_width'),
+                    self.screen_config.get_size('pos_product_button_height')
+                )
+                btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
                 btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
                 row = i // 3
                 col = i % 3
@@ -884,17 +809,12 @@ class POSView(QWidget):
     def _create_bottom_bar(self):
         """Create bottom action bar"""
         self.bottom_bar = QFrame()
-        self.bottom_bar.setFixedHeight(80)
-        self.bottom_bar.setStyleSheet("""
-            QFrame {
-                background: #F8F9FA;
-                border-top: 1px solid #DEDEDE;
-                min-height: 80px;
-                max-height: 80px;
-                margin-bottom: 10px;  /* Add margin to bottom */
-            }
-        """)
-        
+        bottom_bar_height = self.screen_config.get_size('pos_bottom_bar_height')
+        self.bottom_bar.setStyleSheet(
+            styles.POSStyles.BOTTOM_BAR.format(
+                height=bottom_bar_height
+            )
+        )
         layout = QHBoxLayout(self.bottom_bar)
         layout.setContentsMargins(10, 5, 10, 10)
         layout.setSpacing(6)
@@ -903,41 +823,20 @@ class POSView(QWidget):
         
         # OTHER Payment button
         pay_oth_btn = QPushButton("PAY OTHER")
-        pay_oth_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #FFBF00;
-                color: white;
-                border: none;
-                border-radius: 10px;
-                padding: 5px 5px;
-                margin-right: 15px;
-                font-size: 18px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #FFB300;
-            }
-        """)
-        pay_oth_btn.setFixedSize(140, 50)
+        pay_oth_btn.setStyleSheet(styles.POSStyles.get_pay_button_style("other"))
+        pay_oth_btn.setFixedSize(
+            self.screen_config.get_size('pos_action_button_width'),
+            self.screen_config.get_size('pos_action_button_height')
+        )
         layout.addWidget(pay_oth_btn)
 
         # Cash Payment button
         pay_cash_btn = QPushButton("PAY CASH")
-        pay_cash_btn.setStyleSheet("""
-            QPushButton {
-                background-color: darkgreen;
-                color: white;
-                border: none;
-                border-radius: 10px;
-                padding: 5px 5px;
-                font-size: 20px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #48A848;
-            }
-        """)
-        pay_cash_btn.setFixedSize(140, 50)
+        pay_cash_btn.setStyleSheet(styles.POSStyles.get_pay_button_style("cash"))
+        pay_cash_btn.setFixedSize(
+            self.screen_config.get_size('pos_action_button_width'),
+            self.screen_config.get_size('pos_action_button_height')
+        )
         layout.addWidget(pay_cash_btn)
 
     def _update_time(self):
@@ -1110,16 +1009,7 @@ class POSView(QWidget):
                 widget.deleteLater()
         
         # Get items for current category
-        items = {
-            "Main": ["Chicken Club", "BLT", "Tuna", "Veggie", "Egg Sandwich", "Steak N Cheese", 
-                    "Vegan Sandwich", "BLT2", "Tuna", "Veggie3", "Egg Sandwich2", "Steak N Cheese 2",
-                    "Vegan Sandwich", "BLT3", "Tuna", "Another Vegan Sandwich", "Another BLT", "Another Tuna"],
-            "Sandwiches": ["Chicken Club6", "BLT5", "Tuna8", "Veggie5", "Egg Sandwich4", 
-                        "Steak N Cheese", "Vegan Sandwich"],
-            "Snacks": ["Chips", "Popcorn", "Nuts", "Pretzels"],
-            "Beverages": ["Coffee", "Tea", "Soda", "Soda Diet", "Lemonade", "Water"],
-            "Desserts": ["Cookies", "Brownies", "Muffins", "Fruit Cup"]
-        }
+        items = PRODUCTS_BY_CATEGORY
         
         # Filter items based on search text
         filtered_items = [item for item in items[current_category] 
@@ -1128,24 +1018,11 @@ class POSView(QWidget):
         # Add filtered product buttons
         for i, item in enumerate(filtered_items):
             btn = QPushButton(item)
-            btn.setStyleSheet("""
-                QPushButton {
-                    background: white;
-                    border: 1px solid #DEDEDE;
-                    border-radius: 16px;
-                    padding: 8px;
-                    color: #333;
-                    font-size: 14px;
-                }
-                QPushButton:hover {
-                    background: #F8F9FA;
-                    border-color: #2196F3;
-                }
-                QPushButton:pressed {
-                    background: #F1F1F1;
-                }
-            """)
-            btn.setFixedSize(140, 60)
+            btn.setFixedSize(
+                    self.screen_config.get_size('pos_product_button_width'),
+                    self.screen_config.get_size('pos_product_button_height')
+                )
+            btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
             btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
             row = i // 3
             col = i % 3

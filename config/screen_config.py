@@ -43,7 +43,20 @@ class ScreenConfig:
         # Spacing and margins
         'keypad_spacing': 10,
         'container_margin': 10,
-        'section_spacing': 10
+        'section_spacing': 10,
+
+        # pos view specific
+        'pos_top_bar_height': 50,
+        'pos_product_button_width': 120,
+        'pos_product_button_height': 50,
+        'pos_category_button_width': 100,
+        'pos_category_button_height': 35,
+        'pos_order_panel_width': 300,
+        'pos_bottom_bar_height': 70,
+        'pos_action_button_width': 120,
+        'pos_action_button_height': 45,
+        'pos_search_input_width': 250,
+        'pos_search_input_height': 35
     }
 
     MEDIUM = {
@@ -88,8 +101,21 @@ class ScreenConfig:
         # Spacing and margins
         'keypad_spacing': 15,
         'container_margin': 15,
-        'section_spacing': 15
-    }
+        'section_spacing': 15,
+
+        # pos view specific
+        'pos_top_bar_height': 60,
+        'pos_product_button_width': 140,
+        'pos_product_button_height': 60,
+        'pos_category_button_width': 120,
+        'pos_category_button_height': 40,
+        'pos_order_panel_width': 350,
+        'pos_bottom_bar_height': 80,
+        'pos_action_button_width': 140,
+        'pos_action_button_height': 50,
+        'pos_search_input_width': 300,
+        'pos_search_input_height': 40
+        }
 
     LARGE = {
         # Logo dimensions
@@ -129,7 +155,20 @@ class ScreenConfig:
         # Spacing and margins
         'keypad_spacing': 10,
         'container_margin': 15,
-        'section_spacing': 10
+        'section_spacing': 10,
+
+        # pos view specific
+        'pos_top_bar_height': 70,
+        'pos_product_button_width': 160,
+        'pos_product_button_height': 70,
+        'pos_category_button_width': 140,
+        'pos_category_button_height': 45,
+        'pos_order_panel_width': 400,
+        'pos_bottom_bar_height': 90,
+        'pos_action_button_width': 160,
+        'pos_action_button_height': 55,
+        'pos_search_input_width': 600,
+        'pos_search_input_height': 45
     }
 
     def __init__(self):
