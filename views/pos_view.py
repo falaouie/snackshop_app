@@ -15,6 +15,12 @@ from models.product_catalog import (
     get_products_for_category,
     get_product_price
 )
+from models.button_definitions import (
+    ORDER_TYPES,
+    HORIZONTAL_BUTTONS,
+    TRANSACTION_BUTTONS,
+    PAYMENT_BUTTONS
+)
 
 class POSView(QWidget):
     def __init__(self, user_id, parent=None):
@@ -56,12 +62,7 @@ class POSView(QWidget):
 
         # Main Content Area with Splitter
         content_splitter = QSplitter(Qt.Horizontal)
-        content_splitter.setStyleSheet("""
-            QSplitter::handle {
-                background: #DEDEDE;
-                width: 1px;
-            }
-        """)
+        content_splitter.setStyleSheet(styles.POSStyles.SPLITTER)
         
         # Left Side - Order Details
         self.order_widget = self._create_order_widget()
@@ -84,12 +85,7 @@ class POSView(QWidget):
     def _create_top_bar(self):
         """Create top bar with employee info, search, and lock button"""
         self.top_bar = QFrame()
-        self.top_bar.setStyleSheet("""
-            QFrame {
-                background: #F0F0F0;
-                border-bottom: 1px solid #DEDEDE;
-            }
-        """)
+        self.top_bar.setStyleSheet(styles.POSStyles.TOP_BAR)
         self.top_bar.setFixedHeight(self.screen_config.get_size('pos_top_bar_height'))
         
         # Main layout
@@ -98,7 +94,7 @@ class POSView(QWidget):
         
         # Employee Zone with DateTime
         emp_zone = QFrame()
-        emp_zone.setStyleSheet("background: transparent; border: none;")
+        emp_zone.setStyleSheet(styles.POSStyles.EMPLOYEE_ZONE)
         emp_layout = QHBoxLayout(emp_zone)
         emp_layout.setSpacing(8)
         emp_layout.setContentsMargins(0, 0, 0, 0) 
@@ -113,20 +109,20 @@ class POSView(QWidget):
         painter.end()
         emp_icon.setPixmap(pixmap)
         emp_id = QLabel(f"Emp ID: {self.user_id}")
-        emp_id.setStyleSheet("color: #333; font-weight: 500;")
+        emp_id.setStyleSheet(styles.POSStyles.EMPLOYEE_ID)
         
         # DateTime Zone
         time_zone = QFrame()
-        time_zone.setStyleSheet("QFrame { background: transparent; border: none; }")
+        time_zone.setStyleSheet(styles.POSStyles.DATE_TIME_ZONE)
         time_layout = QVBoxLayout(time_zone)
         time_layout.setContentsMargins(10, 5, 10, 5)
         time_layout.setSpacing(2)
 
         self.date_label = QLabel()
-        self.date_label.setStyleSheet("color: #666;")
+        self.date_label.setStyleSheet(styles.POSStyles.DATE_LABEL)
 
         self.time_label = QLabel()
-        self.time_label.setStyleSheet("color: #333; font-weight: 500; padding-left: 4px;")
+        self.time_label.setStyleSheet(styles.POSStyles.TIME_LABEL)
 
         time_layout.addWidget(self.date_label)
         time_layout.addWidget(self.time_label)
@@ -172,13 +168,7 @@ class POSView(QWidget):
         painter.end()
         lock_btn.setIcon(QIcon(pixmap))
         lock_btn.setIconSize(QSize(55, 55))
-        lock_btn.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                border: none;
-                padding: 0px;
-            }
-        """)
+        lock_btn.setStyleSheet(styles.POSStyles.LOCK_BUTTON)
         lock_btn.clicked.connect(self._handle_lock)
         
         controls_layout.addWidget(lock_btn)
@@ -193,12 +183,7 @@ class POSView(QWidget):
     def _create_order_widget(self):
         """Create order panel"""
         order_frame = QFrame()
-        order_frame.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-right: 1px solid #DEDEDE;
-            }
-        """)
+        order_frame.setStyleSheet(styles.POSStyles.ORDER_PANEL)
         
         layout = QVBoxLayout(order_frame)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -248,38 +233,10 @@ class POSView(QWidget):
         
         # Order Items Area
         scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        # scroll_area.setStyleSheet("""
-        #     QScrollArea {
-        #         border: none;
-        #         background: white;
-        #     }
-        #     QScrollBar:vertical {
-        #         border: none;
-        #         background: #F8F9FA;
-        #         width: 8px;
-        #         margin: 0;
-        #     }
-        #     QScrollBar::handle:vertical {
-        #         background: #DEDEDE;
-        #         border-radius: 4px;
-        #         min-height: 20px;
-        #     }
-        #     QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-        #         border: none;
-        #         background: none;
-        #     }
-        # """)
-        
+        scroll_area.setWidgetResizable(True)   
+        scroll_area.setStyleSheet(styles.POSStyles.SCROLL_AREA)
         self.order_list_widget = QWidget()
-        self.order_list_widget.setStyleSheet("""
-            QWidget {
-                background: white;
-            }
-            QLabel {
-                padding: 5px;
-            }
-        """)
+        self.order_list_widget.setStyleSheet(styles.POSStyles.ORDER_LIST_WIDGET)
         self.order_list_layout = QVBoxLayout(self.order_list_widget)
         self.order_list_layout.setContentsMargins(5, 5, 5, 5)
         self.order_list_layout.setSpacing(5)
@@ -307,30 +264,15 @@ class POSView(QWidget):
         horizontal_layout.setSpacing(8)
         
         # Add the horizontal buttons
-        horizontal_buttons = {
-            "BTN 1": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-            "BTN 2": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-            "BTN 3": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
-        }
+        # horizontal_buttons = {
+        #     "BTN 1": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+        #     "BTN 2": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
+        #     "BTN 3": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
+        # }
 
-        for btn_text, colors in horizontal_buttons.items():
+        for btn_text, colors in HORIZONTAL_BUTTONS.items():
             btn = QPushButton(btn_text)
-            btn.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: {colors['bg']};
-                    color: {colors['text']};
-                    border: none;
-                    border-radius: 10px;
-                    padding: 5px;
-                    margin: 3px;
-                    font-size: 13px;
-                    font-weight: 500;
-                }}
-                QPushButton:hover {{
-                    background-color: {colors['hover']};
-                }}
-            """)
-            btn.setFixedSize(100, 60)
+            btn.setStyleSheet(styles.POSStyles.get_action_button_style(btn_text, colors))
             horizontal_layout.addWidget(btn)
         
         layout.addWidget(horizontal_buttons_frame)
@@ -575,27 +517,7 @@ class POSView(QWidget):
         # Products Grid Area
         products_scroll = QScrollArea()
         products_scroll.setWidgetResizable(True)
-        products_scroll.setStyleSheet("""
-            QScrollArea {
-                background: transparent;
-                border: none;
-            }
-            QScrollBar:vertical {
-                border: none;
-                background: #F8F9FA;
-                width: 8px;
-                margin: 0;
-            }
-            QScrollBar::handle:vertical {
-                background: #DEDEDE;
-                border-radius: 4px;
-                min-height: 20px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                border: none;
-                background: none;
-            }
-        """)
+        products_scroll.setStyleSheet(styles.POSStyles.SCROLL_AREA)
         
         products_container = QWidget()
         self.products_grid = QGridLayout(products_container)
@@ -622,24 +544,7 @@ class POSView(QWidget):
     def _create_totals_frame(self):
         """Create totals frame with order type buttons and amounts"""
         self.totals_frame = QFrame()
-        self.totals_frame.setStyleSheet("""
-            QFrame {
-                background: #F8F9FA;
-                border-top: 1px solid #DEDEDE;
-            }
-            QLabel {
-                color: #333;
-            }
-            .currency-usd {
-                font-size: 24px;
-                font-weight: bold;
-                color: #03991f;
-            }
-            .currency-lbp {
-                font-size: 20px;
-                color: #666;
-            }
-        """)
+        self.totals_frame.setStyleSheet(styles.POSStyles.TOTALS_FRAME)
         
         # Main horizontal layout
         totals_layout = QHBoxLayout(self.totals_frame)
@@ -653,33 +558,33 @@ class POSView(QWidget):
         order_buttons_layout.setSpacing(10)
         
         # Button styles
-        button_style = """
-            QPushButton {
-                background: white;
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-                padding: 8px 16px;
-                color: #333;
-                font-size: 13px;
-                height: 36px;
-                min-width: 100px;
-            }
-            QPushButton:hover {
-                background: #F8F9FA;
-                border-color: #2196F3;
-            }
-            QPushButton:checked {
-                background: #2196F3;
-                border-color: #2196F3;
-                color: white;
-            }
-        """
+        # button_style = """
+        #     QPushButton {
+        #         background: white;
+        #         border: 1px solid #DEDEDE;
+        #         border-radius: 4px;
+        #         padding: 8px 16px;
+        #         color: #333;
+        #         font-size: 13px;
+        #         height: 36px;
+        #         min-width: 100px;
+        #     }
+        #     QPushButton:hover {
+        #         background: #F8F9FA;
+        #         border-color: #2196F3;
+        #     }
+        #     QPushButton:checked {
+        #         background: #2196F3;
+        #         border-color: #2196F3;
+        #         color: white;
+        #     }
+        # """
         
         # Create order type buttons
-        order_types = ["Dine In", "Take-Away", "Delivery"]
-        for order_type in order_types:
+        # order_types = ["Dine In", "Take-Away", "Delivery"]
+        for order_type in ORDER_TYPES:
             btn = QPushButton(order_type)
-            btn.setStyleSheet(button_style)
+            btn.setStyleSheet(styles.POSStyles.ORDER_TYPE_BUTTON)
             btn.setCheckable(True)
             if order_type == "Dine In":
                 btn.setChecked(True)
@@ -848,28 +753,7 @@ class POSView(QWidget):
         """Handle three dots menu click with various order options"""
         # Create menu
         menu = QMenu(self)
-        menu.setStyleSheet("""
-            QMenu {
-                background-color: white;
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-                padding: 5px;
-            }
-            QMenu::item {
-                padding: 8px 20px;
-                border-radius: 4px;
-                color: #333;
-            }
-            QMenu::item:selected {
-                background-color: #F0F0F0;
-                color: #2196F3;
-            }
-            QMenu::separator {
-                height: 1px;
-                background: #DEDEDE;
-                margin: 5px 0px;
-            }
-        """)
+        menu.setStyleSheet(styles.POSStyles.MENU)
 
         # Add Clear Order action
         clear_action = menu.addAction("Cancel Order")

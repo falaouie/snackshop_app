@@ -248,6 +248,28 @@ class POSStyles:
             background-color: {hover_color};
         }}
     """
+
+    ORDER_TYPE_BUTTON = """
+        QPushButton {
+            background: white;
+            border: 1px solid #DEDEDE;
+            border-radius: 4px;
+            padding: 8px 16px;
+            color: #333;
+            font-size: 13px;
+            height: 36px;
+            min-width: 100px;
+        }
+        QPushButton:hover {
+            background: #F8F9FA;
+            border-color: #2196F3;
+        }
+        QPushButton:checked {
+            background: #2196F3;
+            border-color: #2196F3;
+            color: white;
+        }
+    """
     
     TOTALS_FRAME = """
         QFrame {
@@ -265,6 +287,135 @@ class POSStyles:
         .currency-lbp {
             font-size: 20px;
             color: #666;
+        }
+    """
+
+    # Scroll Area Styles
+    SCROLL_AREA = """
+        QScrollArea {
+            border: none;
+            background: transparent;
+        }
+        QScrollBar:vertical {
+            border: none;
+            background: #F8F9FA;
+            width: 8px;
+            margin: 0;
+        }
+        QScrollBar::handle:vertical {
+            background: #DEDEDE;
+            border-radius: 4px;
+            min-height: 20px;
+        }
+        QScrollBar::add-line:vertical, 
+        QScrollBar::sub-line:vertical {
+            border: none;
+            background: none;
+        }
+    """
+    
+    # Menu Styles
+    MENU = """
+        QMenu {
+            background-color: white;
+            border: 1px solid #DEDEDE;
+            border-radius: 4px;
+            padding: 5px;
+        }
+        QMenu::item {
+            padding: 8px 20px;
+            border-radius: 4px;
+            color: #333;
+        }
+        QMenu::item:selected {
+            background-color: #F0F0F0;
+            color: #2196F3;
+        }
+        QMenu::separator {
+            height: 1px;
+            background: #DEDEDE;
+            margin: 5px 0px;
+        }
+    """
+    
+    # Lock Button Style
+    LOCK_BUTTON = """
+        QPushButton {
+            background: transparent;
+            border: none;
+            padding: 0px;
+        }
+    """
+    
+    # Order List Item Styles
+    ORDER_LIST_WIDGET = """
+        QWidget {
+            background: white;
+        }
+        QLabel {
+            padding: 5px;
+        }
+    """
+    
+    # Splitter Style
+    SPLITTER = """
+        QSplitter::handle {
+            background: #DEDEDE;
+            width: 1px;
+        }
+    """
+    
+    # Employee Zone Styles
+    EMPLOYEE_ZONE = """
+        QFrame {
+            background: transparent;
+            border: none;
+        }
+    """
+    
+    EMPLOYEE_ID = """
+        QLabel {
+            color: #333;
+            font-weight: 500;
+        }
+    """
+    
+    DATE_TIME_ZONE = """
+        QFrame {
+            background: transparent;
+            border: none;
+        }
+    """
+    
+    DATE_LABEL = """
+        QLabel {
+            color: #666;
+        }
+    """
+    
+    TIME_LABEL = """
+        QLabel {
+            color: #333;
+            font-weight: 500;
+            padding-left: 4px;
+        }
+    """
+    
+    # Already existing styles...
+    SEARCH_INPUT = """
+        QLineEdit {
+            border: 1px solid #DEDEDE;
+            border-radius: 20px;
+            padding: 8px 40px;
+            font-size: 14px;
+            color: #333;
+            min-width: 300px;
+            max-width: 400px;
+            background: white;
+        }
+        QLineEdit:focus {
+            border-color: #2196F3;
+            outline: none;
         }
     """
 
@@ -289,3 +440,21 @@ class POSStyles:
                 padding=Spacing.MEDIUM,
                 font_size=FontSizes.XLARGE
             )
+        
+    def get_action_button_style(button_type, colors):
+        """Get style for action buttons with dynamic colors"""
+        return f"""
+            QPushButton {{
+                background-color: {colors['bg']};
+                color: {colors['text']};
+                border: none;
+                border-radius: 10px;
+                padding: 5px;
+                margin: 3px;
+                font-size: 13px;
+                font-weight: 500;
+            }}
+            QPushButton:hover {{
+                background-color: {colors['hover']};
+            }}
+        """
