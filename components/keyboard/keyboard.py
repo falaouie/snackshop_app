@@ -159,14 +159,14 @@ class VirtualKeyboard(QWidget):
         # Control buttons
         self.minimize_btn = QPushButton("−")
         self.restore_btn = QPushButton("□")
-        self.close_btn = QPushButton("x")
+        self.close_btn = QPushButton("×")
         
         self.minimize_btn.setFixedSize(self.dimensions['control_button_size'], 
                                      self.dimensions['control_button_size'])
         self.restore_btn.setFixedSize(self.dimensions['control_button_size'], 
                                     self.dimensions['control_button_size'])
         self.close_btn.setFixedSize(self.dimensions['control_button_size'], 
-                                     self.dimensions['control_button_size'])
+                                    self.dimensions['control_button_size'])
         
         self.minimize_btn.setStyleSheet(KeyboardStyles.CONTROL_BUTTONS)
         self.restore_btn.setStyleSheet(KeyboardStyles.CONTROL_BUTTONS)
@@ -353,6 +353,7 @@ class VirtualKeyboard(QWidget):
         btn.setFixedSize(self.dimensions['enter_width'], 
                         self.dimensions['enter_height'])
         btn.setStyleSheet(KeyboardStyles.ENTER_KEY)
+        btn.clicked.connect(self._on_enter)  # Keep original enter functionality
         return btn
 
     def set_input(self, input_widget, keyboard_type=KeyboardType.FULL):
@@ -393,7 +394,7 @@ class VirtualKeyboard(QWidget):
             self.current_input.setFocus()
 
     def _on_close(self):
-        """Handle enter key press or keyboard x icon"""
+        """Handle close button press to hide keyboard and cleanup"""
         if self.current_input:
             if self.is_minimized:
                 self._on_restore()
@@ -403,8 +404,8 @@ class VirtualKeyboard(QWidget):
 
     def _on_minimize(self):
         """Handle minimize button press"""
+        self.close_btn.show() 
         current_width = self.width()
-        
         self.keyboard_container.hide()
         self.bottom_row_widget.hide()
         self.minimize_btn.hide()
@@ -422,8 +423,8 @@ class VirtualKeyboard(QWidget):
 
     def _on_restore(self):
         """Handle restore button press"""
-        current_width = self.width()
-        
+        # current_width = self.width()
+        self.close_btn.show()
         self.keyboard_container.show()
         self.bottom_row_widget.show()
         self.restore_btn.hide()
@@ -437,6 +438,23 @@ class VirtualKeyboard(QWidget):
             x = (main_window.width() - keyboard_width) // 2
             y = main_window.height() - keyboard_height - 20
             self.move(x, y)
+
+    def _on_enter(self):
+        """Handle enter key press to complete input and emit signal"""
+        if self.current_input:
+            # Trigger any input completion behavior
+            self.current_input.returnPressed.emit()
+            
+            # Update focus and cursor position
+            self.current_input.setFocus()
+            cursor_pos = self.current_input.cursorPosition()
+            self.current_input.setCursorPosition(cursor_pos)
+            
+            # Hide keyboard if not minimized
+            if not self.is_minimized:
+                self.hide()
+                if self.parent():
+                    self.parent().keyboard_visible = False
 
     def show(self):
         """Override show to handle positioning"""
