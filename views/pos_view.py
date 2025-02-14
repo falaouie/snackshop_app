@@ -264,9 +264,9 @@ class POSView(QWidget):
         horizontal_layout.setContentsMargins(0, 10, 0, 10)
         horizontal_layout.setSpacing(8)
         
-        for btn_text, colors in HORIZONTAL_BUTTONS.items():
-            btn = QPushButton(btn_text)
-            btn.setStyleSheet(styles.POSStyles.get_horizontal_button_style(btn_text))
+        for btn_type, config  in HORIZONTAL_BUTTONS.items():
+            btn = QPushButton(config['text'])
+            btn.setStyleSheet(styles.POSStyles.get_horizontal_button_style(btn_type))
             btn.setFixedSize(
                 self.screen_config.get_size('horizontal_button.width'),
                 self.screen_config.get_size('horizontal_button.height')
