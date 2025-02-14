@@ -294,56 +294,66 @@ class ScreenConfig:
     }
 
     def __init__(self):
-        self.current_config = None
-        self.width = None
-        self.height = None
+        self._current_config = None
+        self._width = None
+        self._height = None
+        self._initialized = False
+
+    def _ensure_initialized(self):
+        """Ensure configuration is initialized before use"""
+        if not self._initialized:
+            self._initialize()
         
-    def initialize(self):
+    def _initialize(self):
         """Initialize screen configuration after QApplication is created"""
         if QApplication.instance():
             screen = QApplication.primaryScreen()
             if screen:
                 geometry = screen.geometry()
-                self.width = geometry.width()
-                self.height = geometry.height()
-                print(f"Screen dimensions - Width: {self.width}, Height: {self.height}")
+                self._width = geometry.width()
+                self._height = geometry.height()
+                print(f"Screen dimensions - Width: {self._width}, Height: {self._height}")
                 self._set_size_config()
             else:
                 print("Warning: No screen detected, falling back to MEDIUM configuration")
-                self.current_config = self.MEDIUM
+                self._current_config = self.MEDIUM
+                self._width = 1280  # Default medium width
+                self._height = 768  # Default medium height
         else:
             print("Warning: QApplication not created, falling back to MEDIUM configuration")
-            self.current_config = self.MEDIUM
+            self._current_config = self.MEDIUM
+            self._width = 1280  # Default medium width
+            self._height = 768  # Default medium height
+        
+        self._initialized = True
 
     def _set_size_config(self):
         """Determine which size configuration to use based on screen resolution"""
-        if self.width >= 1920 and self.height >= 1080:
-            self.current_config = self.LARGE
+        if self._width >= 1920 and self._height >= 1080:
+            self._current_config = self.LARGE
             print("Using LARGE screen configuration")
-        elif self.width >= 1280 and self.height >= 768:
-            self.current_config = self.MEDIUM
+        elif self._width >= 1280 and self._height >= 768:
+            self._current_config = self.MEDIUM
             print("Using MEDIUM screen configuration")
         else:
-            self.current_config = self.SMALL
+            self._current_config = self.SMALL
             print("Using SMALL screen configuration")
 
     def get_size(self, element_name):
         """Get the size for a specific element based on current screen configuration"""
-        if self.current_config is None:
-            self.initialize()
+        self._ensure_initialized()
         
         # Handle nested configurations
         if '.' in element_name:
             category, property = element_name.split('.')
-            return self.current_config.get(category, {}).get(property)
+            return self._current_config.get(category, {}).get(property)
         
-        return self.current_config.get(element_name)
+        return self._current_config.get(element_name)
     
     def get_screen_dimensions(self):
         """Get the screen dimensions"""
-        if self.width is None or self.height is None:
-            self.initialize()
-        return self.width, self.height
+        self._ensure_initialized()
+        return self._width, self._height
 
 # Create a singleton instance
 screen_config = ScreenConfig()
