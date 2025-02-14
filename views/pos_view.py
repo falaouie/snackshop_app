@@ -4,6 +4,13 @@ from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime, QEvent
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 from components.keyboard import KeyboardEnabledInput, VirtualKeyboard, KeyboardType
+from button_definitions.types import PaymentButtonType, TransactionButtonType, OrderButtonType, HorizontalButtonType
+from button_definitions.payment import PaymentButtonConfig
+from button_definitions.transaction import TransactionButtonConfig
+from button_definitions.order import OrderButtonConfig
+from button_definitions.horizontal import HorizontalButtonConfig
+from button_definitions.product import ProductButtonConfig
+from styles.buttons import ButtonStyles
 from . import styles
 from config.screen_config import screen_config
 from models.product_catalog import (
@@ -264,17 +271,20 @@ class POSView(QWidget):
         horizontal_layout.setContentsMargins(0, 10, 0, 10)
         horizontal_layout.setSpacing(8)
         
-        for btn_type, config  in HORIZONTAL_BUTTONS.items():
+        for button_type in HorizontalButtonType:
+            config = HorizontalButtonConfig.get_config(button_type)
             btn = QPushButton(config['text'])
-            btn.setStyleSheet(styles.POSStyles.get_horizontal_button_style(btn_type))
+            btn.setStyleSheet(ButtonStyles.get_horizontal_button_style(button_type))
             btn.setFixedSize(
                 self.screen_config.get_size('horizontal_button.width'),
                 self.screen_config.get_size('horizontal_button.height')
             )
+            if config['action']:
+                btn.clicked.connect(getattr(self, config['action']))
             horizontal_layout.addWidget(btn)
         
         layout.addWidget(horizontal_buttons_frame)
-        
+
         return order_frame
     
     def add_order_item(self, item_name):
@@ -470,9 +480,10 @@ class POSView(QWidget):
         vertical_layout.setContentsMargins(0, 0, 0, 0)
         vertical_layout.setSpacing(8)
 
-        for btn_type, config in TRANSACTION_BUTTONS.items():
+        for button_type in TransactionButtonType:
+            config = TransactionButtonConfig.get_config(button_type)
             btn = QPushButton(config['text'])
-            btn.setStyleSheet(styles.POSStyles.get_transaction_button_style(btn_type))
+            btn.setStyleSheet(ButtonStyles.get_transaction_button_style(button_type))
             btn.setFixedSize(
                 self.screen_config.get_size('transaction_button.width'),
                 self.screen_config.get_size('transaction_button.height')
@@ -526,12 +537,15 @@ class POSView(QWidget):
         order_buttons_layout = QHBoxLayout(order_buttons_container)
         order_buttons_layout.setContentsMargins(0, 0, 0, 0)
         order_buttons_layout.setSpacing(10)
+
+        button_style = ButtonStyles.get_order_button_style()
         
-        for order_type, config in ORDER_TYPES.items():
+        for button_type in OrderButtonType:
+            config = OrderButtonConfig.get_config(button_type)
             btn = QPushButton(config['text'])
-            btn.setStyleSheet(styles.POSStyles.get_order_type_button_style())
+            btn.setStyleSheet(button_style)
             btn.setCheckable(True)
-            if order_type == "DINE_IN":
+            if config.get('default_selected', False):
                 btn.setChecked(True)
             if config['action']:
                 btn.clicked.connect(getattr(self, config['action']))
@@ -570,18 +584,19 @@ class POSView(QWidget):
 
     def _show_category_items(self, category):
         """Display product items for selected category"""
-        # Update button styles - handles horizontal buttons
+        # 1. Update horizontal category button styles
         if category in self.horizontal_category_buttons:
             # Reset previously selected horizontal button style
             if self.selected_horizontal_category:
-                self.horizontal_category_buttons[category].setStyleSheet(
-                styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON(
-                    self.screen_config.get_size('button_border_radius'),
-                    self.screen_config.get_size('button_padding'),
-                    self.screen_config.get_size('pos_category_button_width'),
-                    self.screen_config.get_size('pos_category_button_height')
+                prev_btn = self.horizontal_category_buttons[self.selected_horizontal_category]
+                prev_btn.setStyleSheet(
+                    styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON(
+                        self.screen_config.get_size('button_border_radius'),
+                        self.screen_config.get_size('button_padding'),
+                        self.screen_config.get_size('pos_category_button_width'),
+                        self.screen_config.get_size('pos_category_button_height')
+                    )
                 )
-            )
             
             # Update selected horizontal button style
             self.horizontal_category_buttons[category].setStyleSheet(
@@ -593,81 +608,56 @@ class POSView(QWidget):
                 )
             )
             self.selected_horizontal_category = category
-            
-        # Clear existing products
+
+        # 2. Clear existing products grid
         for i in reversed(range(self.products_grid.count())):
             widget = self.products_grid.itemAt(i).widget()
             if widget:
                 widget.deleteLater()
 
-        # Get items for current category from product catalog
-        items = PRODUCTS_BY_CATEGORY
-
-        # Apply current search filter if exists
-        search_text = self.search_input.text().strip()
+        # 3. Get items and apply search filter
+        items = PRODUCTS_BY_CATEGORY[category]
+        search_text = self.search_input.text().strip().lower()
+        filtered_items = items
         if search_text:
-            # Filter items based on search text
-            filtered_items = [item for item in items[category] 
-                            if search_text.lower() in item.lower()]
-            
-            # Add filtered product buttons
-            for i, item in enumerate(filtered_items):
-                btn = QPushButton(item)
-                btn.setFixedSize(
-                    self.screen_config.get_size('pos_product_button_width'),
-                    self.screen_config.get_size('pos_product_button_height')
-                )
-                btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
-                btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
-                row = i // 3
-                col = i % 3
-                self.products_grid.addWidget(btn, row, col)
-                
-            # Fill empty slots
-            remaining_slots = 3 - (len(filtered_items) % 3)
-            if remaining_slots < 3:
-                start_pos = len(filtered_items)
-                for i in range(remaining_slots):
-                    empty_widget = QWidget()
-                    row = start_pos // 3
-                    col = (start_pos + i) % 3
-                    self.products_grid.addWidget(empty_widget, row, col)
-        else:
-            # Add all product buttons for category
-            for i, item in enumerate(items[category]):
-                btn = QPushButton(item)
-                btn.setFixedSize(
-                    self.screen_config.get_size('pos_product_button_width'),
-                    self.screen_config.get_size('pos_product_button_height')
-                )
-                btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
-                btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
-                row = i // 3
-                col = i % 3
-                self.products_grid.addWidget(btn, row, col)
-            
-            # Fill empty slots
-            remaining_slots = 3 - (len(items[category]) % 3)
-            if remaining_slots < 3:
-                start_pos = len(items[category])
-                for i in range(remaining_slots):
-                    empty_widget = QWidget()
-                    row = start_pos // 3
-                    col = (start_pos + i) % 3
-                    self.products_grid.addWidget(empty_widget, row, col)
+            filtered_items = [item for item in items if search_text in item.lower()]
 
-        self.products_grid.setRowStretch(self.products_grid.rowCount(), 1)
-        
-        # Fill empty slots
-        remaining_slots = 3 - (len(items[category]) % 3)
+        # 4. Get the base product button style once for all buttons
+        product_style = ButtonStyles.get_product_button_style()
+
+        # 5. Create and add product buttons to grid
+        for i, item in enumerate(filtered_items):
+            # Get product configuration with category context
+            product_config = ProductButtonConfig.get_config(item, category)
+            
+            # Create button with product config
+            btn = QPushButton(product_config['text'])
+            btn.setStyleSheet(product_style)
+            btn.setFixedSize(
+                self.screen_config.get_size('pos_product_button_width'),
+                self.screen_config.get_size('pos_product_button_height')
+            )
+            # Use lambda with default argument to capture current item value
+            btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
+            
+            # Calculate grid position
+            row = i // 3  # 3 columns per row
+            col = i % 3
+            self.products_grid.addWidget(btn, row, col)
+
+        # 6. Fill empty grid slots to maintain layout
+        remaining_slots = 3 - (len(filtered_items) % 3)
         if remaining_slots < 3:
-            start_pos = len(items[category])
+            start_pos = len(filtered_items)
             for i in range(remaining_slots):
                 empty_widget = QWidget()
                 row = start_pos // 3
                 col = (start_pos + i) % 3
                 self.products_grid.addWidget(empty_widget, row, col)
 
+        # 7. Add stretch to bottom of grid
+        self.products_grid.setRowStretch(self.products_grid.rowCount(), 1)
+        
     def _create_bottom_bar(self):
         """Create bottom action bar"""
         self.bottom_bar = QFrame()
@@ -679,9 +669,10 @@ class POSView(QWidget):
         
         layout.addStretch()
 
-        for button_type, config in PAYMENT_BUTTONS.items():
+        for button_type in PaymentButtonType:
+            config = PaymentButtonConfig.get_config(button_type)
             btn = QPushButton(config['text'])
-            btn.setStyleSheet(styles.POSStyles.get_payment_button_style(button_type))
+            btn.setStyleSheet(ButtonStyles.get_payment_button_style(button_type))
             btn.setFixedSize(
                 self.screen_config.get_size('payment_button.width'),
                 self.screen_config.get_size('payment_button.height')
@@ -910,59 +901,71 @@ class POSView(QWidget):
     def process_cash_payment(self):
         """Handle cash payment"""
         # Implement cash payment logic
-        pass
+        print("Cash button clicked")
 
     def process_other_payment(self):
         """Handle other payment types"""
         # Implement other payment logic
-        pass
+        print("Other Payment button clicked")
 
     def hold_transaction(self):
         """Handle hold transaction"""
         # Implement hold logic
-        pass
+        print("Hold horizontal button clicked")
 
     def void_transaction(self):
         """Handle void transaction"""
         # Implement void logic
-        pass
+        print("Void horizontal button clicked")
 
     def paid_in(self):
         """Handle paid in"""
         # Implement paid in logic
-        pass
+        print("Paid in button clicked")
 
     def paid_out(self):
         """Handle paid out"""
         # Implement paid out logic
-        pass
+        print("Paid out button clicked")
 
     def no_sale(self):
         """Handle no sale"""
         # Implement no sale logic
-        pass
+        print("No Sale horizontal button clicked")
 
     def apply_discount(self):
         """Handle discount"""
         # Implement discount logic
-        pass
+        print("Discount button clicked")
 
     def show_numpad(self):
         """Show numpad"""
         # Implement numpad display logic
-        pass
+        print("num pad button clicked")
 
     def set_dine_in(self):
         """Handle dine in order type selection"""
-        pass
+        print("Dine in button clicked")
 
     def set_take_away(self):
         """Handle take away order type selection"""
-        pass
+        print("Take away button clicked")
 
     def set_delivery(self):
         """Handle delivery order type selection"""
-        pass
+        print("Delivery button clicked")
+
+    def hold_order(self):
+        """Handle hold order action"""
+        print("Hold button clicked")
+
+    def void_order(self):
+        """Handle void order action"""
+        print("Void button clicked")
+
+    def no_sale(self):
+        """Handle no sale order action"""
+        print("No Sale button clicked")
 
 class OrderItem:
     def __init__(self, name, price):
