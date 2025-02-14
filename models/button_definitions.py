@@ -1,43 +1,150 @@
 """
-Constants for button definitions and related UI elements
+Core button definitions and configurations
+Defines what buttons exist and their basic properties,
+excluding size and style-specific details
 """
 
-# Order type buttons
-ORDER_TYPES = ["Dine In", "Take-Away", "Delivery"]
+# Order type configurations
+ORDER_TYPES = {
+    "DINE_IN": {
+        "text": "Dine In",
+        "action": "set_dine_in"
+    },
+    "TAKE_AWAY": {
+        "text": "Take-Away",
+        "action": "set_take_away"
+    },
+    "DELIVERY": {
+        "text": "Delivery",
+        "action": "set_delivery"
+    }
+}
 
 # Action button configurations
 HORIZONTAL_BUTTONS = {
-    "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
-    "VOID": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
-    "NO SALE": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
+    "HOLD": {
+        "text": "Hold",
+        "colors": {
+            "primary": "#FFC107",
+            "hover": "#FFB300",
+            "text": "#000000"
+        },
+        "action": "hold_order"
+    },
+    "VOID": {
+        "text": "VOID",
+        "colors": {
+            "primary": "#F44336",
+            "hover": "#E53935",
+            "text": "#FFFFFF"
+        },
+        "action": "void_order"
+    },
+    "NO_SALE": {
+        "text": "NO SALE",
+        "colors": {
+            "primary": "#9E9E9E",
+            "hover": "#757575",
+            "text": "#FFFFFF"
+        },
+        "action": "no_sale"
+    }
 }
 
 # Transaction button configurations
 TRANSACTION_BUTTONS = {
-    "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
-    "VOID": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
-    "PAID IN": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-    "PAID OUT": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-    "NO SALE": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-    "DISCOUNT": {"bg": "#4CAF50", "hover": "#43A047", "text": "#FFFFFF"},
-    "Blank": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-    "NUM PAD": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
+    "HOLD": {
+        "text": "Hold",
+        "colors": {
+            "primary": "#FFC107",
+            "hover": "#FFB300",
+            "text": "#000000"
+        },
+        "action": "hold_transaction"
+    },
+    "VOID": {
+        "text": "VOID",
+        "colors": {
+            "primary": "#F44336",
+            "hover": "#E53935",
+            "text": "#FFFFFF"
+        },
+        "action": "void_transaction"
+    },
+    "PAID_IN": {
+        "text": "PAID IN",
+        "colors": {
+            "primary": "#9E9E9E",
+            "hover": "#757575",
+            "text": "#FFFFFF"
+        },
+        "action": "paid_in"
+    },
+    "PAID_OUT": {
+        "text": "PAID OUT",
+        "colors": {
+            "primary": "#9E9E9E",
+            "hover": "#757575",
+            "text": "#FFFFFF"
+        },
+        "action": "paid_out"
+    },
+    "NO_SALE": {
+        "text": "NO SALE",
+        "colors": {
+            "primary": "#9E9E9E",
+            "hover": "#757575",
+            "text": "#FFFFFF"
+        },
+        "action": "no_sale"
+    },
+    "DISCOUNT": {
+        "text": "DISCOUNT",
+        "colors": {
+            "primary": "#4CAF50",
+            "hover": "#43A047",
+            "text": "#FFFFFF"
+        },
+        "action": "apply_discount"
+    },
+    "BLANK": {
+        "text": "Blank",
+        "colors": {
+            "primary": "#9E9E9E",
+            "hover": "#757575",
+            "text": "#FFFFFF"
+        },
+        "action": None
+    },
+    "NUM_PAD": {
+        "text": "NUM PAD",
+        "colors": {
+            "primary": "#9E9E9E",
+            "hover": "#757575",
+            "text": "#FFFFFF"
+        },
+        "action": "show_numpad"
+    }
 }
 
 # Payment button configurations
 PAYMENT_BUTTONS = {
-    "cash": {
+    "CASH": {
         "text": "PAY CASH",
-        "bg": "darkgreen",
-        "hover": "#48A848",
-        "text_color": "#FFFFFF",
-        "font_size": 20
+        "colors": {
+            "primary": "#006400",  # darkgreen
+            "hover": "#48A848",
+            "text": "#FFFFFF"
+        },
+        "action": "process_cash_payment"
     },
-    "other": {
+    "OTHER": {
         "text": "PAY OTHER",
-        "bg": "#FFBF00",
-        "hover": "#FFB300",
-        "text_color": "#FFFFFF",
-        "font_size": 18
+        "colors": {
+            "primary": "#FFBF00",
+            "hover": "#FFB300",
+            "text": "#FFFFFF"
+        },
+        "action": "process_other_payment"
     }
 }

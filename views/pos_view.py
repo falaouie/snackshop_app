@@ -1,12 +1,10 @@
-from components.keyboard import KeyboardEnabledInput, VirtualKeyboard, KeyboardType
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter,
                              QToolButton, QMenu, QMainWindow, qApp)
-from components.keyboard import KeyboardEnabledInput
 from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime, QEvent
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
+from components.keyboard import KeyboardEnabledInput, VirtualKeyboard, KeyboardType
 from . import styles
-# from utilities.utils import ApplicationUtils
 from config.screen_config import screen_config
 from models.product_catalog import (
     CATEGORIES,
@@ -66,8 +64,9 @@ class POSView(QWidget):
         
         # Left Side - Order Details
         self.order_widget = self._create_order_widget()
-        self.order_widget.setFixedWidth(self.screen_config.get_size('pos_order_panel_width'))
-        self.order_widget.setStyleSheet(styles.POSStyles.ORDER_PANEL)
+        self.order_widget.setStyleSheet(styles.POSStyles.ORDER_PANEL(
+            self.screen_config.get_size('pos_order_panel_width')
+        ))
         content_splitter.addWidget(self.order_widget)
         
         # Middle - Products Grid
@@ -85,8 +84,9 @@ class POSView(QWidget):
     def _create_top_bar(self):
         """Create top bar with employee info, search, and lock button"""
         self.top_bar = QFrame()
-        self.top_bar.setStyleSheet(styles.POSStyles.TOP_BAR)
-        self.top_bar.setFixedHeight(self.screen_config.get_size('pos_top_bar_height'))
+        self.top_bar.setStyleSheet(styles.POSStyles.TOP_BAR(
+            self.screen_config.get_size('pos_top_bar_height')
+        ))
         
         # Main layout
         layout = QHBoxLayout(self.top_bar)
@@ -141,11 +141,10 @@ class POSView(QWidget):
         # Create search input
         self.search_input = SearchLineEdit(self)
         self.search_input.setPlaceholderText("Search products...")
-        self.search_input.setFixedSize(
+        self.search_input.setStyleSheet(styles.POSStyles.SEARCH_INPUT(
             self.screen_config.get_size('pos_search_input_width'),
             self.screen_config.get_size('pos_search_input_height')
-        )
-        self.search_input.setStyleSheet(styles.POSStyles.SEARCH_INPUT)
+        ))
 
         # Add search elements to search layout
         search_layout.addStretch(1)
@@ -183,7 +182,9 @@ class POSView(QWidget):
     def _create_order_widget(self):
         """Create order panel"""
         order_frame = QFrame()
-        order_frame.setStyleSheet(styles.POSStyles.ORDER_PANEL)
+        order_frame.setStyleSheet(styles.POSStyles.ORDER_PANEL(
+            self.screen_config.get_size('pos_order_panel_width')
+        ))
         
         layout = QVBoxLayout(order_frame)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -263,16 +264,13 @@ class POSView(QWidget):
         horizontal_layout.setContentsMargins(0, 10, 0, 10)
         horizontal_layout.setSpacing(8)
         
-        # Add the horizontal buttons
-        # horizontal_buttons = {
-        #     "BTN 1": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-        #     "BTN 2": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-        #     "BTN 3": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
-        # }
-
         for btn_text, colors in HORIZONTAL_BUTTONS.items():
             btn = QPushButton(btn_text)
-            btn.setStyleSheet(styles.POSStyles.get_action_button_style(btn_text, colors))
+            btn.setStyleSheet(styles.POSStyles.get_horizontal_button_style(btn_text))
+            btn.setFixedSize(
+                self.screen_config.get_size('horizontal_button.width'),
+                self.screen_config.get_size('horizontal_button.height')
+            )
             horizontal_layout.addWidget(btn)
         
         layout.addWidget(horizontal_buttons_frame)
@@ -432,11 +430,12 @@ class POSView(QWidget):
 
         for category in self.categories:
             btn = QPushButton(category)
-            btn.setFixedSize(
+            btn.setStyleSheet(styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON(
+                self.screen_config.get_size('button_border_radius'),
+                self.screen_config.get_size('button_padding'),
                 self.screen_config.get_size('pos_category_button_width'),
                 self.screen_config.get_size('pos_category_button_height')
-            )
-            btn.setStyleSheet(styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON)
+            ))
             btn.clicked.connect(lambda checked, c=category: self._show_category_items(c))
             horizontal_layout.addWidget(btn)
             self.horizontal_category_buttons[category] = btn
@@ -465,51 +464,22 @@ class POSView(QWidget):
         center_layout.setContentsMargins(0, 0, 0, 0)
         center_layout.setSpacing(8)
 
-        # Vertical transaction buttons
-        transaction_buttons = {
-            "Hold": {"bg": "#FFC107", "hover": "#FFB300", "text": "#000000"},
-            "VOID": {"bg": "#F44336", "hover": "#E53935", "text": "#FFFFFF"},
-            "PAID IN": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-            "PAID OUT": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-            "NO SALE": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-            "DISCOUNT": {"bg": "#4CAF50", "hover": "#43A047", "text": "#FFFFFF"},
-            "Blank": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"},
-            "NUM PAD": {"bg": "#9E9E9E", "hover": "#757575", "text": "#FFFFFF"}
-        }
-
         # Create vertical buttons section
         vertical_section = QFrame()
         vertical_layout = QVBoxLayout(vertical_section)
         vertical_layout.setContentsMargins(0, 0, 0, 0)
         vertical_layout.setSpacing(8)
 
-        for btn_text, colors in transaction_buttons.items():
-            button_container = QHBoxLayout()
-            button_container.setContentsMargins(0, 0, 0, 0)
-
-            btn = QPushButton(btn_text)
-            btn.setStyleSheet(f"""
-                QPushButton {{
-                    background-color: {colors['bg']};
-                    color: {colors['text']};
-                    border: none;
-                    border-radius: 10px;
-                    padding: 5px;
-                    margin: 3px;
-                    font-size: 13px;
-                    font-weight: 500;
-                }}
-                QPushButton:hover {{
-                    background-color: {colors['hover']};
-                }}
-            """)
-            btn.setFixedSize(100, 50)
-
-            if btn_text == "VOID":
-                btn.clicked.connect(self._clear_order)
-            
-            button_container.addWidget(btn)
-            vertical_layout.addLayout(button_container)
+        for btn_type, config in TRANSACTION_BUTTONS.items():
+            btn = QPushButton(config['text'])
+            btn.setStyleSheet(styles.POSStyles.get_transaction_button_style(btn_type))
+            btn.setFixedSize(
+                self.screen_config.get_size('transaction_button.width'),
+                self.screen_config.get_size('transaction_button.height')
+            )
+            if config['action']:
+                btn.clicked.connect(getattr(self, config['action']))
+            vertical_layout.addWidget(btn)
 
         vertical_layout.addStretch()
         center_layout.addWidget(vertical_section)
@@ -557,37 +527,14 @@ class POSView(QWidget):
         order_buttons_layout.setContentsMargins(0, 0, 0, 0)
         order_buttons_layout.setSpacing(10)
         
-        # Button styles
-        # button_style = """
-        #     QPushButton {
-        #         background: white;
-        #         border: 1px solid #DEDEDE;
-        #         border-radius: 4px;
-        #         padding: 8px 16px;
-        #         color: #333;
-        #         font-size: 13px;
-        #         height: 36px;
-        #         min-width: 100px;
-        #     }
-        #     QPushButton:hover {
-        #         background: #F8F9FA;
-        #         border-color: #2196F3;
-        #     }
-        #     QPushButton:checked {
-        #         background: #2196F3;
-        #         border-color: #2196F3;
-        #         color: white;
-        #     }
-        # """
-        
-        # Create order type buttons
-        # order_types = ["Dine In", "Take-Away", "Delivery"]
-        for order_type in ORDER_TYPES:
-            btn = QPushButton(order_type)
-            btn.setStyleSheet(styles.POSStyles.ORDER_TYPE_BUTTON)
+        for order_type, config in ORDER_TYPES.items():
+            btn = QPushButton(config['text'])
+            btn.setStyleSheet(styles.POSStyles.get_order_type_button_style())
             btn.setCheckable(True)
-            if order_type == "Dine In":
+            if order_type == "DINE_IN":
                 btn.setChecked(True)
+            if config['action']:
+                btn.clicked.connect(getattr(self, config['action']))
             order_buttons_layout.addWidget(btn)
         
         # Amounts Section (Right)
@@ -627,13 +574,23 @@ class POSView(QWidget):
         if category in self.horizontal_category_buttons:
             # Reset previously selected horizontal button style
             if self.selected_horizontal_category:
-                self.horizontal_category_buttons[self.selected_horizontal_category].setStyleSheet(
-                    styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON
+                self.horizontal_category_buttons[category].setStyleSheet(
+                styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON(
+                    self.screen_config.get_size('button_border_radius'),
+                    self.screen_config.get_size('button_padding'),
+                    self.screen_config.get_size('pos_category_button_width'),
+                    self.screen_config.get_size('pos_category_button_height')
                 )
+            )
             
             # Update selected horizontal button style
             self.horizontal_category_buttons[category].setStyleSheet(
-                styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON_SELECTED
+                styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON_SELECTED(
+                    self.screen_config.get_size('button_border_radius'),
+                    self.screen_config.get_size('button_padding'),
+                    self.screen_config.get_size('pos_category_button_width'),
+                    self.screen_config.get_size('pos_category_button_height')
+                )
             )
             self.selected_horizontal_category = category
             
@@ -715,34 +672,24 @@ class POSView(QWidget):
         """Create bottom action bar"""
         self.bottom_bar = QFrame()
         bottom_bar_height = self.screen_config.get_size('pos_bottom_bar_height')
-        self.bottom_bar.setStyleSheet(
-            styles.POSStyles.BOTTOM_BAR.format(
-                height=bottom_bar_height
-            )
-        )
+        self.bottom_bar.setStyleSheet(styles.POSStyles.BOTTOM_BAR(bottom_bar_height))
         layout = QHBoxLayout(self.bottom_bar)
         layout.setContentsMargins(10, 5, 10, 10)
         layout.setSpacing(6)
         
         layout.addStretch()
-        
-        # OTHER Payment button
-        pay_oth_btn = QPushButton("PAY OTHER")
-        pay_oth_btn.setStyleSheet(styles.POSStyles.get_pay_button_style("other"))
-        pay_oth_btn.setFixedSize(
-            self.screen_config.get_size('pos_action_button_width'),
-            self.screen_config.get_size('pos_action_button_height')
-        )
-        layout.addWidget(pay_oth_btn)
 
-        # Cash Payment button
-        pay_cash_btn = QPushButton("PAY CASH")
-        pay_cash_btn.setStyleSheet(styles.POSStyles.get_pay_button_style("cash"))
-        pay_cash_btn.setFixedSize(
-            self.screen_config.get_size('pos_action_button_width'),
-            self.screen_config.get_size('pos_action_button_height')
-        )
-        layout.addWidget(pay_cash_btn)
+        for button_type, config in PAYMENT_BUTTONS.items():
+            btn = QPushButton(config['text'])
+            btn.setStyleSheet(styles.POSStyles.get_payment_button_style(button_type))
+            btn.setFixedSize(
+                self.screen_config.get_size('payment_button.width'),
+                self.screen_config.get_size('payment_button.height')
+            )
+            if config['action']:
+                btn.clicked.connect(getattr(self, config['action']))
+            layout.addWidget(btn)
+
 
     def _update_time(self):
         current = QDateTime.currentDateTime()
@@ -959,6 +906,63 @@ class POSView(QWidget):
         total_qty = sum(item.quantity for item in self.order_items)
         unique_items = len(self.order_items)
         self.qty_summary_label.setText(f"Qty: {total_qty} | Items: {unique_items}")
+    
+    def process_cash_payment(self):
+        """Handle cash payment"""
+        # Implement cash payment logic
+        pass
+
+    def process_other_payment(self):
+        """Handle other payment types"""
+        # Implement other payment logic
+        pass
+
+    def hold_transaction(self):
+        """Handle hold transaction"""
+        # Implement hold logic
+        pass
+
+    def void_transaction(self):
+        """Handle void transaction"""
+        # Implement void logic
+        pass
+
+    def paid_in(self):
+        """Handle paid in"""
+        # Implement paid in logic
+        pass
+
+    def paid_out(self):
+        """Handle paid out"""
+        # Implement paid out logic
+        pass
+
+    def no_sale(self):
+        """Handle no sale"""
+        # Implement no sale logic
+        pass
+
+    def apply_discount(self):
+        """Handle discount"""
+        # Implement discount logic
+        pass
+
+    def show_numpad(self):
+        """Show numpad"""
+        # Implement numpad display logic
+        pass
+
+    def set_dine_in(self):
+        """Handle dine in order type selection"""
+        pass
+
+    def set_take_away(self):
+        """Handle take away order type selection"""
+        pass
+
+    def set_delivery(self):
+        """Handle delivery order type selection"""
+        pass
 
 class OrderItem:
     def __init__(self, name, price):

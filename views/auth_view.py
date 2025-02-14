@@ -16,7 +16,7 @@ class AuthenticationContainer(QFrame):
         width = screen_config.get_size('auth_container_width')
         height = screen_config.get_size('auth_container_height')
         self.setFixedSize(width, height)
-        self.setStyleSheet(styles.AuthStyles.CONTAINER.format(
+        self.setStyleSheet(styles.AuthStyles.CONTAINER(
             screen_config.get_size('container_margin')
         ))
         self._setup_ui()
@@ -50,7 +50,7 @@ class AuthenticationContainer(QFrame):
         height = screen_config.get_size('auth_label_height')
         self.lbl_user_id.setFixedSize(width, height)
 
-        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT.format(
+        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT(
             screen_config.get_size('label_padding'),
             screen_config.get_size('label_font_size')
         ))
@@ -80,7 +80,7 @@ class AuthenticationContainer(QFrame):
         for idx, (row, col) in enumerate(positions):
             btn = QPushButton(str(idx+1))
             btn.setFixedSize(button_width, button_height)
-            btn.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON.format(
+            btn.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON(
                 screen_config.get_size('keypad_font_size'),
                 screen_config.get_size('keypad_padding')
             ))
@@ -102,7 +102,7 @@ class AuthenticationContainer(QFrame):
         
         # Style the '0' button like other keypad buttons
         btn_0.setFixedSize(button_width, button_height)
-        btn_0.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON.format(
+        btn_0.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON(
                 screen_config.get_size('keypad_font_size'),
                 screen_config.get_size('keypad_padding')
             ))
@@ -112,11 +112,11 @@ class AuthenticationContainer(QFrame):
         self.btn_next.setFixedSize(action_width, action_height)
         
         # Set action button styles
-        self.btn_clear.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON.format(
+        self.btn_clear.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON(
             screen_config.get_size('keypad_font_size'),
             screen_config.get_size('keypad_padding')
         ))
-        self.btn_next.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON.format(
+        self.btn_next.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON(
             screen_config.get_size('keypad_font_size'),
             screen_config.get_size('keypad_padding')
         ))
@@ -159,11 +159,11 @@ class AuthenticationContainer(QFrame):
         # Update Next button
         self.btn_next.setEnabled(is_complete)
         self.btn_next.setStyleSheet(
-            styles.AuthStyles.NEXT_BUTTON_ACTIVE.format(
+            styles.AuthStyles.NEXT_BUTTON_ACTIVE(
                 screen_config.get_size('keypad_font_size'),
                 screen_config.get_size('keypad_padding')
             ) if is_complete
-            else styles.AuthStyles.KEYPAD_BUTTON.format(
+            else styles.AuthStyles.KEYPAD_BUTTON(
                 screen_config.get_size('keypad_font_size'),
                 screen_config.get_size('keypad_padding')
             )
@@ -184,14 +184,14 @@ class AuthenticationContainer(QFrame):
 
     def _show_invalid_user_id(self):
         self.lbl_user_id.setText("Invalid User ID")
-        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID.format(
+        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID(
             screen_config.get_size('label_padding'),
             screen_config.get_size('label_font_size')
         ))
 
     def _reset_user_id_label(self):
         self.lbl_user_id.setText("User ID")
-        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT.format(
+        self.lbl_user_id.setStyleSheet(styles.AuthStyles.LABEL_TEXT(
             screen_config.get_size('label_padding'),
             screen_config.get_size('label_font_size')
         ))
