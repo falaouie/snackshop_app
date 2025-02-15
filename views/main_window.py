@@ -3,7 +3,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtSvg import QSvgRenderer
 from .auth_view import AuthenticationContainer
-from . import styles
+from styles.app import AppStyles  # Updated import
 from config.screen_config import screen_config
 from utilities.utils import ApplicationUtils
 
@@ -11,7 +11,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Snack Shop POS - Silver System")
-        self.setStyleSheet(styles.AppStyles.WINDOW_MAIN)
+        self.setStyleSheet(AppStyles.WINDOW_MAIN)
         
         # Get screen dimensions from config
         screen_width, screen_height = screen_config.get_screen_dimensions()
@@ -49,7 +49,7 @@ class MainWindow(QMainWindow):
             Qt.SmoothTransformation
         )
         logo_label.setPixmap(scaled_pixmap)
-        logo_label.setStyleSheet(styles.AppStyles.LOGO_CONTAINER)
+        logo_label.setStyleSheet(AppStyles.LOGO_CONTAINER)
         top_bar.addWidget(logo_label)
         top_bar.addStretch()  # Push logo to left
         

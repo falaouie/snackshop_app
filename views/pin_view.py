@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel, QPushButton,
 from PyQt5.QtCore import Qt, pyqtSignal
 from .input_fields import UserInput
 from .pos_view import POSView 
-from . import styles
+from styles.auth import AuthStyles
 from config.screen_config import screen_config
 
 class PinView(QWidget):
@@ -18,7 +18,7 @@ class PinView(QWidget):
         height = screen_config.get_size('auth_container_height')
         self.setFixedSize(width, height)
         
-        self.setStyleSheet(styles.AuthStyles.CONTAINER(
+        self.setStyleSheet(AuthStyles.CONTAINER(
             screen_config.get_size('container_margin')
         ))
         self._setup_ui()
@@ -33,7 +33,7 @@ class PinView(QWidget):
         # PIN Label
         label_container = QHBoxLayout()
         self.lbl_pin = QLabel(f"PIN for User ID {self.user_id}", alignment=Qt.AlignCenter)
-        self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT(
+        self.lbl_pin.setStyleSheet(AuthStyles.LABEL_TEXT(
             screen_config.get_size('label_padding'),
             screen_config.get_size('label_font_size')
         ))
@@ -70,7 +70,7 @@ class PinView(QWidget):
         for idx, (row, col) in enumerate(positions):
             btn = QPushButton(str(idx+1))
             btn.setFixedSize(button_width, button_height)
-            btn.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON(
+            btn.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
                 screen_config.get_size('keypad_font_size'),
                 screen_config.get_size('keypad_padding')
             ))
@@ -93,7 +93,7 @@ class PinView(QWidget):
         
         # Style the '0' button like other keypad buttons
         btn_0.setFixedSize(button_width, button_height)
-        btn_0.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON(
+        btn_0.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
             screen_config.get_size('keypad_font_size'),
             screen_config.get_size('keypad_padding')
         ))
@@ -101,7 +101,7 @@ class PinView(QWidget):
         # Style action buttons
         for btn in [self.btn_clear, self.btn_cancel]:
             btn.setFixedSize(action_width, action_height)
-            btn.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON(
+            btn.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
                 screen_config.get_size('keypad_font_size'),
                 screen_config.get_size('keypad_padding')
             ))
@@ -127,7 +127,7 @@ class PinView(QWidget):
         signin_height = screen_config.get_size('signin_button_height')
         self.btn_sign_in.setFixedSize(signin_width, signin_height)
         self.btn_sign_in.setEnabled(False)
-        self.btn_sign_in.setStyleSheet(styles.AuthStyles.KEYPAD_BUTTON(
+        self.btn_sign_in.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
             screen_config.get_size('keypad_font_size'),
             screen_config.get_size('keypad_padding')
         ))
@@ -152,7 +152,7 @@ class PinView(QWidget):
     def _reset_pin_label(self):
         """Restore PIN label to original state"""
         self.lbl_pin.setText(f"PIN for User ID {self.user_id}")
-        self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT(
+        self.lbl_pin.setStyleSheet(AuthStyles.LABEL_TEXT(
             screen_config.get_size('label_padding'),
             screen_config.get_size('label_font_size')
         ))
@@ -168,11 +168,11 @@ class PinView(QWidget):
         # Update Sign In button
         self.btn_sign_in.setEnabled(is_complete)
         self.btn_sign_in.setStyleSheet(
-            styles.AuthStyles.NEXT_BUTTON_ACTIVE(
+            AuthStyles.NEXT_BUTTON_ACTIVE(
                 screen_config.get_size('keypad_font_size'),
                 screen_config.get_size('keypad_padding')
             ) if is_complete
-            else styles.AuthStyles.KEYPAD_BUTTON(
+            else AuthStyles.KEYPAD_BUTTON(
                 screen_config.get_size('keypad_font_size'),
                 screen_config.get_size('keypad_padding')
             )
@@ -203,7 +203,7 @@ class PinView(QWidget):
     def _show_invalid_pin(self):
         """Show invalid PIN message and clear input"""
         self.lbl_pin.setText(f"Invalid PIN for User ID {self.user_id}")
-        self.lbl_pin.setStyleSheet(styles.AuthStyles.LABEL_TEXT_INVALID(
+        self.lbl_pin.setStyleSheet(AuthStyles.LABEL_TEXT_INVALID(
             screen_config.get_size('label_padding'),
             screen_config.get_size('label_font_size')
         ))
