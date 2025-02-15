@@ -38,3 +38,7 @@ class HorizontalButtonType(Enum):
 class ProductButtonType(Enum):
     """Product button type"""
     PRODUCT = "PRODUCT"
+
+class CategoryButtonType(Enum):
+    """Category button types"""
+    CATEGORY = "CATEGORY" 

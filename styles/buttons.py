@@ -10,6 +10,7 @@ from button_definitions.payment import PaymentButtonConfig
 from button_definitions.order import OrderButtonConfig
 from button_definitions.transaction import TransactionButtonConfig
 from button_definitions.product import ProductButtonConfig
+from button_definitions.category import CategoryButtonConfig
 from .base import BaseStyles
 
 class ButtonStyles:
@@ -136,3 +137,51 @@ class ButtonStyles:
                 background: {config['background_pressed']};
             }}
         """
+    
+    @staticmethod
+    def get_category_button_style(is_selected: bool = False, custom_colors: dict = None) -> str:
+        """Generate category button style based on state"""
+        config = CategoryButtonConfig.DEFAULTS.copy()
+        if custom_colors:
+            config.update(custom_colors)
+
+        # Use correct screen config keys
+        border_radius = screen_config.get_size('button_border_radius')
+        padding = screen_config.get_size('button_padding')
+        width = screen_config.get_size('pos_category_button_width')
+        height = screen_config.get_size('pos_category_button_height')
+        
+        if is_selected:
+            return f"""
+                QPushButton {{
+                    background: {config['selected_background']};
+                    color: {config['selected_text_color']};
+                    border: none;
+                    border-radius: {border_radius}px;
+                    padding: {padding}px;
+                    font-size: 13px;
+                    font-weight: 500;
+                    width: {width}px;
+                    height: {height}px;
+                }}
+                QPushButton:hover {{
+                    background: {config['selected_hover_background']};
+                }}
+            """
+        else:
+            return f"""
+                QPushButton {{
+                    background: {config['background']};
+                    color: {config['text_color']};
+                    border: 1px solid {config['border_color']};
+                    border-radius: {border_radius}px;
+                    padding: {padding}px;
+                    font-size: 13px;
+                    width: {width}px;
+                    height: {height}px;
+                }}
+                QPushButton:hover {{
+                    background: {config['hover_background']};
+                    border-color: {config['hover_border_color']};
+                }}
+            """

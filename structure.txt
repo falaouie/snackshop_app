@@ -1,0 +1,87 @@
+button_definitions/
+    __init__.py         # Exports all button types and configs
+    types.py            # Contains all button type enums
+    payment.py          # Payment button configurations
+    transaction.py      # Transaction button configurations
+    horizontal.py       # Horizontal button configurations
+    product.py          # Product button configurations
+    category.py         # Category button configurations
+
+styles/
+    buttons.py          # All button style generators
+    base.py            # Base style utilities
+
+main files:
+    pos_view.py         # Main POS view using the new button system
+    screen_config.py    # Screen size configurations (unchanged)
+
+
+Button Types (types.py)
+ButtonType          # Base button type enum
+PaymentButtonType   # Payment-specific types (CASH, OTHER)
+TransactionButtonType # Transaction types (HOLD, VOID, etc.)
+HorizontalButtonType # Horizontal panel types
+ProductButtonType    # Product button type
+CategoryButtonType   # Category button type
+
+Button Configurations:
+PaymentButtonConfig    # Payment button properties
+TransactionButtonConfig # Transaction button properties
+HorizontalButtonConfig # Horizontal button properties
+ProductButtonConfig    # Product button properties
+CategoryButtonConfig   # Category button properties
+
+Style Generation (styles/buttons.py):
+ButtonStyles
+get_payment_button_style()
+get_transaction_button_style()
+get_horizontal_button_style()
+get_product_button_style()
+get_category_button_style()
+
+snackshop_app/
+│
+├── assets/                     # Static assets directory
+│   └── images/                # Image assets (icons, logos, etc.)
+│
+├── button_definitions/         # Button configurations and types
+│   ├── init.py           # Exports all button types and configs
+│   ├── types.py              # All button type enums
+│   ├── base.py               # Base button configuration class (NEW)
+│   ├── payment.py            # Payment button configurations
+│   ├── transaction.py        # Transaction button configurations
+│   ├── horizontal.py         # Horizontal button configurations
+│   ├── product.py            # Product button configurations
+│   ├── category.py           # Category button configurations
+│   └── order.py              # Order type button configurations
+│
+├── styles/                     # UI styling system
+│   ├── init.py           # Style exports
+│   ├── base.py               # Base styling utilities
+│   ├── buttons.py            # Button-specific styles
+│   ├── layouts.py            # Layout-related styles (NEW)
+│   └── components.py         # Other component styles (NEW)
+│
+├── config/                     # Application configuration
+│   ├── init.py
+│   ├── screen_config.py      # Screen size and responsive configs
+│   └── style_constants.py    # Global style constants (colors, sizes)
+│
+├── components/                 # Reusable UI components
+│   ├── init.py
+│   └── keyboard.py           # Virtual keyboard component
+│
+├── views/                      # Application views/screens
+│   ├── init.py
+│   ├── auth_view.py          # Authentication view
+│   ├── pos_view.py           # Main POS view
+│   ├── pin_view.py           # PIN entry view
+│   └── input_fields.py       # Custom input field components
+│
+├── models/                     # Data models and business logic
+│   ├── init.py
+│   └── product_catalog.py    # Product data and operations
+│
+└── utilities/                  # Helper utilities
+    ├── init.py
+    └── utils.py              # General utility functions

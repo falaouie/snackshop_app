@@ -14,15 +14,18 @@ class ProductButtonConfig:
     }
 
     @classmethod
-    def get_config(cls, product_name: str, category: str = None) -> Dict[str, Any]:
+    def get_config(cls, button_type: ProductButtonType, product_name: str, category: str = None) -> dict:
         """
         Get configuration for a product button
         
         Args:
+            button_type: Type of product button (enum)
             product_name: Name of the product
             category: Optional category for future category-based styling
         """
-        # Start with a copy of defaults
+        if button_type != ProductButtonType.PRODUCT:
+            return {}
+
         colors = cls.DEFAULTS.copy()
         
         # Future enhancement: Check for custom styles

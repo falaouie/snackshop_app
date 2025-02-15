@@ -1,15 +1,24 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter,
-                             QToolButton, QMenu, QMainWindow, qApp)
-from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime, QEvent
+                             QToolButton, QMenu, QMainWindow)
+from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 from components.keyboard import KeyboardEnabledInput, VirtualKeyboard, KeyboardType
-from button_definitions.types import PaymentButtonType, TransactionButtonType, OrderButtonType, HorizontalButtonType
+
+from button_definitions.types import (
+    PaymentButtonType,
+    TransactionButtonType,
+    HorizontalButtonType,
+    OrderButtonType,
+    ProductButtonType,
+    CategoryButtonType
+)
 from button_definitions.payment import PaymentButtonConfig
 from button_definitions.transaction import TransactionButtonConfig
 from button_definitions.order import OrderButtonConfig
 from button_definitions.horizontal import HorizontalButtonConfig
 from button_definitions.product import ProductButtonConfig
+from button_definitions.category import CategoryButtonConfig
 from styles.buttons import ButtonStyles
 from . import styles
 from config.screen_config import screen_config
@@ -19,12 +28,6 @@ from models.product_catalog import (
     PRODUCT_PRICES,
     get_products_for_category,
     get_product_price
-)
-from models.button_definitions import (
-    ORDER_TYPES,
-    HORIZONTAL_BUTTONS,
-    TRANSACTION_BUTTONS,
-    PAYMENT_BUTTONS
 )
 
 class POSView(QWidget):
@@ -38,7 +41,7 @@ class POSView(QWidget):
         self.selected_horizontal_category = None
         self.category_buttons = {}
         self.selected_category = None
-
+        self.categories = CATEGORIES 
         self.keyboard = VirtualKeyboard(self)
         
         # Use imported prices
@@ -435,17 +438,21 @@ class POSView(QWidget):
 
         # Horizontal category buttons
         self.horizontal_category_buttons = {}
-        self.categories = CATEGORIES
+
+        # self.categories = CATEGORIES
+
         self.selected_horizontal_category = None
 
         for category in self.categories:
-            btn = QPushButton(category)
-            btn.setStyleSheet(styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON(
-                self.screen_config.get_size('button_border_radius'),
-                self.screen_config.get_size('button_padding'),
-                self.screen_config.get_size('pos_category_button_width'),
-                self.screen_config.get_size('pos_category_button_height')
-            ))
+            config = CategoryButtonConfig.get_config(
+                CategoryButtonType.CATEGORY,
+                category
+            )
+            btn = QPushButton(config['text'])
+            
+            # Initial style (unselected)
+            btn.setStyleSheet(ButtonStyles.get_category_button_style(is_selected=False))
+            
             btn.clicked.connect(lambda checked, c=category: self._show_category_items(c))
             horizontal_layout.addWidget(btn)
             self.horizontal_category_buttons[category] = btn
@@ -586,27 +593,14 @@ class POSView(QWidget):
         """Display product items for selected category"""
         # 1. Update horizontal category button styles
         if category in self.horizontal_category_buttons:
-            # Reset previously selected horizontal button style
+            # Reset previously selected button
             if self.selected_horizontal_category:
                 prev_btn = self.horizontal_category_buttons[self.selected_horizontal_category]
-                prev_btn.setStyleSheet(
-                    styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON(
-                        self.screen_config.get_size('button_border_radius'),
-                        self.screen_config.get_size('button_padding'),
-                        self.screen_config.get_size('pos_category_button_width'),
-                        self.screen_config.get_size('pos_category_button_height')
-                    )
-                )
+                prev_btn.setStyleSheet(ButtonStyles.get_category_button_style(is_selected=False))
             
-            # Update selected horizontal button style
-            self.horizontal_category_buttons[category].setStyleSheet(
-                styles.POSStyles.HORIZONTAL_CATEGORY_BUTTON_SELECTED(
-                    self.screen_config.get_size('button_border_radius'),
-                    self.screen_config.get_size('button_padding'),
-                    self.screen_config.get_size('pos_category_button_width'),
-                    self.screen_config.get_size('pos_category_button_height')
-                )
-            )
+            # Update newly selected button
+            curr_btn = self.horizontal_category_buttons[category]
+            curr_btn.setStyleSheet(ButtonStyles.get_category_button_style(is_selected=True))
             self.selected_horizontal_category = category
 
         # 2. Clear existing products grid
@@ -628,7 +622,11 @@ class POSView(QWidget):
         # 5. Create and add product buttons to grid
         for i, item in enumerate(filtered_items):
             # Get product configuration with category context
-            product_config = ProductButtonConfig.get_config(item, category)
+            product_config = ProductButtonConfig.get_config(
+                ProductButtonType.PRODUCT,
+                item, 
+                category
+            )
             
             # Create button with product config
             btn = QPushButton(product_config['text'])
