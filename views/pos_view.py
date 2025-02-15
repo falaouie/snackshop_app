@@ -20,7 +20,7 @@ from button_definitions.horizontal import HorizontalButtonConfig
 from button_definitions.product import ProductButtonConfig
 from button_definitions.category import CategoryButtonConfig
 from styles.buttons import ButtonStyles
-from . import styles
+from styles import POSStyles, AppStyles
 from config.screen_config import screen_config
 from models.product_catalog import (
     CATEGORIES,
@@ -70,11 +70,11 @@ class POSView(QWidget):
 
         # Main Content Area with Splitter
         content_splitter = QSplitter(Qt.Horizontal)
-        content_splitter.setStyleSheet(styles.POSStyles.SPLITTER)
+        content_splitter.setStyleSheet(POSStyles.SPLITTER)
         
         # Left Side - Order Details
         self.order_widget = self._create_order_widget()
-        self.order_widget.setStyleSheet(styles.POSStyles.ORDER_PANEL(
+        self.order_widget.setStyleSheet(POSStyles.ORDER_PANEL(
             self.screen_config.get_size('pos_order_panel_width')
         ))
         content_splitter.addWidget(self.order_widget)
@@ -94,7 +94,7 @@ class POSView(QWidget):
     def _create_top_bar(self):
         """Create top bar with employee info, search, and lock button"""
         self.top_bar = QFrame()
-        self.top_bar.setStyleSheet(styles.POSStyles.TOP_BAR(
+        self.top_bar.setStyleSheet(POSStyles.TOP_BAR(
             self.screen_config.get_size('pos_top_bar_height')
         ))
         
@@ -104,7 +104,7 @@ class POSView(QWidget):
         
         # Employee Zone with DateTime
         emp_zone = QFrame()
-        emp_zone.setStyleSheet(styles.POSStyles.EMPLOYEE_ZONE)
+        emp_zone.setStyleSheet(POSStyles.EMPLOYEE_ZONE)
         emp_layout = QHBoxLayout(emp_zone)
         emp_layout.setSpacing(8)
         emp_layout.setContentsMargins(0, 0, 0, 0) 
@@ -119,20 +119,20 @@ class POSView(QWidget):
         painter.end()
         emp_icon.setPixmap(pixmap)
         emp_id = QLabel(f"Emp ID: {self.user_id}")
-        emp_id.setStyleSheet(styles.POSStyles.EMPLOYEE_ID)
+        emp_id.setStyleSheet(POSStyles.EMPLOYEE_ID)
         
         # DateTime Zone
         time_zone = QFrame()
-        time_zone.setStyleSheet(styles.POSStyles.DATE_TIME_ZONE)
+        time_zone.setStyleSheet(POSStyles.DATE_TIME_ZONE)
         time_layout = QVBoxLayout(time_zone)
         time_layout.setContentsMargins(10, 5, 10, 5)
         time_layout.setSpacing(2)
 
         self.date_label = QLabel()
-        self.date_label.setStyleSheet(styles.POSStyles.DATE_LABEL)
+        self.date_label.setStyleSheet(POSStyles.DATE_LABEL)
 
         self.time_label = QLabel()
-        self.time_label.setStyleSheet(styles.POSStyles.TIME_LABEL)
+        self.time_label.setStyleSheet(POSStyles.TIME_LABEL)
 
         time_layout.addWidget(self.date_label)
         time_layout.addWidget(self.time_label)
@@ -151,7 +151,7 @@ class POSView(QWidget):
         # Create search input
         self.search_input = SearchLineEdit(self)
         self.search_input.setPlaceholderText("Search products...")
-        self.search_input.setStyleSheet(styles.POSStyles.SEARCH_INPUT(
+        self.search_input.setStyleSheet(POSStyles.SEARCH_INPUT(
             self.screen_config.get_size('pos_search_input_width'),
             self.screen_config.get_size('pos_search_input_height')
         ))
@@ -177,7 +177,7 @@ class POSView(QWidget):
         painter.end()
         lock_btn.setIcon(QIcon(pixmap))
         lock_btn.setIconSize(QSize(55, 55))
-        lock_btn.setStyleSheet(styles.POSStyles.LOCK_BUTTON)
+        lock_btn.setStyleSheet(POSStyles.LOCK_BUTTON)
         lock_btn.clicked.connect(self._handle_lock)
         
         controls_layout.addWidget(lock_btn)
@@ -192,7 +192,7 @@ class POSView(QWidget):
     def _create_order_widget(self):
         """Create order panel"""
         order_frame = QFrame()
-        order_frame.setStyleSheet(styles.POSStyles.ORDER_PANEL(
+        order_frame.setStyleSheet(POSStyles.ORDER_PANEL(
             self.screen_config.get_size('pos_order_panel_width')
         ))
         
@@ -245,9 +245,9 @@ class POSView(QWidget):
         # Order Items Area
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)   
-        scroll_area.setStyleSheet(styles.POSStyles.SCROLL_AREA)
+        scroll_area.setStyleSheet(POSStyles.SCROLL_AREA)
         self.order_list_widget = QWidget()
-        self.order_list_widget.setStyleSheet(styles.POSStyles.ORDER_LIST_WIDGET)
+        self.order_list_widget.setStyleSheet(POSStyles.ORDER_LIST_WIDGET)
         self.order_list_layout = QVBoxLayout(self.order_list_widget)
         self.order_list_layout.setContentsMargins(5, 5, 5, 5)
         self.order_list_layout.setSpacing(5)
@@ -505,7 +505,7 @@ class POSView(QWidget):
         # Products Grid Area
         products_scroll = QScrollArea()
         products_scroll.setWidgetResizable(True)
-        products_scroll.setStyleSheet(styles.POSStyles.SCROLL_AREA)
+        products_scroll.setStyleSheet(POSStyles.SCROLL_AREA)
         
         products_container = QWidget()
         self.products_grid = QGridLayout(products_container)
@@ -532,7 +532,7 @@ class POSView(QWidget):
     def _create_totals_frame(self):
         """Create totals frame with order type buttons and amounts"""
         self.totals_frame = QFrame()
-        self.totals_frame.setStyleSheet(styles.POSStyles.TOTALS_FRAME)
+        self.totals_frame.setStyleSheet(POSStyles.TOTALS_FRAME)
         
         # Main horizontal layout
         totals_layout = QHBoxLayout(self.totals_frame)
@@ -660,7 +660,7 @@ class POSView(QWidget):
         """Create bottom action bar"""
         self.bottom_bar = QFrame()
         bottom_bar_height = self.screen_config.get_size('pos_bottom_bar_height')
-        self.bottom_bar.setStyleSheet(styles.POSStyles.BOTTOM_BAR(bottom_bar_height))
+        self.bottom_bar.setStyleSheet(POSStyles.BOTTOM_BAR(bottom_bar_height))
         layout = QHBoxLayout(self.bottom_bar)
         layout.setContentsMargins(10, 5, 10, 10)
         layout.setSpacing(6)
@@ -689,7 +689,7 @@ class POSView(QWidget):
         """Handle three dots menu click with various order options"""
         # Create menu
         menu = QMenu(self)
-        menu.setStyleSheet(styles.POSStyles.MENU)
+        menu.setStyleSheet(POSStyles.MENU)
 
         # Add Clear Order action
         clear_action = menu.addAction("Cancel Order")
@@ -766,7 +766,7 @@ class POSView(QWidget):
                 Qt.SmoothTransformation
             )
             logo_label.setPixmap(scaled_pixmap)
-            logo_label.setStyleSheet(styles.AppStyles.LOGO_CONTAINER)
+            logo_label.setStyleSheet(AppStyles.LOGO_CONTAINER)
             top_bar.addWidget(logo_label)
             top_bar.addStretch()
             
@@ -842,7 +842,7 @@ class POSView(QWidget):
                     self.screen_config.get_size('pos_product_button_width'),
                     self.screen_config.get_size('pos_product_button_height')
                 )
-            btn.setStyleSheet(styles.POSStyles.PRODUCT_BUTTON)
+            btn.setStyleSheet(POSStyles.get_product_button_style())  # Updated to use the method
             btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
             row = i // 3
             col = i % 3

@@ -331,6 +331,9 @@ class ScreenConfig:
 
     def _set_size_config(self):
         """Determine which size configuration to use based on screen resolution"""
+        # Import here to avoid circular import
+        from styles.layouts import LayoutSizes
+        
         if self._width >= 1920 and self._height >= 1080:
             base_config = self.LARGE.copy()
             base_config.update(LayoutSizes.LARGE)
