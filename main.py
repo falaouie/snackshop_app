@@ -1,6 +1,8 @@
 import sys
 from PyQt5.QtWidgets import QApplication
 from config.screen_config import screen_config
+import styles
+from styles import layout_config
 
 def main():
     # Create the application instance
@@ -8,7 +10,10 @@ def main():
 
     # Trigger screen configuration early
     screen_config.get_screen_dimensions()
-
+    
+    # Initialize styles and layouts
+    styles.init_styles(screen_config)
+    
     # Import MainWindow after QApplication exists
     from views.main_window import MainWindow
     

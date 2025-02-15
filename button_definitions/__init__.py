@@ -4,13 +4,15 @@ from .types import (
     TransactionButtonType, 
     OrderButtonType,
     HorizontalButtonType,
-    ProductButtonType
+    ProductButtonType,
+    CategoryButtonType
 )
 from .payment import PaymentButtonConfig
 from .transaction import TransactionButtonConfig
 from .order import OrderButtonConfig
 from .horizontal import HorizontalButtonConfig
-from .product import ProductButtonConfig  # Add this
+from .product import ProductButtonConfig
+from .category import CategoryButtonConfig
 
 __all__ = [
     'ButtonType', 
@@ -19,9 +21,11 @@ __all__ = [
     'OrderButtonType',
     'HorizontalButtonType',
     'ProductButtonType',
+    'CategoryButtonType',
     'PaymentButtonConfig',
     'TransactionButtonConfig',
     'OrderButtonConfig',
     'HorizontalButtonConfig',
-    'ProductButtonConfig'
+    'ProductButtonConfig',
+    'CategoryButtonConfig'
 ]

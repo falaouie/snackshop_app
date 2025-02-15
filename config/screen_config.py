@@ -1,5 +1,7 @@
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QRect
+from styles.layouts import LayoutSizes
+
 
 class ScreenConfig:
     """Handles screen detection and provides appropriate sizes for UI elements"""
@@ -88,12 +90,12 @@ class ScreenConfig:
         'button_spacing': 6,
 
         # POS view specific
-        'pos_top_bar_height': 50,
+        # 'pos_top_bar_height': 50,
         'pos_product_button_width': 120,
         'pos_product_button_height': 50,
         'pos_category_button_width': 100,
         'pos_category_button_height': 35,
-        'pos_order_panel_width': 300,
+        # 'pos_order_panel_width': 300,
         'pos_bottom_bar_height': 70,
         'pos_action_button_width': 120,
         'pos_action_button_height': 45,
@@ -184,12 +186,12 @@ class ScreenConfig:
         'button_spacing': 8,
 
         # POS view specific
-        'pos_top_bar_height': 60,
+        # 'pos_top_bar_height': 60,
         'pos_product_button_width': 140,
         'pos_product_button_height': 60,
         'pos_category_button_width': 120,
         'pos_category_button_height': 40,
-        'pos_order_panel_width': 350,
+        # 'pos_order_panel_width': 350,
         'pos_bottom_bar_height': 80,
         'pos_action_button_width': 140,
         'pos_action_button_height': 50,
@@ -280,12 +282,12 @@ class ScreenConfig:
         'button_spacing': 10,
 
         # POS view specific
-        'pos_top_bar_height': 70,
+        # 'pos_top_bar_height': 70,
         'pos_product_button_width': 160,
         'pos_product_button_height': 70,
         'pos_category_button_width': 140,
         'pos_category_button_height': 45,
-        'pos_order_panel_width': 400,
+        # 'pos_order_panel_width': 400,
         'pos_bottom_bar_height': 90,
         'pos_action_button_width': 160,
         'pos_action_button_height': 55,
@@ -330,14 +332,21 @@ class ScreenConfig:
     def _set_size_config(self):
         """Determine which size configuration to use based on screen resolution"""
         if self._width >= 1920 and self._height >= 1080:
-            self._current_config = self.LARGE
+            base_config = self.LARGE.copy()
+            base_config.update(LayoutSizes.LARGE)
+            self._current_config = base_config
             print("Using LARGE screen configuration")
         elif self._width >= 1280 and self._height >= 768:
-            self._current_config = self.MEDIUM
+            base_config = self.MEDIUM.copy()
+            base_config.update(LayoutSizes.MEDIUM)
+            self._current_config = base_config
             print("Using MEDIUM screen configuration")
         else:
-            self._current_config = self.SMALL
+            base_config = self.SMALL.copy()
+            base_config.update(LayoutSizes.SMALL)
+            self._current_config = base_config
             print("Using SMALL screen configuration")
+
 
     def get_size(self, element_name):
         """Get the size for a specific element based on current screen configuration"""
