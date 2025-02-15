@@ -800,7 +800,7 @@ class POSView(QWidget):
             center_layout.addStretch()
             
             # Import and create auth container here to avoid circular import
-            from .auth_view import AuthenticationContainer
+            from .auth.auth_container import AuthenticationContainer
             auth_container = AuthenticationContainer()
             auth_container.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus
             auth_container.switch_to_pin_view(self.user_id)

@@ -1,38 +1,11 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel
-from PyQt5.QtCore import Qt, pyqtSignal
-from styles.auth import AuthStyles 
+from PyQt5.QtWidgets import QWidget, QHBoxLayout
+from PyQt5.QtCore import pyqtSignal
 from config.screen_config import screen_config
-
-class DigitBox(QLabel):
-    def __init__(self, is_pin=False):
-        super().__init__()
-        self.is_pin = is_pin  # Whether this is a PIN input
-        # Get sizes from config
-        digit_width = screen_config.get_size('digit_input_width')
-        digit_height = screen_config.get_size('digit_input_height')
-        self.setFixedSize(digit_width, digit_height)
-        self.setAlignment(Qt.AlignCenter)
-        self.setStyleSheet(AuthStyles.DIGIT_BOX_EMPTY(
-            screen_config.get_size('digit_padding'),
-            screen_config.get_size('digit_font_size')
-        ))
-        
-    def update_digit(self, value):
-        if value:
-            display_value = "*" if self.is_pin else value
-            self.setText(display_value)
-            self.setStyleSheet(AuthStyles.DIGIT_BOX_FILLED(
-                screen_config.get_size('digit_padding'),
-                screen_config.get_size('digit_font_size')
-            ))
-        else:
-            self.clear()
-            self.setStyleSheet(AuthStyles.DIGIT_BOX_EMPTY(
-                screen_config.get_size('digit_padding'),
-                screen_config.get_size('digit_font_size')
-            ))
+from .digit_box import DigitBox
 
 class UserInput(QWidget):
+    """A widget containing multiple digit boxes for PIN/ID input"""
+    
     input_changed = pyqtSignal(list)  # Signal when input changes
     
     def __init__(self, is_pin=False):
@@ -59,6 +32,7 @@ class UserInput(QWidget):
         self.setLayout(layout)
         
     def add_digit(self, digit):
+        """Add a digit to the input"""
         if self.current_position < 4:
             self.digits[self.current_position] = digit
             self.digit_boxes[self.current_position].update_digit(digit)
@@ -66,6 +40,7 @@ class UserInput(QWidget):
             self.input_changed.emit(self.digits)
             
     def remove_digit(self):
+        """Remove the last entered digit"""
         if self.current_position > 0:
             self.current_position -= 1
             self.digits[self.current_position] = ""
@@ -73,6 +48,7 @@ class UserInput(QWidget):
             self.input_changed.emit(self.digits)
             
     def clear_all(self):
+        """Clear all digits"""
         self.digits = ["", "", "", ""]
         self.current_position = 0
         for box in self.digit_boxes:

@@ -4,9 +4,9 @@ from PyQt5.QtCore import Qt, QEvent, QRect
 from PyQt5.QtGui import QPixmap, QPainter, QDoubleValidator
 from PyQt5.QtSvg import QSvgRenderer
 from typing import Optional
-from .keyboard_manager import KeyboardManager
+from .manager import KeyboardManager
 from .styles import KeyboardStyles, KeyboardConfig, KeyboardEnabledInputStyles
-from .keyboard_types import KeyboardType
+from .types import KeyboardType
 
 class KeyboardEnabledInput(QLineEdit):
     """Input field that works with the virtual keyboard system"""

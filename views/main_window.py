@@ -2,8 +2,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHB
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtSvg import QSvgRenderer
-from .auth_view import AuthenticationContainer
-from styles.app import AppStyles  # Updated import
+from .auth.auth_container import AuthenticationContainer
+from styles.app import AppStyles 
 from config.screen_config import screen_config
 from utilities.utils import ApplicationUtils
 

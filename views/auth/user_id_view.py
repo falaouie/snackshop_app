@@ -1,40 +1,19 @@
-from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel, 
-                            QPushButton, QGridLayout, QHBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, 
+                            QPushButton, QGridLayout, QHBoxLayout)
 from PyQt5.QtCore import Qt
-from .input_fields import UserInput
-from .pin_view import PinView
-from styles.auth import AuthStyles  # Updated import
+from components.input import UserInput
+from styles.auth import AuthStyles
 from config.screen_config import screen_config
 
-class AuthenticationContainer(QFrame):
+class UserIDView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.valid_user_id = "1001"  # Hardcoded valid user ID
+        self.parent_container = parent
         self.number_buttons = []     # Initialize number buttons list
-        
-        # Get container size from screen config
-        width = screen_config.get_size('auth_container_width')
-        height = screen_config.get_size('auth_container_height')
-        self.setFixedSize(width, height)
-        self.setStyleSheet(AuthStyles.CONTAINER(
-            screen_config.get_size('container_margin')
-        ))
         self._setup_ui()
-        self.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        # margin = screen_config.get_size('container_margin')
-        layout.setContentsMargins(0, 0, 0, 0)
-        
-        # User ID View
-        self.user_id_view = self._create_user_id_view()
-        layout.addWidget(self.user_id_view)
-
-    def _create_user_id_view(self):
-        """Create and return the User ID view"""
-        user_id_view = QWidget()
-        layout = QVBoxLayout(user_id_view)
         
         # Get spacing and margins from screen config
         margin = screen_config.get_size('container_margin')
@@ -140,8 +119,6 @@ class AuthenticationContainer(QFrame):
         # Connect input changes to button state updates
         self.user_input.input_changed.connect(self._update_button_states)
 
-        return user_id_view
-
     def _on_number_click(self, number):
         self.user_input.add_digit(str(number))
         self._reset_user_id_label()
@@ -174,8 +151,8 @@ class AuthenticationContainer(QFrame):
     def _handle_next(self):
         if self.user_input.is_complete():
             user_id = "".join(self.user_input.digits)
-            if user_id == self.valid_user_id:
-                self.switch_to_pin_view(user_id)
+            if user_id == self.parent_container.valid_user_id:
+                self.parent_container.switch_to_pin_view(user_id)
             else:
                 self._show_invalid_user_id()
 
@@ -192,22 +169,6 @@ class AuthenticationContainer(QFrame):
             screen_config.get_size('label_padding'),
             screen_config.get_size('label_font_size')
         ))
-
-    def switch_to_pin_view(self, user_id):
-        if hasattr(self, 'user_id_view'):
-            self.user_id_view.hide()
-        
-        if not hasattr(self, 'pin_view'):
-            self.pin_view = PinView(user_id, self)
-        self.pin_view.show()
-        self.pin_view.setFocus()
-
-    def switch_to_user_id_view(self):
-        if hasattr(self, 'pin_view'):
-            self.pin_view.hide()
-        self.user_id_view.show()
-        self.user_input.clear_all()
-        self.user_id_view.setFocus()
 
     def keyPressEvent(self, event):
         """Handle physical keyboard input"""
@@ -232,3 +193,8 @@ class AuthenticationContainer(QFrame):
         # Ignore other keys
         else:
             super().keyPressEvent(event)
+
+    def clear_all(self):
+        """Clear all input and reset UI state"""
+        self.user_input.clear_all()
+        self._reset_user_id_label()

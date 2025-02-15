@@ -1,5 +1,5 @@
 from typing import Set, Optional, Protocol
-from .keyboard_types import KeyboardType
+from .types import KeyboardType
 
 class KeyboardEnabled(Protocol):
     """Protocol defining required methods for keyboard-enabled widgets"""

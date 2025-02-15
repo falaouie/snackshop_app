@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel, QPushButton, 
                            QGridLayout, QHBoxLayout, QWidget, QMainWindow)
 from PyQt5.QtCore import Qt, pyqtSignal
-from .input_fields import UserInput
-from .pos_view import POSView 
+from components.input import UserInput
+from ..pos_view import POSView 
 from styles.auth import AuthStyles
 from config.screen_config import screen_config
 
