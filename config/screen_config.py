@@ -339,7 +339,7 @@ class ScreenConfig:
             base_config.update(LayoutSizes.LARGE)
             self._current_config = base_config
             print("Using LARGE screen configuration")
-        elif self._width >= 1280 and self._height >= 768:
+        elif self._width >= 1024 and self._height >= 768:
             base_config = self.MEDIUM.copy()
             base_config.update(LayoutSizes.MEDIUM)
             self._current_config = base_config

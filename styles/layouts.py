@@ -15,9 +15,9 @@ class LayoutSizes:
         'auth_label_height': 60,
 
         # Auth Label Related
-        'label_font_size': 16,
+        'label_font_size': 18,
         'auth_label_width': 250,
-        'auth_label_height': 60,
+        'auth_label_height': 40,
 
         # Keypad Basic
         'keypad_spacing': 10,
@@ -38,8 +38,8 @@ class LayoutSizes:
 
         # Global spacing and margins
         'container_margin': 10,
-        'section_spacing': 10,
-        'label_padding': 8,
+        'section_spacing': 15,
+        'label_padding': 0,
     }
 
     MEDIUM = {
@@ -49,13 +49,13 @@ class LayoutSizes:
         'pos_bottom_bar_height': 80,
         
         # Auth container sizes
-        'auth_container_width': 400,
+        'auth_container_width': 450,
         'auth_container_height': 500,
         'auth_label_width': 300,
         'auth_label_height': 60,
 
         # Auth Label Related
-        'label_font_size': 18,
+        'label_font_size': 20,
         'auth_label_width': 300,
         'auth_label_height': 60,
 
@@ -78,7 +78,7 @@ class LayoutSizes:
 
         # Global spacing and margins
         'container_margin': 15,
-        'section_spacing': 15,
+        'section_spacing': 20,
         'label_padding': 10,
     }
 
