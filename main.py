@@ -2,7 +2,6 @@ import sys
 from PyQt5.QtWidgets import QApplication
 from config.screen_config import screen_config
 import styles
-from styles import layout_config
 
 def main():
     # Create the application instance

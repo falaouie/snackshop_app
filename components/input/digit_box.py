@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtCore import Qt
 from styles.auth import AuthStyles
-# from config.screen_config import screen_config
 from styles.layouts import layout_config 
 
 class DigitBox(QLabel):

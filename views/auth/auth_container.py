@@ -3,8 +3,7 @@ from PyQt5.QtCore import Qt
 from .user_id_view import UserIDView
 from .pin_view import PinView
 from styles.auth import AuthStyles
-from styles.layouts import layout_config 
-# from config.screen_config import screen_config
+from styles.layouts import layout_config
 
 class AuthenticationContainer(QFrame):
     def __init__(self, parent=None):

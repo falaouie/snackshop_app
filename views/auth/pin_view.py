@@ -5,7 +5,6 @@ from components.input import UserInput
 from ..pos_view import POSView 
 from styles.auth import AuthStyles
 from styles.layouts import layout_config
-# from config.screen_config import screen_config
 
 class PinView(QWidget):
     def __init__(self, user_id, auth_container, parent=None):
