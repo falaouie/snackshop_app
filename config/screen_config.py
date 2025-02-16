@@ -75,7 +75,7 @@ class ScreenConfig:
 
         # Font sizes
         # 'keypad_font_size': 16,
-        'label_font_size': 16,
+        # 'label_font_size': 16,
         # 'digit_font_size': 14,
 
         # Padding
@@ -171,7 +171,7 @@ class ScreenConfig:
 
         # Font sizes
         # 'keypad_font_size': 20,
-        'label_font_size': 18,
+        # 'label_font_size': 18,
         # 'digit_font_size': 16,
 
         # Padding
@@ -267,7 +267,7 @@ class ScreenConfig:
 
         # Font sizes
         # 'keypad_font_size': 24,
-        'label_font_size': 18,
+        # 'label_font_size': 18,
         # 'digit_font_size': 16,
 
         # Padding
