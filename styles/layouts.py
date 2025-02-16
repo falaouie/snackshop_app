@@ -19,6 +19,12 @@ class LayoutSizes:
         'auth_label_width': 250,
         'auth_label_height': 40,
 
+        # digit box
+        'digit_input_width': 40,
+        'digit_input_height': 40,
+        'digit_padding': 5,
+        'digit_font_size': 14,
+
         # Keypad Basic
         'keypad_spacing': 10,
         'keypad_button_width': 60,
@@ -59,6 +65,12 @@ class LayoutSizes:
         'auth_label_width': 300,
         'auth_label_height': 60,
 
+        # digit box
+        'digit_input_width': 45,
+        'digit_input_height': 45,
+        'digit_padding': 8,
+        'digit_font_size': 16,
+
         # Keypad Basic
         'keypad_spacing': 15,
         'keypad_button_width': 55,
@@ -98,6 +110,12 @@ class LayoutSizes:
         'label_font_size': 18,
         'auth_label_width': 400,
         'auth_label_height': 60,
+
+        # digit box
+        'digit_input_width': 60,
+        'digit_input_height': 60,
+        'digit_padding': 5,
+        'digit_font_size': 16,
 
         # Keypad Basic
         'keypad_spacing': 10,
@@ -198,6 +216,15 @@ class LayoutConfig:
     def get_container_margin(self):
         """Get standard container margins"""
         return self.screen_config.get_size('container_margin')
+    
+    def get_digit_box_config(self):
+        """Get digit box configurations"""
+        return {
+            'width': self.screen_config.get_size('digit_input_width'),
+            'height': self.screen_config.get_size('digit_input_height'),
+            'padding': self.screen_config.get_size('digit_padding'),
+            'font_size': self.screen_config.get_size('digit_font_size')
+        }
 
 # Function to initialize the layout config
 def init_layout_config(screen_config):

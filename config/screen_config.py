@@ -21,8 +21,8 @@ class ScreenConfig:
         # 'auth_label_height': 60,
         
         # Input field sizes
-        'digit_input_width': 40,
-        'digit_input_height': 40,
+        # 'digit_input_width': 40,
+        # 'digit_input_height': 40,
         
         # General button properties
         'button_border_radius': 4,
@@ -76,12 +76,12 @@ class ScreenConfig:
         # Font sizes
         # 'keypad_font_size': 16,
         'label_font_size': 16,
-        'digit_font_size': 14,
+        # 'digit_font_size': 14,
 
         # Padding
         # 'keypad_padding': 8,
         # 'label_padding': 8,
-        'digit_padding': 5,
+        # 'digit_padding': 5,
         
         # Spacing and margins
         # 'keypad_spacing': 10,
@@ -117,8 +117,8 @@ class ScreenConfig:
         # 'auth_label_height': 60,
 
         # Input field sizes
-        'digit_input_width': 45,
-        'digit_input_height': 45,
+        # 'digit_input_width': 45,
+        # 'digit_input_height': 45,
 
         # General button properties
         'button_border_radius': 6,
@@ -172,12 +172,12 @@ class ScreenConfig:
         # Font sizes
         # 'keypad_font_size': 20,
         'label_font_size': 18,
-        'digit_font_size': 16,
+        # 'digit_font_size': 16,
 
         # Padding
         # 'keypad_padding': 10,
         # 'label_padding': 10,
-        'digit_padding': 8,
+        # 'digit_padding': 8,
         
         # Spacing and margins
         # 'keypad_spacing': 15,
@@ -213,8 +213,8 @@ class ScreenConfig:
         # 'auth_label_height': 60,
 
         # Input field sizes
-        'digit_input_width': 60,
-        'digit_input_height': 60,
+        # 'digit_input_width': 60,
+        # 'digit_input_height': 60,
 
         # General button properties
         'button_border_radius': 8,
@@ -268,12 +268,12 @@ class ScreenConfig:
         # Font sizes
         # 'keypad_font_size': 24,
         'label_font_size': 18,
-        'digit_font_size': 16,
+        # 'digit_font_size': 16,
 
         # Padding
         # 'keypad_padding': 5,
         # 'label_padding': 5,
-        'digit_padding': 5,
+        # 'digit_padding': 5,
 
         # Spacing and margins
         # 'keypad_spacing': 10,
