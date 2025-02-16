@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import QRect
-from styles.layouts import LayoutSizes
+# from PyQt5.QtCore import QRect
+# from styles.layouts import LayoutSizes
 
 
 class ScreenConfig:
@@ -9,16 +9,16 @@ class ScreenConfig:
     # Size configurations for different screen sizes
     SMALL = {
         # Logo dimensions
-        'logo_width': 200,
-        'logo_height': 100,
+        # 'logo_width': 200,
+        # 'logo_height': 100,
 
         # Auth container sizes
-        'auth_container_width': 350,
-        'auth_container_height': 400,
+        # 'auth_container_width': 350,
+        # 'auth_container_height': 400,
 
         # User id and password label
-        'auth_label_width': 250,
-        'auth_label_height': 60,
+        # 'auth_label_width': 250,
+        # 'auth_label_height': 60,
         
         # Input field sizes
         'digit_input_width': 40,
@@ -29,12 +29,12 @@ class ScreenConfig:
         'button_padding': 8,
         
         # Basic button sizes
-        'keypad_button_width': 60,
-        'keypad_button_height': 40,
-        'action_button_width': 60,
-        'action_button_height': 40,
-        'signin_button_width': 120,
-        'signin_button_height': 40,
+        # 'keypad_button_width': 60,
+        # 'keypad_button_height': 40,
+        # 'action_button_width': 60,
+        # 'action_button_height': 40,
+        # 'signin_button_width': 120,
+        # 'signin_button_height': 40,
 
         # Payment button configurations
         'payment_button': {
@@ -74,19 +74,19 @@ class ScreenConfig:
         },
 
         # Font sizes
-        'keypad_font_size': 16,
+        # 'keypad_font_size': 16,
         'label_font_size': 16,
         'digit_font_size': 14,
 
         # Padding
-        'keypad_padding': 8,
-        'label_padding': 8,
+        # 'keypad_padding': 8,
+        # 'label_padding': 8,
         'digit_padding': 5,
         
         # Spacing and margins
-        'keypad_spacing': 10,
-        'container_margin': 10,
-        'section_spacing': 10,
+        # 'keypad_spacing': 10,
+        # 'container_margin': 10,
+        # 'section_spacing': 10,
         'button_spacing': 6,
 
         # POS view specific
@@ -105,16 +105,16 @@ class ScreenConfig:
 
     MEDIUM = {
         # Logo dimensions
-        'logo_width': 300,
-        'logo_height': 125,
+        # 'logo_width': 300,
+        # 'logo_height': 125,
 
         # Auth container sizes
-        'auth_container_width': 400,
-        'auth_container_height': 500,
+        # 'auth_container_width': 400,
+        # 'auth_container_height': 500,
 
         # User id and password label
-        'auth_label_width': 300,
-        'auth_label_height': 60,
+        # 'auth_label_width': 300,
+        # 'auth_label_height': 60,
 
         # Input field sizes
         'digit_input_width': 45,
@@ -125,12 +125,12 @@ class ScreenConfig:
         'button_padding': 10,
 
         # Basic button sizes
-        'keypad_button_width': 55,
-        'keypad_button_height': 55,
-        'action_button_width': 80,
-        'action_button_height': 50,
-        'signin_button_width': 160,
-        'signin_button_height': 50,
+        # 'keypad_button_width': 55,
+        # 'keypad_button_height': 55,
+        # 'action_button_width': 80,
+        # 'action_button_height': 50,
+        # 'signin_button_width': 160,
+        # 'signin_button_height': 50,
 
         # Payment button configurations
         'payment_button': {
@@ -170,19 +170,19 @@ class ScreenConfig:
         },
 
         # Font sizes
-        'keypad_font_size': 20,
+        # 'keypad_font_size': 20,
         'label_font_size': 18,
         'digit_font_size': 16,
 
         # Padding
-        'keypad_padding': 10,
-        'label_padding': 10,
+        # 'keypad_padding': 10,
+        # 'label_padding': 10,
         'digit_padding': 8,
         
         # Spacing and margins
-        'keypad_spacing': 15,
-        'container_margin': 15,
-        'section_spacing': 15,
+        # 'keypad_spacing': 15,
+        # 'container_margin': 15,
+        # 'section_spacing': 15,
         'button_spacing': 8,
 
         # POS view specific
@@ -201,16 +201,16 @@ class ScreenConfig:
 
     LARGE = {
         # Logo dimensions
-        'logo_width': 300,
-        'logo_height': 150,
+        # 'logo_width': 300,
+        # 'logo_height': 150,
 
         # Auth container sizes
-        'auth_container_width': 500,
-        'auth_container_height': 600,
+        # 'auth_container_width': 500,
+        # 'auth_container_height': 600,
 
         # User id and password label
-        'auth_label_width': 400,
-        'auth_label_height': 60,
+        # 'auth_label_width': 400,
+        # 'auth_label_height': 60,
 
         # Input field sizes
         'digit_input_width': 60,
@@ -221,12 +221,12 @@ class ScreenConfig:
         'button_padding': 12,
 
         # Basic button sizes
-        'keypad_button_width': 100,
-        'keypad_button_height': 60,
-        'action_button_width': 150,
-        'action_button_height': 60,
-        'signin_button_width': 200,
-        'signin_button_height': 60,
+        # 'keypad_button_width': 100,
+        # 'keypad_button_height': 60,
+        # 'action_button_width': 150,
+        # 'action_button_height': 60,
+        # 'signin_button_width': 200,
+        # 'signin_button_height': 60,
 
         # Payment button configurations
         'payment_button': {
@@ -266,19 +266,19 @@ class ScreenConfig:
         },
 
         # Font sizes
-        'keypad_font_size': 24,
+        # 'keypad_font_size': 24,
         'label_font_size': 18,
         'digit_font_size': 16,
 
         # Padding
-        'keypad_padding': 5,
-        'label_padding': 5,
+        # 'keypad_padding': 5,
+        # 'label_padding': 5,
         'digit_padding': 5,
 
         # Spacing and margins
-        'keypad_spacing': 10,
-        'container_margin': 15,
-        'section_spacing': 10,
+        # 'keypad_spacing': 10,
+        # 'container_margin': 15,
+        # 'section_spacing': 10,
         'button_spacing': 10,
 
         # POS view specific

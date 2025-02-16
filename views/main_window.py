@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtSvg import QSvgRenderer
 from .auth.auth_container import AuthenticationContainer
 from styles.app import AppStyles 
+from styles.layouts import layout_config 
 from config.screen_config import screen_config
 from utilities.utils import ApplicationUtils
 
@@ -42,9 +43,10 @@ class MainWindow(QMainWindow):
         # Logo
         logo_label = QLabel()
         pixmap = QPixmap("assets/images/silver_system_logo.png")
+        auth_layout = layout_config.get_instance().get_auth_layout()
         scaled_pixmap = pixmap.scaled(
-            QSize(screen_config.get_size('logo_width'), 
-                screen_config.get_size('logo_height')),
+            QSize(auth_layout['logo_width'], 
+                 auth_layout['logo_height']),
             Qt.KeepAspectRatio, 
             Qt.SmoothTransformation
         )

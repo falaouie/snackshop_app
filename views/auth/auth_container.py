@@ -3,19 +3,21 @@ from PyQt5.QtCore import Qt
 from .user_id_view import UserIDView
 from .pin_view import PinView
 from styles.auth import AuthStyles
-from config.screen_config import screen_config
+from styles.layouts import layout_config 
+# from config.screen_config import screen_config
 
 class AuthenticationContainer(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.valid_user_id = "1001"  # Hardcoded valid user ID
         
-        # Get container size from screen config
-        width = screen_config.get_size('auth_container_width')
-        height = screen_config.get_size('auth_container_height')
-        self.setFixedSize(width, height)
+        # Get container size from layout config
+        auth_layout = layout_config.get_instance().get_auth_layout()
+        self.setFixedSize(auth_layout['container_width'], 
+                         auth_layout['container_height'])
+        
         self.setStyleSheet(AuthStyles.CONTAINER(
-            screen_config.get_size('container_margin')
+            layout_config.get_instance().get_container_margin()
         ))
         self._setup_ui()
         self.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus

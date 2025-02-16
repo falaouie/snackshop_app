@@ -1,5 +1,3 @@
-from config.screen_config import screen_config
-
 class AuthStyles:
     """Authentication view styles"""
     
