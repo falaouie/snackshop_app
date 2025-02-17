@@ -3,10 +3,14 @@
 class LayoutSizes:
     """Layout sizes for different screen configurations"""
     SMALL = {
-        # Existing POS configs
+        # POS view configs
         'pos_top_bar_height': 50,
         'pos_order_panel_width': 300,
         'pos_bottom_bar_height': 70,
+
+        # search input
+        'pos_search_input_width': 250,
+        'pos_search_input_height': 35,
 
         # Payment button configurations
         'payment_button_width': 120,
@@ -31,6 +35,24 @@ class LayoutSizes:
         'order_type_button_height': 36,
         'order_type_button_font_size': 13,
         'order_type_button_padding': 8,
+
+        # Product Grid & catg buttons Related
+        'pos_product_button_width': 120,
+        'pos_product_button_height': 50,
+        'pos_category_button_width': 100,
+        'pos_category_button_height': 35,
+        'pos_action_button_width': 120,
+        'pos_action_button_height': 45,
+
+        # Product button styling
+        'product_button_font_size': 14,
+        'product_button_padding': 5,
+        'product_button_radius': 4,
+
+        # Category button styling
+        'category_button_font_size': 13,
+        'category_button_padding': 5,
+        'category_button_radius': 4,
 
         # Auth container sizes
         'auth_container_width': 350,
@@ -61,6 +83,10 @@ class LayoutSizes:
         'action_button_height': 40,
         'signin_button_width': 120,
         'signin_button_height': 40,
+
+        # General button properties
+        'button_border_radius': 4,
+        'button_padding': 8,
         
         # Logo dimensions
         'logo_width': 200,
@@ -73,10 +99,14 @@ class LayoutSizes:
     }
 
     MEDIUM = {
-        # Existing POS configs
+        # POS view configs
         'pos_top_bar_height': 60,
         'pos_order_panel_width': 350,
         'pos_bottom_bar_height': 80,
+
+        # search input
+        'pos_search_input_width': 300,
+        'pos_search_input_height': 40,
 
         # Payment button configurations
         'payment_button_width': 120,  # SMALL value example
@@ -101,6 +131,24 @@ class LayoutSizes:
         'order_type_button_height': 36,
         'order_type_button_font_size': 13,
         'order_type_button_padding': 8,
+
+        # Product Grid Related
+        'pos_product_button_width': 140,
+        'pos_product_button_height': 60,
+        'pos_category_button_width': 120,
+        'pos_category_button_height': 40,
+        'pos_action_button_width': 140,
+        'pos_action_button_height': 50,
+
+        # Product button styling
+        'product_button_font_size': 14,
+        'product_button_padding': 5,
+        'product_button_radius': 4,
+
+        # Category button styling
+        'category_button_font_size': 13,
+        'category_button_padding': 5,
+        'category_button_radius': 4,
                 
         # Auth container sizes
         'auth_container_width': 450,
@@ -131,6 +179,10 @@ class LayoutSizes:
         'action_button_height': 50,
         'signin_button_width': 160,
         'signin_button_height': 50,
+
+        # General button properties
+        'button_border_radius': 6,
+        'button_padding': 10,
         
         # Logo dimensions
         'logo_width': 300,
@@ -143,10 +195,14 @@ class LayoutSizes:
     }
 
     LARGE = {
-        # Existing POS configs
+        # POS view configs
         'pos_top_bar_height': 70,
         'pos_order_panel_width': 400,
         'pos_bottom_bar_height': 90,
+
+        # search input
+        'pos_search_input_width': 600,
+        'pos_search_input_height': 30,
 
         # Payment button configurations
         'payment_button_width': 120,  # SMALL value example
@@ -171,6 +227,24 @@ class LayoutSizes:
         'order_type_button_height': 50,
         'order_type_button_font_size': 13,
         'order_type_button_padding': 8,
+
+        # Product Grid Related
+        'pos_product_button_width': 160,
+        'pos_product_button_height': 70,
+        'pos_category_button_width': 140,
+        'pos_category_button_height': 45,
+        'pos_action_button_width': 160,
+        'pos_action_button_height': 55,
+
+        # Product button styling
+        'product_button_font_size': 14,
+        'product_button_padding': 5,
+        'product_button_radius': 4,
+
+        # Category button styling
+        'category_button_font_size': 13,
+        'category_button_padding': 5,
+        'category_button_radius': 4,
         
         # Auth container sizes
         'auth_container_width': 500,
@@ -201,6 +275,10 @@ class LayoutSizes:
         'action_button_height': 60,
         'signin_button_width': 200,
         'signin_button_height': 60,
+
+        # General button properties
+        'button_border_radius': 8,
+        'button_padding': 12,
         
         # Logo dimensions
         'logo_width': 300,
@@ -232,7 +310,11 @@ class LayoutConfig:
         return {
             'top_bar_height': self.screen_config.get_size('pos_top_bar_height'),
             'order_panel_width': self.screen_config.get_size('pos_order_panel_width'),
-            'bottom_bar_height': self.screen_config.get_size('pos_bottom_bar_height')
+            'bottom_bar_height': self.screen_config.get_size('pos_bottom_bar_height'),
+            'search_input': {
+                'width': self.screen_config.get_size('pos_search_input_width'),
+                'height': self.screen_config.get_size('pos_search_input_height')
+            }
         }
     
     def get_auth_layout(self):
@@ -272,10 +354,6 @@ class LayoutConfig:
             'padding': self.screen_config.get_size('keypad_padding')
         }
     
-    # def get_section_spacing(self):
-    #     """Get spacing between major sections"""
-    #     return self.screen_config.get_size('section_spacing')
-    
     def get_action_buttons_config(self):
         """Get action and signin button configurations"""
         return {
@@ -306,27 +384,50 @@ class LayoutConfig:
                 'height': self.screen_config.get_size('payment_button_height'),
                 'font_size': self.screen_config.get_size('payment_button_font_size'),
                 'padding': self.screen_config.get_size('payment_button_padding'),
+                'border_radius': self.screen_config.get_size('button_border_radius'), 
             },
             'transaction': {
                 'width': self.screen_config.get_size('transaction_button_width'),
                 'height': self.screen_config.get_size('transaction_button_height'),
                 'font_size': self.screen_config.get_size('transaction_button_font_size'),
                 'padding': self.screen_config.get_size('transaction_button_padding'),
+                'border_radius': self.screen_config.get_size('button_border_radius'), 
             },
             'horizontal': {
                 'width': self.screen_config.get_size('horizontal_button_width'),
                 'height': self.screen_config.get_size('horizontal_button_height'),
                 'font_size': self.screen_config.get_size('horizontal_button_font_size'),
                 'padding': self.screen_config.get_size('horizontal_button_padding'),
+                'border_radius': self.screen_config.get_size('button_border_radius'), 
             },
             'order_type': {
                 'width': self.screen_config.get_size('order_type_button_width'),
                 'height': self.screen_config.get_size('order_type_button_height'),
                 'font_size': self.screen_config.get_size('order_type_button_font_size'),
                 'padding': self.screen_config.get_size('order_type_button_padding'),
+                'border_radius': self.screen_config.get_size('button_border_radius'), 
             }
             
         }[button_type]
+
+    def get_product_grid_config(self):
+        """Get product grid related button configurations"""
+        return {
+            'product_button': {
+                'width': self.screen_config.get_size('pos_product_button_width'),
+                'height': self.screen_config.get_size('pos_product_button_height'),
+                'font_size': self.screen_config.get_size('product_button_font_size'),
+                'padding': self.screen_config.get_size('product_button_padding'),
+                'radius': self.screen_config.get_size('product_button_radius')
+            },
+            'category_button': {
+                'width': self.screen_config.get_size('pos_category_button_width'),
+                'height': self.screen_config.get_size('pos_category_button_height'),
+                'font_size': self.screen_config.get_size('category_button_font_size'),
+                'padding': self.screen_config.get_size('category_button_padding'),
+                'radius': self.screen_config.get_size('category_button_radius')
+            }
+        }
 
 # Function to initialize the layout config
 def init_layout_config(screen_config):

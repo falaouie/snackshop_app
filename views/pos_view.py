@@ -21,7 +21,7 @@ from button_definitions.product import ProductButtonConfig
 from button_definitions.category import CategoryButtonConfig
 from styles.buttons import ButtonStyles
 from styles import POSStyles, AppStyles
-from config.screen_config import screen_config
+# from config.screen_config import screen_config
 from models.product_catalog import (
     CATEGORIES,
     PRODUCTS_BY_CATEGORY,
@@ -36,7 +36,7 @@ class POSView(QWidget):
     def __init__(self, user_id, parent=None):
         super().__init__(parent)
         self.user_id = user_id
-        self.screen_config = screen_config
+        # self.screen_config = screen_config
         self.layout_config = layout_config.get_instance()
         self.order_items = []
         self.exchange_rate = 90000
@@ -78,7 +78,7 @@ class POSView(QWidget):
         # Left Side - Order Details
         self.order_widget = self._create_order_widget()
         self.order_widget.setStyleSheet(POSStyles.ORDER_PANEL(
-            self.screen_config.get_size('pos_order_panel_width')
+            self.layout_config.get_pos_layout()['order_panel_width']
         ))
         content_splitter.addWidget(self.order_widget)
         
@@ -96,9 +96,10 @@ class POSView(QWidget):
 
     def _create_top_bar(self):
         """Create top bar with employee info, search, and lock button"""
+        pos_layout = self.layout_config.get_pos_layout()
         self.top_bar = QFrame()
         self.top_bar.setStyleSheet(POSStyles.TOP_BAR(
-            self.screen_config.get_size('pos_top_bar_height')
+            pos_layout['top_bar_height']
         ))
         
         # Main layout
@@ -155,8 +156,8 @@ class POSView(QWidget):
         self.search_input = SearchLineEdit(self)
         self.search_input.setPlaceholderText("Search products...")
         self.search_input.setStyleSheet(POSStyles.SEARCH_INPUT(
-            self.screen_config.get_size('pos_search_input_width'),
-            self.screen_config.get_size('pos_search_input_height')
+            pos_layout['search_input']['width'],
+            pos_layout['search_input']['height']
         ))
 
         # Add search elements to search layout
@@ -196,7 +197,7 @@ class POSView(QWidget):
         """Create order panel"""
         order_frame = QFrame()
         order_frame.setStyleSheet(POSStyles.ORDER_PANEL(
-            self.screen_config.get_size('pos_order_panel_width')
+            self.layout_config.get_pos_layout()['order_panel_width']
         ))
         
         layout = QVBoxLayout(order_frame)
@@ -455,7 +456,12 @@ class POSView(QWidget):
             btn = QPushButton(config['text'])
             
             # Initial style (unselected)
+            grid_config = self.layout_config.get_product_grid_config()
             btn.setStyleSheet(ButtonStyles.get_category_button_style(is_selected=False))
+            btn.setFixedSize(
+                grid_config['category_button']['width'],
+                grid_config['category_button']['height']
+            )
             
             btn.clicked.connect(lambda checked, c=category: self._show_category_items(c))
             horizontal_layout.addWidget(btn)
@@ -641,9 +647,10 @@ class POSView(QWidget):
             # Create button with product config
             btn = QPushButton(product_config['text'])
             btn.setStyleSheet(product_style)
+            grid_config = self.layout_config.get_product_grid_config()
             btn.setFixedSize(
-                self.screen_config.get_size('pos_product_button_width'),
-                self.screen_config.get_size('pos_product_button_height')
+                grid_config['product_button']['width'],
+                grid_config['product_button']['height']
             )
             # Use lambda with default argument to capture current item value
             btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
@@ -669,8 +676,9 @@ class POSView(QWidget):
     def _create_bottom_bar(self):
         """Create bottom action bar"""
         self.bottom_bar = QFrame()
-        bottom_bar_height = self.screen_config.get_size('pos_bottom_bar_height')
-        self.bottom_bar.setStyleSheet(POSStyles.BOTTOM_BAR(bottom_bar_height))
+        self.bottom_bar.setStyleSheet(POSStyles.BOTTOM_BAR(
+            self.layout_config.get_pos_layout()['bottom_bar_height']
+        ))
         layout = QHBoxLayout(self.bottom_bar)
         layout.setContentsMargins(10, 5, 10, 10)
         layout.setSpacing(6)
@@ -771,9 +779,10 @@ class POSView(QWidget):
             # Logo
             logo_label = QLabel()
             pixmap = QPixmap("assets/images/silver_system_logo.png")
+            auth_layout = layout_config.get_instance().get_auth_layout()
             scaled_pixmap = pixmap.scaled(
-                QSize(screen_config.get_size('logo_width'), 
-                    screen_config.get_size('logo_height')),
+                QSize(auth_layout['logo_width'], 
+                    auth_layout['logo_height']),
                 Qt.KeepAspectRatio, 
                 Qt.SmoothTransformation
             )
@@ -850,11 +859,12 @@ class POSView(QWidget):
         # Add filtered product buttons
         for i, item in enumerate(filtered_items):
             btn = QPushButton(item)
+            grid_config = self.layout_config.get_product_grid_config()
             btn.setFixedSize(
-                    self.screen_config.get_size('pos_product_button_width'),
-                    self.screen_config.get_size('pos_product_button_height')
-                )
-            btn.setStyleSheet(POSStyles.get_product_button_style())  # Updated to use the method
+                grid_config['product_button']['width'],
+                grid_config['product_button']['height']
+            )
+            btn.setStyleSheet(ButtonStyles.get_product_button_style())
             btn.clicked.connect(lambda checked, name=item: self._handle_product_click(name))
             row = i // 3
             col = i % 3

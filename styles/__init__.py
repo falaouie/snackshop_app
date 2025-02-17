@@ -8,7 +8,12 @@ __all__ = ['BaseStyles', 'ButtonStyles', 'POSStyles', 'AppStyles', 'LayoutConfig
 
 def init_styles(screen_config):
     """Initialize all style-related configurations"""
-    ButtonStyles.init_screen_config(screen_config)
+
     POSStyles.init_screen_config(screen_config)
+
+    # Initialize layout_config
     layout_config = init_layout_config(screen_config)
+
+    # Initialize layout_config for ButtonStyles
+    ButtonStyles.init_layout_config(layout_config)
     return layout_config

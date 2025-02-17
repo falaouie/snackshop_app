@@ -14,33 +14,39 @@ from button_definitions.types import (
 
 class ButtonStyles:
     """Centralized button style generators"""
-    screen_config = None  # Will be set during initialization
-    
+    # screen_config = None  # Will be set during initialization
+    layout_config = None
+
+    # @classmethod
+    # def init_screen_config(cls, config):
+    #     """Initialize screen configuration"""
+    #     cls.screen_config = config
+
     @classmethod
-    def init_screen_config(cls, config):
-        """Initialize screen configuration"""
-        cls.screen_config = config
+    def init_layout_config(cls, config):
+        """Initialize layout configuration"""
+        cls.layout_config = config
     
     @classmethod
     def get_payment_button_style(cls, button_type):
         """Generate payment button style based on configuration"""
-        if not cls.screen_config:
+        if not cls._check_config():
             return ""
-            
+                
         config = PaymentButtonConfig.get_config(PaymentButtonType(button_type))
         if not config:
             return ""
-            
-        sizes = cls.screen_config.get_size('payment_button')
+                
+        button_config = cls.layout_config.get_button_config('payment')
         
         return f"""
             QPushButton {{
                 background-color: {config['colors']['primary']};
                 color: {config['colors']['text']};
                 border: none;
-                border-radius: {sizes['border_radius']}px;
-                padding: {sizes['padding']}px;
-                font-size: {sizes['font_size']}px;
+                border-radius: {button_config['border_radius']}px;
+                padding: {button_config['padding']}px;
+                font-size: {button_config['font_size']}px;
                 font-weight: 500;
             }}
             QPushButton:hover {{
@@ -54,23 +60,23 @@ class ButtonStyles:
     @classmethod
     def get_transaction_button_style(cls, button_type):
         """Generate transaction button style based on configuration"""
-        if not cls.screen_config:
+        if not cls._check_config():
             return ""
-            
+                
         config = TransactionButtonConfig.get_config(TransactionButtonType(button_type))
         if not config:
             return ""
-            
-        sizes = cls.screen_config.get_size('transaction_button')
+                
+        button_config = cls.layout_config.get_button_config('transaction')
         
         return f"""
             QPushButton {{
                 background-color: {config['colors']['primary']};
                 color: {config['colors']['text']};
                 border: none;
-                border-radius: {sizes['border_radius']}px;
-                padding: {sizes['padding']}px;
-                font-size: {sizes['font_size']}px;
+                border-radius: {button_config['border_radius']}px;
+                padding: {button_config['padding']}px;
+                font-size: {button_config['font_size']}px;
                 font-weight: 500;
             }}
             QPushButton:hover {{
@@ -81,23 +87,23 @@ class ButtonStyles:
     @classmethod
     def get_horizontal_button_style(cls, button_type):
         """Generate horizontal button style based on configuration"""
-        if not cls.screen_config:
+        if not cls._check_config():
             return ""
-            
+                
         config = HorizontalButtonConfig.get_config(HorizontalButtonType(button_type))
         if not config:
             return ""
-            
-        sizes = cls.screen_config.get_size('horizontal_button')
+                
+        button_config = cls.layout_config.get_button_config('horizontal')
         
         return f"""
             QPushButton {{
                 background-color: {config['colors']['primary']};
                 color: {config['colors']['text']};
                 border: none;
-                border-radius: {sizes['border_radius']}px;
-                padding: {sizes['padding']}px;
-                font-size: {sizes['font_size']}px;
+                border-radius: {button_config['border_radius']}px;
+                padding: {button_config['padding']}px;
+                font-size: {button_config['font_size']}px;
                 font-weight: 500;
             }}
             QPushButton:hover {{
@@ -108,22 +114,21 @@ class ButtonStyles:
     @classmethod
     def get_order_button_style(cls):
         """Generate order type button style"""
-        if not cls.screen_config:
+        if not cls._check_config():
             return ""
-            
-        sizes = cls.screen_config.get_size('order_type_button')
+                
+        button_config = cls.layout_config.get_button_config('order_type')
         config = OrderButtonConfig.DEFAULTS
         
         return f"""
             QPushButton {{
                 background: {config['background']};
                 border: 1px solid {config['border_color']};
-                border-radius: {sizes['border_radius']}px;
-                padding: {sizes['padding']}px;
+                border-radius: {button_config['border_radius']}px;
+                padding: {button_config['padding']}px;
                 color: {config['text_color']};
-                font-size: {sizes['font_size']}px;
-                height: {sizes['height']}px;
-                min-width: {sizes['min_width']}px;
+                font-size: {button_config['font_size']}px;
+                min-width: {button_config['width']}px;
             }}
             QPushButton:hover {{
                 background: {config['background_hover']};
@@ -138,18 +143,22 @@ class ButtonStyles:
 
     @classmethod
     def get_category_button_style(cls, is_selected=False):
-        """Generate category button style"""
+        """Generate category button style without size properties"""
+        if not cls._check_config():
+            return ""
+        
         config = CategoryButtonConfig.DEFAULTS
+        grid_config = cls.layout_config.get_product_grid_config()
         
         if is_selected:
             return f"""
                 QPushButton {{
                     background: {config['selected_background']};
                     border: none;
-                    border-radius: 4px;
-                    padding: 5px;
+                    border-radius: {grid_config['category_button']['radius']}px;
+                    padding: {grid_config['category_button']['padding']}px;
                     color: {config['selected_text_color']};
-                    font-size: 13px;
+                    font-size: {grid_config['category_button']['font_size']}px;
                     font-weight: 500;
                 }}
                 QPushButton:hover {{
@@ -161,10 +170,10 @@ class ButtonStyles:
                 QPushButton {{
                     background: {config['background']};
                     border: 1px solid {config['border_color']};
-                    border-radius: 4px;
-                    padding: 5px;
+                    border-radius: {grid_config['category_button']['radius']}px;
+                    padding: {grid_config['category_button']['padding']}px;
                     color: {config['text_color']};
-                    font-size: 13px;
+                    font-size: {grid_config['category_button']['font_size']}px;
                 }}
                 QPushButton:hover {{
                     background: {config['hover_background']};
@@ -174,22 +183,22 @@ class ButtonStyles:
 
     @classmethod
     def get_product_button_style(cls):
-        """Generate product button style"""
-        if not cls.screen_config:
+        """Generate product button style without size properties"""
+        if not cls._check_config():
             return ""
-            
+        
         config = ProductButtonConfig.DEFAULTS
+        grid_config = cls.layout_config.get_product_grid_config()
+        
         return f"""
             QPushButton {{
                 background: {config['background']};
                 border: 1px solid {config['border_color']};
-                border-radius: {cls.screen_config.get_size('button_border_radius')}px;
-                padding: {cls.screen_config.get_size('button_padding')}px;
+                border-radius: {grid_config['product_button']['radius']}px;
+                padding: {grid_config['product_button']['padding']}px;
                 color: {config['text_color']};
                 font-weight: {config['font_weight']};
-                font-size: 14px;
-                width: {cls.screen_config.get_size('pos_product_button_width')}px;
-                height: {cls.screen_config.get_size('pos_product_button_height')}px;
+                font-size: {grid_config['product_button']['font_size']}px;
             }}
             QPushButton:hover {{
                 background: {config['background_hover']};
@@ -199,3 +208,13 @@ class ButtonStyles:
                 background: {config['background_pressed']};
             }}
         """
+    
+    @classmethod
+    def _check_config(cls):
+        """Common configuration check
+        Returns:
+            bool: True if configuration is valid, False otherwise
+        """
+        if not cls.layout_config:
+            return False
+        return True
