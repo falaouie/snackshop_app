@@ -239,8 +239,8 @@ class ScreenConfig:
 
         # Transaction button configurations
         'transaction_button': {
-            'width': 140,
-            'height': 50,
+            # 'width': 140,
+            # 'height': 50,
             'font_size': 16,
             'padding': 8,
             'border_radius': 8
@@ -248,8 +248,8 @@ class ScreenConfig:
 
         # Horizontal button configurations
         'horizontal_button': {
-            'width': 130,
-            'height': 45,
+            # 'width': 130,
+            # 'height': 45,
             'font_size': 16,
             'padding': 6,
             'border_radius': 8

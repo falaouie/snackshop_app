@@ -7,7 +7,31 @@ class LayoutSizes:
         'pos_top_bar_height': 50,
         'pos_order_panel_width': 300,
         'pos_bottom_bar_height': 70,
+
+        # Payment button configurations
+        'payment_button_width': 120,
+        'payment_button_height': 45,
+        'payment_button_font_size': 16,
+        'payment_button_padding': 8,
+
+        # Horizontal button configurations
+        'horizontal_button_width': 90,
+        'horizontal_button_height': 35,
+        'horizontal_button_font_size': 13,
+        'horizontal_button_padding': 4,
+
+        # Transaction button configurations
+        'transaction_button_width': 100,
+        'transaction_button_height': 40,
+        'transaction_button_font_size': 13,
+        'transaction_button_padding': 5,
         
+        # Order type button configurations
+        'order_type_button_width': 100,
+        'order_type_button_height': 36,
+        'order_type_button_font_size': 13,
+        'order_type_button_padding': 8,
+
         # Auth container sizes
         'auth_container_width': 350,
         'auth_container_height': 400,
@@ -53,7 +77,31 @@ class LayoutSizes:
         'pos_top_bar_height': 60,
         'pos_order_panel_width': 350,
         'pos_bottom_bar_height': 80,
-        
+
+        # Payment button configurations
+        'payment_button_width': 120,  # SMALL value example
+        'payment_button_height': 45,
+        'payment_button_font_size': 16,
+        'payment_button_padding': 8,
+
+        # Transaction button configurations
+        'transaction_button_width': 100,
+        'transaction_button_height': 40,
+        'transaction_button_font_size': 13,
+        'transaction_button_padding': 5,
+
+        # Horizontal button configurations
+        'horizontal_button_width': 90,
+        'horizontal_button_height': 35,
+        'horizontal_button_font_size': 13,
+        'horizontal_button_padding': 4,
+
+        # Order type button configurations
+        'order_type_button_width': 100,
+        'order_type_button_height': 36,
+        'order_type_button_font_size': 13,
+        'order_type_button_padding': 8,
+                
         # Auth container sizes
         'auth_container_width': 450,
         'auth_container_height': 500,
@@ -99,6 +147,30 @@ class LayoutSizes:
         'pos_top_bar_height': 70,
         'pos_order_panel_width': 400,
         'pos_bottom_bar_height': 90,
+
+        # Payment button configurations
+        'payment_button_width': 120,  # SMALL value example
+        'payment_button_height': 45,
+        'payment_button_font_size': 16,
+        'payment_button_padding': 8,
+
+        # Transaction button configurations
+        'transaction_button_width': 100,
+        'transaction_button_height': 40,
+        'transaction_button_font_size': 13,
+        'transaction_button_padding': 5,
+
+        # Horizontal button configurations
+        'horizontal_button_width': 90,
+        'horizontal_button_height': 35,
+        'horizontal_button_font_size': 13,
+        'horizontal_button_padding': 4,
+
+        # Order type button configurations
+        'order_type_button_width': 100,
+        'order_type_button_height': 50,
+        'order_type_button_font_size': 13,
+        'order_type_button_padding': 8,
         
         # Auth container sizes
         'auth_container_width': 500,
@@ -225,6 +297,36 @@ class LayoutConfig:
             'padding': self.screen_config.get_size('digit_padding'),
             'font_size': self.screen_config.get_size('digit_font_size')
         }
+    
+    def get_button_config(self, button_type):
+        """Get button configurations based on type"""
+        return {
+            'payment': {
+                'width': self.screen_config.get_size('payment_button_width'),
+                'height': self.screen_config.get_size('payment_button_height'),
+                'font_size': self.screen_config.get_size('payment_button_font_size'),
+                'padding': self.screen_config.get_size('payment_button_padding'),
+            },
+            'transaction': {
+                'width': self.screen_config.get_size('transaction_button_width'),
+                'height': self.screen_config.get_size('transaction_button_height'),
+                'font_size': self.screen_config.get_size('transaction_button_font_size'),
+                'padding': self.screen_config.get_size('transaction_button_padding'),
+            },
+            'horizontal': {
+                'width': self.screen_config.get_size('horizontal_button_width'),
+                'height': self.screen_config.get_size('horizontal_button_height'),
+                'font_size': self.screen_config.get_size('horizontal_button_font_size'),
+                'padding': self.screen_config.get_size('horizontal_button_padding'),
+            },
+            'order_type': {
+                'width': self.screen_config.get_size('order_type_button_width'),
+                'height': self.screen_config.get_size('order_type_button_height'),
+                'font_size': self.screen_config.get_size('order_type_button_font_size'),
+                'padding': self.screen_config.get_size('order_type_button_padding'),
+            }
+            
+        }[button_type]
 
 # Function to initialize the layout config
 def init_layout_config(screen_config):

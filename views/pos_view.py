@@ -30,11 +30,14 @@ from models.product_catalog import (
     get_product_price
 )
 
+from styles.layouts import layout_config
+
 class POSView(QWidget):
     def __init__(self, user_id, parent=None):
         super().__init__(parent)
         self.user_id = user_id
         self.screen_config = screen_config
+        self.layout_config = layout_config.get_instance()
         self.order_items = []
         self.exchange_rate = 90000
         self.horizontal_category_buttons = {}
@@ -278,9 +281,10 @@ class POSView(QWidget):
             config = HorizontalButtonConfig.get_config(button_type)
             btn = QPushButton(config['text'])
             btn.setStyleSheet(ButtonStyles.get_horizontal_button_style(button_type))
+            button_config = self.layout_config.get_button_config('horizontal')
             btn.setFixedSize(
-                self.screen_config.get_size('horizontal_button.width'),
-                self.screen_config.get_size('horizontal_button.height')
+                button_config['width'],
+                button_config['height']
             )
             if config['action']:
                 btn.clicked.connect(getattr(self, config['action']))
@@ -491,9 +495,10 @@ class POSView(QWidget):
             config = TransactionButtonConfig.get_config(button_type)
             btn = QPushButton(config['text'])
             btn.setStyleSheet(ButtonStyles.get_transaction_button_style(button_type))
+            button_config = self.layout_config.get_button_config('transaction')
             btn.setFixedSize(
-                self.screen_config.get_size('transaction_button.width'),
-                self.screen_config.get_size('transaction_button.height')
+                button_config['width'],
+                button_config['height']
             )
             if config['action']:
                 btn.clicked.connect(getattr(self, config['action']))
@@ -538,7 +543,7 @@ class POSView(QWidget):
         totals_layout = QHBoxLayout(self.totals_frame)
         totals_layout.setContentsMargins(15, 10, 15, 10)
         totals_layout.setSpacing(20)  # Increased spacing between sections
-        
+
         # Order Type Buttons Section (Left)
         order_buttons_container = QFrame()
         order_buttons_layout = QHBoxLayout(order_buttons_container)
@@ -546,11 +551,16 @@ class POSView(QWidget):
         order_buttons_layout.setSpacing(10)
 
         button_style = ButtonStyles.get_order_button_style()
-        
+        button_config = self.layout_config.get_button_config('order_type')
+
         for button_type in OrderButtonType:
             config = OrderButtonConfig.get_config(button_type)
             btn = QPushButton(config['text'])
             btn.setStyleSheet(button_style)
+            btn.setFixedSize(
+                button_config['width'],
+                button_config['height']
+            )
             btn.setCheckable(True)
             if config.get('default_selected', False):
                 btn.setChecked(True)
@@ -671,10 +681,12 @@ class POSView(QWidget):
             config = PaymentButtonConfig.get_config(button_type)
             btn = QPushButton(config['text'])
             btn.setStyleSheet(ButtonStyles.get_payment_button_style(button_type))
+            button_config = self.layout_config.get_button_config('payment')
             btn.setFixedSize(
-                self.screen_config.get_size('payment_button.width'),
-                self.screen_config.get_size('payment_button.height')
+                button_config['width'],
+                button_config['height']
             )
+            
             if config['action']:
                 btn.clicked.connect(getattr(self, config['action']))
             layout.addWidget(btn)
