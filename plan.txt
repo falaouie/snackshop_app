@@ -1,0 +1,190 @@
+if we were to implement the below refatocring plan for pos_view.py.
+
+can we implement one section a time, example A. Create OrderItem, test before moving on to B. Create OrderListWidget then test before moving on to C etc...
+
+if yes, what files do you want to look at to give you better understanding for you code structure.
+
+REFACTORING PLAN: POS_VIEW.PY
+
+Create New Files Structure:
+
+root/
+├── views/
+│   ├── pos_view.py             # Stays in current location for now
+├── components/
+│   ├── keyboard.py             # Existing keyboard component
+│   └── pos/                    # New subfolder for POS components
+│       ├── __init__.py
+│       ├── order_list_widget.py
+│       ├── product_grid_widget.py
+│       ├── totals_widget.py
+│       └── search_widget.py
+├── models/                     # Existing models folder
+│   ├── __init__.py
+│   ├── product_catalog.py      # Existing catalog
+│   ├── order_item.py          # New order item model - same level as product_catalog.py
+│   └── pos/                    # New subfolder for POS models
+│       └── __init__.py
+
+Refactoring Steps:
+
+A. Create OrderItem Model (order_item.py):
+
+Move OrderItem class from pos_view.py
+Add properties for quantity, price, name
+Add methods for total calculation
+
+
+B. Create OrderListWidget (order_list_widget.py):
+
+Extract order list UI and logic
+Handle item display and selection
+Manage order items collection
+Provide signals for item selection/changes
+Handle quantity summary display
+Include order action buttons (void, clear, etc.)
+
+C. Create ProductGridWidget (product_grid_widget.py):
+
+Extract product grid UI and logic
+Handle category switching
+Manage product buttons creation
+Handle product filtering
+Emit signals for product selection
+
+D. Create TotalsWidget (totals_widget.py):
+
+Extract totals UI and logic
+Handle order type buttons
+Manage total calculations
+Display USD and LBP amounts
+Emit signals for order type changes
+
+E. Create SearchWidget (search_widget.py):
+
+Extract search UI and logic
+Handle search input
+Emit signals for search changes
+
+F. Update Main POSView (pos_view.py):
+
+Convert to container/coordinator role
+Manage communication between components
+Handle top-level state
+Coordinate view transitions
+
+
+Implementation Order:
+Create folder structure
+Create OrderItem model
+Extract OrderListWidget
+Extract ProductGridWidget
+Extract TotalsWidget
+Extract SearchWidget
+Refactor main POSView
+Update imports and connections
+Key Requirements for Each Component:
+
+A. OrderListWidget:
+
+Signals:
+
+item_selected(order_item)
+item_removed(order_item)
+order_cleared()
+
+
+Public Methods:
+
+add_item(product_name, price)
+remove_item(order_item)
+clear_order()
+update_item(order_item)
+
+
+Properties:
+
+total_amount
+items_count
+
+
+
+B. ProductGridWidget:
+
+Signals:
+
+product_selected(product_name)
+category_changed(category)
+
+
+Public Methods:
+
+set_category(category_name)
+filter_products(search_text)
+update_grid()
+
+
+Properties:
+
+current_category
+
+
+
+C. TotalsWidget:
+
+Signals:
+
+order_type_changed(type)
+payment_requested(method)
+
+
+Public Methods:
+
+update_totals(amount)
+set_order_type(type)
+
+
+Properties:
+
+current_total_usd
+current_total_lbp
+
+
+
+D. SearchWidget:
+
+Signals:
+
+search_changed(text)
+
+
+Public Methods:
+
+clear_search()
+
+
+Properties:
+
+current_text
+
+
+
+
+Main POSView Responsibilities:
+
+
+Initialize all components
+Connect signals and slots
+Manage layout
+Handle view transitions
+Coordinate component interactions
+
+
+After Refactoring:
+
+
+Each component will be independently testable
+Clear separation of concerns
+Easier to add new features
+Better state management
+Cleaner code organization

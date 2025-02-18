@@ -30,6 +30,8 @@ from models.product_catalog import (
 )
 
 from styles.layouts import layout_config
+from models.order_item import OrderItem
+from components.pos.order_list_widget import OrderListWidget
 
 class POSView(QWidget):
     def __init__(self, user_id, parent=None):
@@ -194,74 +196,20 @@ class POSView(QWidget):
     def _create_order_widget(self):
         """Create order panel"""
         order_frame = QFrame()
-        order_frame.setStyleSheet(POSStyles.ORDER_PANEL(
-            self.layout_config.get_pos_layout()['order_panel_width']
-        ))
-        
+
         layout = QVBoxLayout(order_frame)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         
-        # Order Header
-        header_frame = QFrame()
-        header_frame.setStyleSheet("""
-            QFrame {
-                background: #F8F9FA;
-                border: none;
-            }
-            QLabel {
-                color: #2196F3;
-                font-size: 16px;
-                font-weight: 500;
-            }
-        """)
-        header_layout = QHBoxLayout(header_frame)
-        header_layout.setContentsMargins(10, 5, 0, 5)  # left, top, right, and bottom
+        # Create OrderListWidget
+        self.order_list = OrderListWidget()
+        layout.addWidget(self.order_list)
         
-        order_label = QLabel("ORDER # 1234")
+        # Connect signals
+        self.order_list.item_selected.connect(self._on_order_item_selected)
+        self.order_list.item_removed.connect(self._on_order_item_removed)
+        self.order_list.order_cleared.connect(self._on_order_cleared)
         
-        menu_btn = QToolButton()
-        menu_btn.setText("⋮")
-        menu_btn.setStyleSheet("""
-            QToolButton {
-                border: none;
-                color: #2196F3;
-                font-size: 20px;
-                font-weight: bold;
-                padding-left: 5px;
-                padding-right: 5px;
-            }
-            QToolButton:hover {
-                background: #EEEEEE;
-                border-radius: 4px;
-            }
-        """)
-        menu_btn.clicked.connect(self.on_dots_clicked)
-        
-        header_layout.addWidget(order_label)
-        header_layout.addStretch()
-        header_layout.addWidget(menu_btn)
-        
-        layout.addWidget(header_frame)
-        
-        # Order Items Area
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)   
-        scroll_area.setStyleSheet(POSStyles.SCROLL_AREA)
-        self.order_list_widget = QWidget()
-        self.order_list_widget.setStyleSheet(POSStyles.ORDER_LIST_WIDGET)
-        self.order_list_layout = QVBoxLayout(self.order_list_widget)
-        self.order_list_layout.setContentsMargins(5, 5, 5, 5)
-        self.order_list_layout.setSpacing(5)
-        self.order_list_layout.addStretch()
-        
-        scroll_area.setWidget(self.order_list_widget)
-        layout.addWidget(scroll_area)
-        
-        # Add quantity summary
-        self.quantity_summary = self._create_quantity_summary()
-        layout.addWidget(self.quantity_summary)
-
         # Add horizontal buttons section
         horizontal_buttons_frame = QFrame()
         horizontal_buttons_frame.setStyleSheet("""
@@ -292,123 +240,28 @@ class POSView(QWidget):
         layout.addWidget(horizontal_buttons_frame)
 
         return order_frame
-    
-    def add_order_item(self, item_name):
-        """Add an item to the order or increment its quantity if it exists"""
-        # Find if item already exists in order
-        existing_item = None
-        for item in self.order_items:
-            if item.name == item_name:
-                existing_item = item
-                break
-        
-        if existing_item:
-            existing_item.quantity += 1
-            self._update_order_display()
-        else:
-            # Create new order item
-            price = self.prices.get(item_name, 0)
-            new_item = OrderItem(item_name, price)
-            self.order_items.append(new_item)
-            self._add_item_to_display(new_item)
-            # Update quantity summary when adding new item
-            self._update_quantity_summary()
-        
+
+    def _on_order_item_selected(self, item):
+        """Handle order item selection"""
+        self.selected_item = item
+
+    def _on_order_item_removed(self, item):
+        """Handle order item removal"""
         self._update_totals()
 
-    def _add_item_to_display(self, item):
-        """Add a new item row to the order display"""
-        # Remove stretch if exists
-        for i in reversed(range(self.order_list_layout.count())):
-            if self.order_list_layout.itemAt(i).widget() is None:
-                self.order_list_layout.takeAt(i)
-        
-        # Create item row
-        item_widget = QFrame()
-        item_widget.setProperty('selected', False)  # Track selection state
-        item_widget.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-bottom: 1px solid #EEEEEE;
-                padding: 2px;
-            }
-            QFrame[selected="true"] {
-                background: #E3F2FD;
-                border: 1px solid #2196F3;
-                border-radius: 4px;
-            }
-            QLabel {
-                color: #333;
-            }
-        """)
-        
-        item_layout = QHBoxLayout(item_widget)
-        item_layout.setContentsMargins(5, 2, 5, 2)
-        
-        # Quantity
-        qty_label = QLabel(str(item.quantity))
-        qty_label.setFixedWidth(30)
-        qty_label.setAlignment(Qt.AlignCenter)
-        
-        # Name
-        name_label = QLabel(item.name)
-        
-        # Total
-        total_label = QLabel(f"{item.get_total():.2f}")
-        total_label.setAlignment(Qt.AlignRight)
-        total_label.setFixedWidth(60)
-        
-        item_layout.addWidget(qty_label)
-        item_layout.addWidget(name_label)
-        item_layout.addWidget(total_label)
-        
-        # Store reference to the order item
-        item_widget.order_item = item
-        
-        # Add click handling
-        item_widget.mousePressEvent = lambda event, widget=item_widget: self._on_item_clicked(widget, event)
-        
-        self.order_list_layout.addWidget(item_widget)
-        self.order_list_layout.addStretch()
+    def _on_order_cleared(self):
+        """Handle order cleared"""
+        self._update_totals()
 
-    def _on_item_clicked(self, widget, event):
-        """Handle item selection but allow the event to propagate."""
-        if event.button() == Qt.LeftButton:
-            # Handle item selection
-            for i in range(self.order_list_layout.count()):
-                item = self.order_list_layout.itemAt(i).widget()
-                if item and isinstance(item, QFrame):
-                    item.setProperty('selected', False)
-                    item.style().unpolish(item)
-                    item.style().polish(item)
-            
-            widget.setProperty('selected', True)
-            widget.style().unpolish(widget)
-            widget.style().polish(widget)
-            self.selected_item = widget
-
-        # Pass event to the default handler
-        QWidget.mousePressEvent(widget, event)
-
-
-    def _update_order_display(self):
-        """Update the entire order display"""
-        # Clear current display
-        for i in reversed(range(self.order_list_layout.count())):
-            widget = self.order_list_layout.itemAt(i).widget()
-            if widget:
-                widget.deleteLater()
-        
-        # Add all items
-        for item in self.order_items:
-            self._add_item_to_display(item)
-        
-        # Update quantity summary
-        self._update_quantity_summary()
-
+    def add_order_item(self, item_name):
+        """Add an item to the order"""
+        price = self.prices.get(item_name, 0)
+        self.order_list.add_item(item_name, price)
+        self._update_totals()
+    
     def _update_totals(self):
         """Update the total amounts in USD and LBP"""
-        total_usd = sum(item.get_total() for item in self.order_items)
+        total_usd = self.order_list.total_amount
         total_lbp = total_usd * self.exchange_rate
         
         self.usd_amount.setText(f"${total_usd:.2f}")
@@ -724,39 +577,6 @@ class POSView(QWidget):
         if action == clear_item:
             self._void_selected_item()
 
-    def _clear_order(self):
-        """Clear all items from the current order"""
-        # Show confirmation dialog
-        reply = QMessageBox.question(
-            self,
-            'Clear Order',
-            'Are you sure you want to clear the current order?',
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
-        
-        if reply == QMessageBox.Yes:
-            # Clear order items
-            self.order_items = []
-            
-            # Update display
-            self._update_order_display()
-            self._update_totals()
-            self._update_quantity_summary() 
-
-    def _void_selected_item(self):
-        """Remove the selected item from the order"""
-        if self.selected_item and hasattr(self.selected_item, 'order_item'):
-            # Remove item from order items list
-            self.order_items.remove(self.selected_item.order_item)
-            
-            # Clear selection
-            self.selected_item = None
-            
-            # Update display
-            self._update_order_display()
-            self._update_totals()
-
     def _handle_lock(self):
         """Handle lock button click - return to PIN view"""
         # Import here to avoid circular import
@@ -816,34 +636,9 @@ class POSView(QWidget):
         self.search_input.clear()
         self._show_category_items(self.selected_horizontal_category)
 
-    def _create_quantity_summary(self):
-        """Create frame showing total quantity and unique items"""
-        summary_frame = QFrame()
-        summary_frame.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-top: 1px solid #DEDEDE;
-            }
-            QLabel {
-                color: #666;
-                font-size: 13px;
-            }
-        """)
-        
-        summary_layout = QHBoxLayout(summary_frame)
-        summary_layout.setContentsMargins(15, 8, 15, 8)
-        
-        self.qty_summary_label = QLabel("Qty: 0 | Items: 0")
-        summary_layout.addWidget(self.qty_summary_label)
-        summary_layout.addStretch()
-        
-        return summary_frame
 
-    def _update_quantity_summary(self):
-        """Update the quantity summary label"""
-        total_qty = sum(item.quantity for item in self.order_items)
-        unique_items = len(self.order_items)
-        self.qty_summary_label.setText(f"Qty: {total_qty} | Items: {unique_items}")
+
+    
     
     def process_cash_payment(self):
         """Handle cash payment"""
@@ -914,14 +709,14 @@ class POSView(QWidget):
         """Handle no sale order action"""
         print("No Sale button clicked")
 
-class OrderItem:
-    def __init__(self, name, price):
-        self.name = name
-        self.price = price
-        self.quantity = 1
+# class OrderItem:
+#     def __init__(self, name, price):
+#         self.name = name
+#         self.price = price
+#         self.quantity = 1
 
-    def get_total(self):
-        return self.price * self.quantity
+#     def get_total(self):
+#         return self.price * self.quantity
     
 class SearchLineEdit(KeyboardEnabledInput):
     def __init__(self, parent=None):
