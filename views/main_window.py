@@ -1,12 +1,10 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
-from PyQt5.QtGui import QPixmap, QIcon, QPainter
-from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtSvg import QSvgRenderer
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout
+from PyQt5.QtCore import Qt
 from .auth.auth_container import AuthenticationContainer
+from .auth.top_bar import TopBar
+from .view_manager import ViewManager
 from styles.app import AppStyles 
-from styles.layouts import layout_config 
 from config.screen_config import screen_config
-from utilities.utils import ApplicationUtils
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -17,7 +15,7 @@ class MainWindow(QMainWindow):
         # Get screen dimensions from config
         screen_width, screen_height = screen_config.get_screen_dimensions()
         
-        # Set window size to 80% of screen dimensions (adjust ratio as needed)
+        # Set window size to 80% of screen dimensions
         self.window_width = int(screen_width)
         self.window_height = int(screen_height)
         self.setFixedSize(self.window_width, self.window_height)
@@ -28,6 +26,9 @@ class MainWindow(QMainWindow):
             (screen_height - self.window_height) // 2
         )
         
+        # Initialize ViewManager with this window
+        ViewManager.get_instance().initialize(self)
+        
         self._setup_ui()
 
     def _setup_ui(self):
@@ -37,47 +38,9 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(20, 20, 20, 20)
         
-        # Top bar with logo
-        top_bar = QHBoxLayout()
-        
-        # Logo
-        logo_label = QLabel()
-        pixmap = QPixmap("assets/images/silver_system_logo.png")
-        auth_layout = layout_config.get_instance().get_auth_layout()
-        scaled_pixmap = pixmap.scaled(
-            QSize(auth_layout['logo_width'], 
-                 auth_layout['logo_height']),
-            Qt.KeepAspectRatio, 
-            Qt.SmoothTransformation
-        )
-        logo_label.setPixmap(scaled_pixmap)
-        logo_label.setStyleSheet(AppStyles.LOGO_CONTAINER)
-        top_bar.addWidget(logo_label)
-        top_bar.addStretch()  # Push logo to left
-        
-        # Exit button with SVG
-        exit_btn = QPushButton()
-        renderer = QSvgRenderer("assets/images/exit_app.svg")
-        pixmap = QPixmap(150, 150)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-        exit_btn.setIcon(QIcon(pixmap))
-        exit_btn.setIconSize(QSize(150, 150))
-        exit_btn.setStyleSheet("""
-            QPushButton {
-                background: transparent;
-                border: none;
-                padding: 0px;
-            }
-        """)
-        app_utils = ApplicationUtils()
-        exit_btn.clicked.connect(app_utils.close_application)
-
-        top_bar.addWidget(exit_btn)
-
-        main_layout.addLayout(top_bar)
+        # Add top bar
+        top_bar = TopBar(central_widget)
+        main_layout.addLayout(top_bar.layout())
         
         # Add vertical spacer to push content down
         main_layout.addStretch()
@@ -88,6 +51,7 @@ class MainWindow(QMainWindow):
         
         # Add authentication container
         self.auth_container = AuthenticationContainer()
+        ViewManager.get_instance().auth_container = self.auth_container
         center_layout.addWidget(self.auth_container)
         
         center_layout.addStretch()  # Push container left

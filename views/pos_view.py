@@ -1,10 +1,9 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter,
-                             QToolButton, QMenu, QMainWindow)
+                             QToolButton, QMenu, QMainWindow, QWidget)
 from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 from components.keyboard import KeyboardEnabledInput, VirtualKeyboard, KeyboardType
-
 from button_definitions.types import (
     PaymentButtonType,
     TransactionButtonType,
@@ -36,7 +35,6 @@ class POSView(QWidget):
     def __init__(self, user_id, parent=None):
         super().__init__(parent)
         self.user_id = user_id
-        # self.screen_config = screen_config
         self.layout_config = layout_config.get_instance()
         self.order_items = []
         self.exchange_rate = 90000
@@ -761,82 +759,11 @@ class POSView(QWidget):
 
     def _handle_lock(self):
         """Handle lock button click - return to PIN view"""
-        # Get the main window
-        main_window = self.parent()
-        while main_window and not isinstance(main_window, QMainWindow):
-            main_window = main_window.parent()
-            
-        if main_window:
-            # Create central widget to hold everything
-            central_widget = QWidget()
-            main_window.setCentralWidget(central_widget)
-            main_layout = QVBoxLayout(central_widget)
-            main_layout.setContentsMargins(20, 20, 20, 20)
-            
-            # Top bar with logo
-            top_bar = QHBoxLayout()
-            
-            # Logo
-            logo_label = QLabel()
-            pixmap = QPixmap("assets/images/silver_system_logo.png")
-            auth_layout = layout_config.get_instance().get_auth_layout()
-            scaled_pixmap = pixmap.scaled(
-                QSize(auth_layout['logo_width'], 
-                    auth_layout['logo_height']),
-                Qt.KeepAspectRatio, 
-                Qt.SmoothTransformation
-            )
-            logo_label.setPixmap(scaled_pixmap)
-            logo_label.setStyleSheet(AppStyles.LOGO_CONTAINER)
-            top_bar.addWidget(logo_label)
-            top_bar.addStretch()
-            
-            # Exit button
-            exit_btn = QPushButton()
-            renderer = QSvgRenderer("assets/images/exit_app.svg")
-            pixmap = QPixmap(150, 150)
-            pixmap.fill(Qt.transparent)
-            painter = QPainter(pixmap)
-            renderer.render(painter)
-            painter.end()
-            exit_btn.setIcon(QIcon(pixmap))
-            exit_btn.setIconSize(QSize(150, 150))
-            exit_btn.setStyleSheet("""
-                QPushButton {
-                    background: transparent;
-                    border: none;
-                    padding: 0px;
-                }
-            """)
-            from utilities.utils import ApplicationUtils
-            app_utils = ApplicationUtils()
-            exit_btn.clicked.connect(app_utils.close_application)
-            top_bar.addWidget(exit_btn)
-            
-            main_layout.addLayout(top_bar)
-            main_layout.addStretch()
-            
-            # Center container horizontally
-            center_layout = QHBoxLayout()
-            center_layout.addStretch()
-            
-            # Import and create auth container here to avoid circular import
-            from .auth.auth_container import AuthenticationContainer
-            auth_container = AuthenticationContainer()
-            auth_container.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus
-            auth_container.switch_to_pin_view(self.user_id)
-            center_layout.addWidget(auth_container)
-            
-            center_layout.addStretch()
-            main_layout.addLayout(center_layout)
-            main_layout.addStretch()
-            
-            # Ensure proper focus chain
-            auth_container.setFocus()
-            auth_container.pin_view.setFocus()  # Give focus to pin view specifically
-            
-            # Delete current POS view
-            self.deleteLater()
+        # Import here to avoid circular import
+        from .view_manager import ViewManager
+        ViewManager.get_instance().switch_back_to_pin_view_from_pos(self.user_id)
+        # Delete current POS view
+        self.deleteLater()
 
     def _filter_products(self):
         """Filter products based on search input"""

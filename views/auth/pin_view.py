@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QLabel, QPushButton, 
-                           QGridLayout, QHBoxLayout, QWidget, QMainWindow)
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, 
+                           QGridLayout, QHBoxLayout, QMainWindow)
+from PyQt5.QtCore import Qt
 from components.input import UserInput
-from ..pos_view import POSView 
 from styles.auth import AuthStyles
 from styles.layouts import layout_config
+from views.pos_view import POSView
 
 class PinView(QWidget):
     def __init__(self, user_id, auth_container, parent=None):
@@ -198,15 +198,19 @@ class PinView(QWidget):
         # Reset the label and input before going cancel
         self._reset_pin_label()
         self.pin_input.clear_all()
-        # Switch cancel to user ID view
-        self.auth_container.switch_to_user_id_view()
+        # Import here to avoid circular import
+        from ..view_manager import ViewManager
+        # Use ViewManager to switch to user ID view
+        ViewManager.get_instance().switch_to_user_id_view()
 
     def _handle_sign_in(self):
         """Handle Sign In button click"""
         if self.pin_input.is_complete():
             entered_pin = "".join(self.pin_input.digits)
             if entered_pin == self.valid_pin:
-                self._show_pos_view()
+                # Import here to avoid circular import
+                from ..view_manager import ViewManager
+                ViewManager.get_instance().switch_to_pos_view(self.user_id)
             else:
                 self._show_invalid_pin()
 
