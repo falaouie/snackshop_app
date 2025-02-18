@@ -33,6 +33,7 @@ from styles.layouts import layout_config
 from models.order_item import OrderItem
 from components.pos.order_list_widget import OrderListWidget
 from components.pos.product_grid_widget import ProductGridWidget
+from components.pos.totals_widget import TotalsWidget
 
 class POSView(QWidget):
     def __init__(self, user_id, parent=None):
@@ -260,11 +261,10 @@ class POSView(QWidget):
     
     def _update_totals(self):
         """Update the total amounts in USD and LBP"""
+        # Get total from order list widget
         total_usd = self.order_list.total_amount
-        total_lbp = total_usd * self.exchange_rate
-        
-        self.usd_amount.setText(f"${total_usd:.2f}")
-        self.lbp_amount.setText(f"LBP {total_lbp:,.0f}")
+        # Update both currency displays using totals widget
+        self.totals_widget.update_totals(total_usd)
     
     def _create_products_widget(self):
         """Create products panel"""
@@ -342,68 +342,21 @@ class POSView(QWidget):
     
     def _create_totals_frame(self):
         """Create totals frame with order type buttons and amounts"""
-        self.totals_frame = QFrame()
-        self.totals_frame.setStyleSheet(POSStyles.TOTALS_FRAME)
+        self.totals_widget = TotalsWidget(self.exchange_rate)
         
-        # Main horizontal layout
-        totals_layout = QHBoxLayout(self.totals_frame)
-        totals_layout.setContentsMargins(15, 10, 15, 10)
-        totals_layout.setSpacing(20)  # Increased spacing between sections
-
-        # Order Type Buttons Section (Left)
-        order_buttons_container = QFrame()
-        order_buttons_layout = QHBoxLayout(order_buttons_container)
-        order_buttons_layout.setContentsMargins(0, 0, 0, 0)
-        order_buttons_layout.setSpacing(10)
-
-        button_style = ButtonStyles.get_order_button_style()
-        button_config = self.layout_config.get_button_config('order_type')
-
-        for button_type in OrderButtonType:
-            config = OrderButtonConfig.get_config(button_type)
-            btn = QPushButton(config['text'])
-            btn.setStyleSheet(button_style)
-            btn.setFixedSize(
-                button_config['width'],
-                button_config['height']
-            )
-            btn.setCheckable(True)
-            if config.get('default_selected', False):
-                btn.setChecked(True)
-            if config['action']:
-                btn.clicked.connect(getattr(self, config['action']))
-            order_buttons_layout.addWidget(btn)
+        # Connect signals
+        self.totals_widget.order_type_changed.connect(self._handle_order_type_change)
         
-        # Amounts Section (Right)
-        amounts_container = QFrame()
-        amounts_layout = QVBoxLayout(amounts_container)
-        amounts_layout.setContentsMargins(0, 0, 0, 0)
-        amounts_layout.setSpacing(4)
-        
-        # USD Total
-        usd_layout = QHBoxLayout()
-        self.usd_amount = QLabel("$0.00")
-        self.usd_amount.setProperty("class", "currency-usd")
-        usd_layout.addStretch()
-        usd_layout.addWidget(self.usd_amount)
-        
-        # LBP Total
-        lbp_layout = QHBoxLayout()
-        self.lbp_amount = QLabel("LBP 000")
-        self.lbp_amount.setProperty("class", "currency-lbp")
-        lbp_layout.addStretch()
-        lbp_layout.addWidget(self.lbp_amount)
-        
-        # Add layouts to amounts container
-        amounts_layout.addLayout(usd_layout)
-        amounts_layout.addLayout(lbp_layout)
-        
-        # Add sections to main layout
-        totals_layout.addWidget(order_buttons_container)
-        totals_layout.addStretch(1)  # Add stretch to push amounts to the right
-        totals_layout.addWidget(amounts_container)
-        
-        return self.totals_frame
+        return self.totals_widget
+    
+    def _handle_order_type_change(self, order_type):
+        """Handle order type selection"""
+        if order_type == OrderButtonType.DINE_IN.value:
+            self.set_dine_in()
+        elif order_type == OrderButtonType.TAKE_AWAY.value:
+            self.set_take_away()
+        elif order_type == OrderButtonType.DELIVERY.value:
+            self.set_delivery()
         
     def _create_bottom_bar(self):
         """Create bottom action bar"""
@@ -522,18 +475,6 @@ class POSView(QWidget):
         """Show numpad"""
         # Implement numpad display logic
         print("num pad button clicked")
-
-    def set_dine_in(self):
-        """Handle dine in order type selection"""
-        print("Dine in button clicked")
-
-    def set_take_away(self):
-        """Handle take away order type selection"""
-        print("Take away button clicked")
-
-    def set_delivery(self):
-        """Handle delivery order type selection"""
-        print("Delivery button clicked")
 
     def hold_order(self):
         """Handle hold order action"""
