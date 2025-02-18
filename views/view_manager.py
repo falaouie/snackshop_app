@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import Qt
+from .pos import POSView
 
 class ViewManager:
     _instance = None
@@ -42,7 +43,7 @@ class ViewManager:
                 self.auth_container.hide()
             
             # Import here to avoid circular import
-            from .pos_view import POSView
+            from .pos.pos_view import POSView
             
             # Create and show POS view
             pos_view = POSView(user_id, self.main_window)

@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from components.input import UserInput
 from styles.auth import AuthStyles
 from styles.layouts import layout_config
-from views.pos_view import POSView
+from views.pos.pos_view import POSView
 
 class PinView(QWidget):
     def __init__(self, user_id, auth_container, parent=None):

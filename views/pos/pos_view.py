@@ -348,7 +348,7 @@ class POSView(QWidget):
 
     def _handle_lock(self):
         """Handle lock button click"""
-        from .view_manager import ViewManager
+        from ..view_manager import ViewManager
         ViewManager.get_instance().switch_back_to_pin_view_from_pos(self.user_id)
         self.deleteLater()
 
