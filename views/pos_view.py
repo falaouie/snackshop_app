@@ -34,6 +34,7 @@ from models.order_item import OrderItem
 from components.pos.order_list_widget import OrderListWidget
 from components.pos.product_grid_widget import ProductGridWidget
 from components.pos.totals_widget import TotalsWidget
+from components.pos.search_widget import SearchWidget
 
 class POSView(QWidget):
     def __init__(self, user_id, parent=None):
@@ -152,13 +153,9 @@ class POSView(QWidget):
         search_layout = QHBoxLayout(search_container)
         search_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Create search input
-        self.search_input = SearchLineEdit(self)
-        self.search_input.setPlaceholderText("Search products...")
-        self.search_input.setStyleSheet(POSStyles.SEARCH_INPUT(
-            pos_layout['search_input']['width'],
-            pos_layout['search_input']['height']
-        ))
+        # Create search widget
+        self.search_input = SearchWidget(self)
+        self.search_input.search_changed.connect(self._filter_products)
 
         # Add search elements to search layout
         search_layout.addStretch(1)
@@ -428,7 +425,7 @@ class POSView(QWidget):
         """Handle product button click - add item and clear search"""
         self.add_order_item(item_name)
         # Clear search field which will automatically refresh the grid
-        self.search_input.clear()
+        self.search_input.clear_search()
 
     
     def process_cash_payment(self):
@@ -487,51 +484,3 @@ class POSView(QWidget):
     def no_sale(self):
         """Handle no sale order action"""
         print("No Sale button clicked")
-
-# class OrderItem:
-#     def __init__(self, name, price):
-#         self.name = name
-#         self.price = price
-#         self.quantity = 1
-
-#     def get_total(self):
-#         return self.price * self.quantity
-    
-class SearchLineEdit(KeyboardEnabledInput):
-    def __init__(self, parent=None):
-        super().__init__(parent, style_type='search', keyboard_type=KeyboardType.FULL)
-        self.parent_view = parent
-        
-        # Load search icon (left)
-        search_icon = QSvgRenderer("assets/images/search.svg")
-        self.search_pixmap = QPixmap(20, 20)
-        self.search_pixmap.fill(Qt.transparent)
-        painter = QPainter(self.search_pixmap)
-        search_icon.render(painter)
-        painter.end()
-
-        # Connect text changed signal for filtering
-        self.textChanged.connect(parent._filter_products)
-        
-        # Adjust style to leave space for both icons
-        self.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid #DEDEDE;
-                border-radius: 20px;
-                padding: 8px 40px 8px 40px; /* Left 40px for search, Right 40px for backspace */
-                font-size: 14px;
-                color: #333;
-                min-width: 300px;
-                max-width: 400px;
-                background: white;
-            }
-            QLineEdit:focus {
-                border-color: #2196F3;
-                outline: none;
-            }
-        """)
-
-    def paintEvent(self, event):
-        super().paintEvent(event)
-        painter = QPainter(self)
-        painter.drawPixmap(12, (self.height() - 20) // 2, self.search_pixmap)
