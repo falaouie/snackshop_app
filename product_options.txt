@@ -17,7 +17,7 @@ Quantity always shows next to product name
 Customizations (extras/less) appear as indented lines under the product
 Example visual structure:
 
-Copy2x Burger              $20.00
+2x Burger              $20.00
    Extra Mayo
    Less Onions
 1x Fries               $5.00
