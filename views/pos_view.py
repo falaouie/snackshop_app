@@ -1,74 +1,54 @@
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, QPushButton, QFrame, QScrollArea, QGridLayout, QSplitter,
-                             QToolButton, QMenu, QMainWindow, QWidget)
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+                            QMessageBox, QPushButton, QFrame, QScrollArea, 
+                            QSplitter, QToolButton, QMenu, QMainWindow)
 from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
-from components.keyboard import KeyboardEnabledInput, VirtualKeyboard, KeyboardType
+
 from button_definitions.types import (
     PaymentButtonType,
     TransactionButtonType,
     HorizontalButtonType,
-    OrderButtonType,
-    ProductButtonType,
-    CategoryButtonType
+    OrderButtonType
 )
 from button_definitions.payment import PaymentButtonConfig
 from button_definitions.transaction import TransactionButtonConfig
+from button_definitions.horizontal import HorizontalButtonConfig 
 from button_definitions.order import OrderButtonConfig
-from button_definitions.horizontal import HorizontalButtonConfig
-from button_definitions.product import ProductButtonConfig
-from button_definitions.category import CategoryButtonConfig
-from styles.buttons import ButtonStyles
-from styles import POSStyles, AppStyles
-# from config.screen_config import screen_config
-from models.product_catalog import (
-    CATEGORIES,
-    PRODUCTS_BY_CATEGORY,
-    PRODUCT_PRICES,
-    get_products_for_category,
-    get_product_price
-)
 
+from styles import POSStyles, AppStyles
+from styles.buttons import ButtonStyles
 from styles.layouts import layout_config
-from models.order_item import OrderItem
+
 from components.pos.order_list_widget import OrderListWidget
 from components.pos.product_grid_widget import ProductGridWidget
 from components.pos.totals_widget import TotalsWidget
 from components.pos.search_widget import SearchWidget
+from models.product_catalog import PRODUCT_PRICES
+from components.keyboard import VirtualKeyboard
 
 class POSView(QWidget):
     def __init__(self, user_id, parent=None):
         super().__init__(parent)
         self.user_id = user_id
         self.layout_config = layout_config.get_instance()
-        self.order_items = []
         self.exchange_rate = 90000
-        self.category_buttons = {}
-        self.selected_category = None
-        self.categories = CATEGORIES 
+        self.prices = PRODUCT_PRICES 
         self.keyboard = VirtualKeyboard(self)
-        
-        # Use imported prices
-        self.prices = PRODUCT_PRICES
-
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._update_time)
-        self.timer.start(1000) 
-
+        self.timer.start(1000)
+        
         self._setup_ui()
         self._update_time()
 
     def _setup_ui(self):
+        """Initialize the main UI structure"""
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 10)  # Added bottom margin
+        main_layout.setContentsMargins(0, 0, 0, 10)
         main_layout.setSpacing(0)
 
-        self.keyboard = VirtualKeyboard(self)
-
-        # Initialize selected item tracking
-        self.selected_item = None
-        
-        # Add top bar - call only once and store the result
+        # Add top bar
         top_bar_container = self._create_top_bar()
         main_layout.addWidget(top_bar_container)
 
@@ -83,17 +63,15 @@ class POSView(QWidget):
         ))
         content_splitter.addWidget(self.order_widget)
         
-        # Middle - Products Grid
+        # Right Side - Products Grid
         self.products_widget = self._create_products_widget()
-        
         content_splitter.addWidget(self.products_widget)
         
-        # Add splitter to main layout with spacing at the bottom
         main_layout.addWidget(content_splitter, 1)
 
-        # Create and add bottom bar with proper spacing
-        self._create_bottom_bar()
-        main_layout.addWidget(self.bottom_bar, 0)
+        # Create and add bottom bar
+        self.bottom_bar = self._create_bottom_bar()
+        main_layout.addWidget(self.bottom_bar)
 
     def _create_top_bar(self):
         """Create top bar with employee info, search, and lock button"""
@@ -145,7 +123,7 @@ class POSView(QWidget):
         # Add widgets to employee zone
         emp_layout.addWidget(emp_icon)
         emp_layout.addWidget(emp_id)
-        emp_layout.addWidget(time_zone)  # Changed from time_layout to time_zone
+        emp_layout.addWidget(time_zone)
 
         # Search Section (Centered)
         search_container = QFrame()
@@ -153,10 +131,10 @@ class POSView(QWidget):
         search_layout = QHBoxLayout(search_container)
         search_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Create search widget
+        # Create and connect search widget
         self.search_input = SearchWidget(self)
         self.search_input.search_changed.connect(self._filter_products)
-
+        
         # Add search elements to search layout
         search_layout.addStretch(1)
         search_layout.addWidget(self.search_input)
@@ -185,7 +163,7 @@ class POSView(QWidget):
         
         # Add all zones to main layout
         layout.addWidget(emp_zone)
-        layout.addWidget(search_container, 1)  # Give search container stretch priority
+        layout.addWidget(search_container, 1)
         layout.addWidget(controls_zone)
         
         return self.top_bar
@@ -193,19 +171,16 @@ class POSView(QWidget):
     def _create_order_widget(self):
         """Create order panel"""
         order_frame = QFrame()
-
+        
         layout = QVBoxLayout(order_frame)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         
-        # Create OrderListWidget
+        # Create and connect order list widget
         self.order_list = OrderListWidget()
-        layout.addWidget(self.order_list)
-        
-        # Connect signals
-        self.order_list.item_selected.connect(self._on_order_item_selected)
-        self.order_list.item_removed.connect(self._on_order_item_removed)
         self.order_list.order_cleared.connect(self._on_order_cleared)
+        self.order_list.item_removed.connect(self._on_item_removed)
+        layout.addWidget(self.order_list)
         
         # Add horizontal buttons section
         horizontal_buttons_frame = QFrame()
@@ -223,54 +198,25 @@ class POSView(QWidget):
         
         for button_type in HorizontalButtonType:
             config = HorizontalButtonConfig.get_config(button_type)
-            btn = QPushButton(config['text'])
-            btn.setStyleSheet(ButtonStyles.get_horizontal_button_style(button_type))
-            button_config = self.layout_config.get_button_config('horizontal')
-            btn.setFixedSize(
-                button_config['width'],
-                button_config['height']
-            )
-            if config['action']:
-                btn.clicked.connect(getattr(self, config['action']))
-            horizontal_layout.addWidget(btn)
+            if config:  # Only create button if config exists
+                btn = QPushButton(config['text'])
+                btn.setStyleSheet(ButtonStyles.get_horizontal_button_style(button_type))
+                button_config = self.layout_config.get_button_config('horizontal')
+                btn.setFixedSize(
+                    button_config['width'],
+                    button_config['height']
+                )
+                if config.get('action'):
+                    btn.clicked.connect(getattr(self, config['action']))
+                horizontal_layout.addWidget(btn)
         
         layout.addWidget(horizontal_buttons_frame)
 
         return order_frame
 
-    def _on_order_item_selected(self, item):
-        """Handle order item selection"""
-        self.selected_item = item
-
-    def _on_order_item_removed(self, item):
-        """Handle order item removal"""
-        self._update_totals()
-
-    def _on_order_cleared(self):
-        """Handle order cleared"""
-        self._update_totals()
-
-    def add_order_item(self, item_name):
-        """Add an item to the order"""
-        price = self.prices.get(item_name, 0)
-        self.order_list.add_item(item_name, price)
-        self._update_totals()
-    
-    def _update_totals(self):
-        """Update the total amounts in USD and LBP"""
-        # Get total from order list widget
-        total_usd = self.order_list.total_amount
-        # Update both currency displays using totals widget
-        self.totals_widget.update_totals(total_usd)
-    
     def _create_products_widget(self):
         """Create products panel"""
         products_frame = QFrame()
-        products_frame.setStyleSheet("""
-            QFrame {
-                background: #F8F9FA;
-            }
-        """)
         
         # Main layout for products area
         main_layout = QVBoxLayout(products_frame)
@@ -320,7 +266,7 @@ class POSView(QWidget):
         vertical_layout.addStretch()
         center_layout.addWidget(vertical_section)
 
-        # Create and add product grid widget
+        # Create and connect product grid
         self.product_grid = ProductGridWidget()
         self.product_grid.product_selected.connect(self._handle_product_click)
         
@@ -331,37 +277,20 @@ class POSView(QWidget):
         # Add content container to main layout
         main_layout.addWidget(content_container, 1)
         
-        # Create and add totals frame with order type buttons
-        totals_frame = self._create_totals_frame()
-        main_layout.addWidget(totals_frame)
+        # Create and add totals widget
+        self.totals_widget = TotalsWidget(self.exchange_rate)
+        self.totals_widget.order_type_changed.connect(self._on_order_type_changed)
+        main_layout.addWidget(self.totals_widget)
         
         return products_frame
-    
-    def _create_totals_frame(self):
-        """Create totals frame with order type buttons and amounts"""
-        self.totals_widget = TotalsWidget(self.exchange_rate)
-        
-        # Connect signals
-        self.totals_widget.order_type_changed.connect(self._handle_order_type_change)
-        
-        return self.totals_widget
-    
-    def _handle_order_type_change(self, order_type):
-        """Handle order type selection"""
-        if order_type == OrderButtonType.DINE_IN.value:
-            self.set_dine_in()
-        elif order_type == OrderButtonType.TAKE_AWAY.value:
-            self.set_take_away()
-        elif order_type == OrderButtonType.DELIVERY.value:
-            self.set_delivery()
-        
+
     def _create_bottom_bar(self):
         """Create bottom action bar"""
-        self.bottom_bar = QFrame()
-        self.bottom_bar.setStyleSheet(POSStyles.BOTTOM_BAR(
+        bottom_bar = QFrame()
+        bottom_bar.setStyleSheet(POSStyles.BOTTOM_BAR(
             self.layout_config.get_pos_layout()['bottom_bar_height']
         ))
-        layout = QHBoxLayout(self.bottom_bar)
+        layout = QHBoxLayout(bottom_bar)
         layout.setContentsMargins(10, 5, 10, 10)
         layout.setSpacing(6)
         
@@ -376,101 +305,88 @@ class POSView(QWidget):
                 button_config['width'],
                 button_config['height']
             )
-            
             if config['action']:
                 btn.clicked.connect(getattr(self, config['action']))
             layout.addWidget(btn)
 
+        return bottom_bar
 
-    def _update_time(self):
-        current = QDateTime.currentDateTime()
-        self.date_label.setText(current.toString("dd-MM-yyyy"))
-        self.time_label.setText(current.toString("h:mm AP"))
-
-    def on_dots_clicked(self):
-        """Handle three dots menu click with various order options"""
-        # Create menu
-        menu = QMenu(self)
-        menu.setStyleSheet(POSStyles.MENU)
-
-        # Add Clear Order action
-        clear_action = menu.addAction("Cancel Order")
-        clear_item = menu.addAction("Remove Selected Item")
-        clear_action.setIcon(QIcon("assets/images/clear.png"))
-        
-        # Show menu at button position
-        action = menu.exec_(self.sender().mapToGlobal(self.sender().rect().bottomLeft()))
-        
-        # Handle menu actions
-        if action == clear_action:
-            self._clear_order()
-        
-        if action == clear_item:
-            self._void_selected_item()
-
-    def _handle_lock(self):
-        """Handle lock button click - return to PIN view"""
-        # Import here to avoid circular import
-        from .view_manager import ViewManager
-        ViewManager.get_instance().switch_back_to_pin_view_from_pos(self.user_id)
-        # Delete current POS view
-        self.deleteLater()
-
+    # Event Handlers
     def _filter_products(self):
         """Filter products based on search input"""
         search_text = self.search_input.text()
         self.product_grid.set_search_text(search_text)
 
     def _handle_product_click(self, item_name):
-        """Handle product button click - add item and clear search"""
-        self.add_order_item(item_name)
-        # Clear search field which will automatically refresh the grid
+        """Handle product button click"""
+        self.order_list.add_item(item_name, self.prices.get(item_name, 0))
+        self._update_totals()
         self.search_input.clear_search()
 
-    
+    def _on_order_cleared(self):
+        """Handle order being cleared"""
+        self._update_totals()
+
+    def _on_item_removed(self, item):
+        """Handle item removal from order"""
+        self._update_totals()
+
+    def _on_order_type_changed(self, order_type):
+        """Handle order type changes"""
+        pass
+
+    def _update_totals(self):
+        """Update totals display"""
+        total_usd = self.order_list.total_amount
+        self.totals_widget.update_totals(total_usd)
+
+    def _update_time(self):
+        """Update the time display"""
+        current = QDateTime.currentDateTime()
+        self.date_label.setText(current.toString("dd-MM-yyyy"))
+        self.time_label.setText(current.toString("h:mm AP"))
+
+    def _handle_lock(self):
+        """Handle lock button click"""
+        from .view_manager import ViewManager
+        ViewManager.get_instance().switch_back_to_pin_view_from_pos(self.user_id)
+        self.deleteLater()
+
+    # Payment/Transaction Methods
     def process_cash_payment(self):
         """Handle cash payment"""
-        # Implement cash payment logic
         print("Cash button clicked")
 
     def process_other_payment(self):
         """Handle other payment types"""
-        # Implement other payment logic
         print("Other Payment button clicked")
 
     def hold_transaction(self):
         """Handle hold transaction"""
-        # Implement hold logic
         print("Hold horizontal button clicked")
 
     def void_transaction(self):
         """Handle void transaction"""
-        # Implement void logic
         print("Void horizontal button clicked")
 
     def paid_in(self):
         """Handle paid in"""
-        # Implement paid in logic
         print("Paid in button clicked")
 
     def paid_out(self):
         """Handle paid out"""
-        # Implement paid out logic
         print("Paid out button clicked")
 
     def no_sale(self):
         """Handle no sale"""
-        # Implement no sale logic
         print("No Sale horizontal button clicked")
 
     def apply_discount(self):
         """Handle discount"""
-        # Implement discount logic
         print("Discount button clicked")
 
     def show_numpad(self):
         """Show numpad"""
-        # Implement numpad display logic
         print("num pad button clicked")
 
     def hold_order(self):
