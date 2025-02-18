@@ -1,0 +1,56 @@
+Let me refine my understanding based on your responses:
+
+View Switching:
+
+
+When a product is selected (new or existing), the product grid area will be replaced with options panel
+Users cannot access other products until they complete the current product options
+A "Done" button returns to product grid
+The options panel completely takes over the product selection area for clarity and focus
+
+
+Order List Display:
+
+
+Selected product is highlighted
+Quantity always shows next to product name
+Customizations (extras/less) appear as indented lines under the product
+Example visual structure:
+
+Copy2x Burger              $20.00
+   Extra Mayo
+   Less Onions
+1x Fries               $5.00
+
+Options Panel Components:
+For all products:
+
+
+Quantity controls (digit box, +/- buttons)
+Done button to return to product grid
+
+Product-specific options:
+
+Options like Extra/Less for applicable ingredients
+Options are predefined/hardcoded (no DB yet)
+Different products will show different sets of options
+Some products might only have quantity control
+
+
+Workflow:
+
+
+User selects product (new or from order)
+Product grid switches to options panel
+Quantity control is auto-selected for new products
+User can modify quantity and options
+Hitting "Done" saves changes and returns to product grid
+Changes reflect immediately in order list with proper indentation
+
+
+Data Structure (Hardcoded):
+
+
+Need to define product options similar to how categories/products are defined
+Each product needs its applicable options list
+Options need to define if they're "Extra" or "Less" type
