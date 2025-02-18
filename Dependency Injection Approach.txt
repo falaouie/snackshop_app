@@ -1,0 +1,24 @@
+Dependency Injection Approach:
+
+pythonCopy# In view_manager.py
+class ViewManager:
+    def __init__(self):
+        self.view_classes = {}
+    
+    def register_view(self, view_name, view_class):
+        self.view_classes[view_name] = view_class
+    
+    def switch_to_pos_view(self, user_id: str):
+        POSView = self.view_classes.get('pos')
+        pos_view = POSView(user_id, self.main_window)
+        # Rest of the method
+
+# In main.py or app initialization
+from views.pos import POSView
+view_manager = ViewManager()
+view_manager.register_view('pos', POSView)
+Pros:
+
+More flexible and testable
+Better separation of concerns
+No import tricks needed
