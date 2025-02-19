@@ -42,7 +42,7 @@ Workflow:
 
 User selects product (new or from order)
 Product grid switches to options panel
-Quantity control is auto-selected for new products
+Quantity control is auto-selected
 User can modify quantity and options
 Hitting "Done" saves changes and returns to product grid
 Changes reflect immediately in order list with proper indentation
