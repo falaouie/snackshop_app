@@ -23,6 +23,7 @@ from components.pos.totals_widget import TotalsWidget
 from components.pos.search_widget import SearchWidget
 from components.keyboard import VirtualKeyboard
 from components.pos.order_type_widget import OrderTypeWidget
+from components.pos.horizontal_buttons_widget import HorizontalButtonsWidget
 
 from models.product_catalog import PRODUCT_PRICES
 
@@ -181,37 +182,24 @@ class POSView(QWidget):
         self.order_list.item_removed.connect(self._on_item_removed)
         layout.addWidget(self.order_list)
         
-        # Add horizontal buttons section
-        horizontal_buttons_frame = QFrame()
-        horizontal_buttons_frame.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-left: 1px solid #DEDEDE;
-                border-top: 1px solid #DEDEDE;
-            }
-        """)
-        
-        horizontal_layout = QHBoxLayout(horizontal_buttons_frame)
-        horizontal_layout.setContentsMargins(0, 10, 0, 10)
-        horizontal_layout.setSpacing(8)
-        
-        for button_type in HorizontalButtonType:
-            config = HorizontalButtonConfig.get_config(button_type)
-            if config:  # Only create button if config exists
-                btn = QPushButton(config['text'])
-                btn.setStyleSheet(ButtonStyles.get_horizontal_button_style(button_type))
-                button_config = self.layout_config.get_button_config('horizontal')
-                btn.setFixedSize(
-                    button_config['width'],
-                    button_config['height']
-                )
-                if config.get('action'):
-                    btn.clicked.connect(getattr(self, config['action']))
-                horizontal_layout.addWidget(btn)
-        
-        layout.addWidget(horizontal_buttons_frame)
+        # Add horizontal buttons widget and connect signal
+        self.horizontal_buttons = HorizontalButtonsWidget(self)
+        self.horizontal_buttons.action_triggered.connect(self._handle_horizontal_action)
+        layout.addWidget(self.horizontal_buttons)
 
         return order_frame
+    
+    # Add new handler method:
+    def _handle_horizontal_action(self, action_type):
+        """Handle horizontal button actions"""
+        action_map = {
+            'hold': self.hold_transaction,
+            'void': self.void_transaction,
+            'no_sale': self.no_sale
+        }
+        
+        if action_type in action_map:
+            action_map[action_type]()
 
     def _create_products_widget(self):
         """Create products panel"""
@@ -366,11 +354,11 @@ class POSView(QWidget):
 
     def hold_transaction(self):
         """Handle hold transaction"""
-        print("Hold horizontal button clicked")
+        print("Not This Hold horizontal button clicked")
 
     def void_transaction(self):
         """Handle void transaction"""
-        print("Void horizontal button clicked")
+        print("Not This Void horizontal button clicked")
 
     def paid_in(self):
         """Handle paid in"""
@@ -382,7 +370,7 @@ class POSView(QWidget):
 
     def no_sale(self):
         """Handle no sale"""
-        print("No Sale horizontal button clicked")
+        print("Vertical No Sale button clicked")
 
     def apply_discount(self):
         """Handle discount"""
@@ -391,15 +379,3 @@ class POSView(QWidget):
     def show_numpad(self):
         """Show numpad"""
         print("num pad button clicked")
-
-    def hold_order(self):
-        """Handle hold order action"""
-        print("Hold button clicked")
-
-    def void_order(self):
-        """Handle void order action"""
-        print("Void button clicked")
-
-    def no_sale(self):
-        """Handle no sale order action"""
-        print("No Sale button clicked")
