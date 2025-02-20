@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import Qt
-from .pos import POSView
 
 class ViewManager:
     _instance = None

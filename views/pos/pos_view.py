@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                            QMessageBox, QPushButton, QFrame, QScrollArea, 
-                            QSplitter, QToolButton, QMenu, QMainWindow)
+                                QPushButton, QFrame, QSplitter)
 from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
@@ -8,15 +7,13 @@ from PyQt5.QtSvg import QSvgRenderer
 from button_definitions.types import (
     PaymentButtonType,
     TransactionButtonType,
-    HorizontalButtonType,
-    OrderButtonType
+    HorizontalButtonType
 )
 from button_definitions.payment import PaymentButtonConfig
 from button_definitions.transaction import TransactionButtonConfig
 from button_definitions.horizontal import HorizontalButtonConfig 
-from button_definitions.order import OrderButtonConfig
 
-from styles import POSStyles, AppStyles
+from styles import POSStyles
 from styles.buttons import ButtonStyles
 from styles.layouts import layout_config
 
@@ -24,8 +21,9 @@ from components.pos.order_list_widget import OrderListWidget
 from components.pos.product_grid_widget import ProductGridWidget
 from components.pos.totals_widget import TotalsWidget
 from components.pos.search_widget import SearchWidget
-from models.product_catalog import PRODUCT_PRICES
 from components.keyboard import VirtualKeyboard
+
+from models.product_catalog import PRODUCT_PRICES
 
 class POSView(QWidget):
     def __init__(self, user_id, parent=None):
