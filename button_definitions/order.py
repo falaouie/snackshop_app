@@ -3,13 +3,19 @@ from .types import OrderButtonType
 class OrderButtonConfig:
     """Configuration for order type buttons"""
     DEFAULTS = {
+        # Normal state
         "text_color": "#333333",
-        "text_color_selected": "#FFFFFF",
-        "border_color": "#DEDEDE",
-        "border_color_selected": "#2196F3",
         "background": "white",
-        "background_selected": "#2196F3",
-        "background_hover": "#F8F9FA"
+        "border_color": "#DEDEDE",
+        # Selected state
+        "selected_text_color": "white",
+        "selected_background": "#2196F3",
+        "selected_border_color": "#2196F3",
+        # Hover state
+        "hover_background": "#F8F9FA",
+        "hover_border_color": "#2196F3",
+        # Selected hover state
+        "selected_hover_background": "#1E88E5",
     }
 
     BUTTON_CONFIGS = {
