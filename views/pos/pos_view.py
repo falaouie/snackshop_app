@@ -181,6 +181,7 @@ class POSView(QWidget):
         
         # Add horizontal buttons widget and connect signal
         self.horizontal_buttons = HorizontalButtonsWidget(self)
+        self.horizontal_buttons.action_triggered.connect(self._on_horizontal_action)
         layout.addWidget(self.horizontal_buttons)
 
         return order_frame
@@ -217,6 +218,7 @@ class POSView(QWidget):
 
         # Create and add transaction buttons widget
         self.transaction_buttons = TransactionButtonsWidget()
+        self.transaction_buttons.action_triggered.connect(self._on_transaction_action)
         center_layout.addWidget(self.transaction_buttons)
 
         # Create and connect product grid
@@ -267,6 +269,35 @@ class POSView(QWidget):
             layout.addWidget(btn)
 
         return bottom_bar
+
+    def _on_transaction_action(self, action_type):
+        """HHook for transaction-related coordination.
+        
+        Future use cases:
+        - Order state management
+        - Cross-widget coordination
+        - Permission checking
+        - Logging/tracking
+        """
+        # Example future coordination:
+        # if action_type == 'HOLD':
+        #     self.order_list.setEnabled(False)
+        #     self.totals_widget.update_status("On Hold")
+        pass
+
+    def _on_horizontal_action(self, action_type):
+        """Hook for horizontal button coordination.
+        
+        Future use cases:
+        - Order state changes
+        - UI updates across widgets
+        - Event logging
+        """
+        # Example future coordination:
+        # if action_type == 'VOID':
+        #     self._clear_current_order()
+        #     self._update_transaction_log()
+        pass
 
     # Event Handlers
     def _filter_products(self):
