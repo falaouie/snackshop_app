@@ -22,6 +22,7 @@ from components.pos.product_grid_widget import ProductGridWidget
 from components.pos.totals_widget import TotalsWidget
 from components.pos.search_widget import SearchWidget
 from components.keyboard import VirtualKeyboard
+from components.pos.order_type_widget import OrderTypeWidget
 
 from models.product_catalog import PRODUCT_PRICES
 
@@ -274,10 +275,9 @@ class POSView(QWidget):
 
         # Add content container to main layout
         main_layout.addWidget(content_container, 1)
-        
+
         # Create and add totals widget
         self.totals_widget = TotalsWidget(self.exchange_rate)
-        self.totals_widget.order_type_changed.connect(self._on_order_type_changed)
         main_layout.addWidget(self.totals_widget)
         
         return products_frame
@@ -291,6 +291,11 @@ class POSView(QWidget):
         layout = QHBoxLayout(bottom_bar)
         layout.setContentsMargins(10, 5, 10, 10)
         layout.setSpacing(6)
+
+        # Create and add order type widget
+        self.order_type_widget = OrderTypeWidget()
+        self.order_type_widget.order_type_changed.connect(self._on_order_type_changed)
+        layout.addWidget(self.order_type_widget)
         
         layout.addStretch()
 
