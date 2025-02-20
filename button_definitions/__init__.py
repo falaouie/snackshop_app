@@ -9,7 +9,7 @@ from .types import (
 )
 from .payment import PaymentButtonConfig
 from .transaction import TransactionButtonConfig
-from .order import OrderButtonConfig
+from .order_type import OrderTypeButtonConfig
 from .horizontal import HorizontalButtonConfig
 from .product import ProductButtonConfig
 from .category import CategoryButtonConfig
@@ -24,7 +24,7 @@ __all__ = [
     'CategoryButtonType',
     'PaymentButtonConfig',
     'TransactionButtonConfig',
-    'OrderButtonConfig',
+    'OrderTypeButtonConfig',
     'HorizontalButtonConfig',
     'ProductButtonConfig',
     'CategoryButtonConfig'

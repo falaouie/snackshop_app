@@ -1,6 +1,6 @@
 from .types import OrderButtonType
 
-class OrderButtonConfig:
+class OrderTypeButtonConfig:
     """Configuration for order type buttons"""
     DEFAULTS = {
         # Normal state

@@ -2,7 +2,7 @@ from button_definitions import (
     PaymentButtonConfig,
     TransactionButtonConfig,
     HorizontalButtonConfig,
-    OrderButtonConfig,
+    OrderTypeButtonConfig,
     CategoryButtonConfig,
     ProductButtonConfig
 )
@@ -118,7 +118,7 @@ class ButtonStyles:
             return ""
                 
         button_config = cls.layout_config.get_button_config('order_type')
-        config = OrderButtonConfig.DEFAULTS
+        config = OrderTypeButtonConfig.DEFAULTS
         
         if is_selected:
             return f"""

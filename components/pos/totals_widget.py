@@ -3,7 +3,7 @@ from PyQt5.QtCore import pyqtSignal
 from styles import POSStyles, ButtonStyles
 from styles.layouts import layout_config
 from button_definitions.types import OrderButtonType
-from button_definitions.order import OrderButtonConfig
+from button_definitions.order_type import OrderTypeButtonConfig
 
 class TotalsWidget(QFrame):
     """Widget for displaying order totals and order type buttons"""
@@ -45,7 +45,7 @@ class TotalsWidget(QFrame):
 
         # Create buttons for each order type
         for button_type in OrderButtonType:
-            config = OrderButtonConfig.get_config(button_type)
+            config = OrderTypeButtonConfig.get_config(button_type)
             btn = QPushButton(config['text'])
             btn.setFixedSize(
                 button_config['width'],
