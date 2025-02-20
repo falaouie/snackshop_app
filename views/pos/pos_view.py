@@ -4,14 +4,8 @@ from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 
-from button_definitions.types import (
-    PaymentButtonType,
-    TransactionButtonType,
-    HorizontalButtonType
-)
+from button_definitions.types import PaymentButtonType
 from button_definitions.payment import PaymentButtonConfig
-from button_definitions.transaction import TransactionButtonConfig
-from button_definitions.horizontal import HorizontalButtonConfig 
 
 from styles import POSStyles
 from styles.buttons import ButtonStyles
@@ -24,6 +18,7 @@ from components.pos.search_widget import SearchWidget
 from components.keyboard import VirtualKeyboard
 from components.pos.order_type_widget import OrderTypeWidget
 from components.pos.horizontal_buttons_widget import HorizontalButtonsWidget
+from components.pos.transaction_buttons_widget import TransactionButtonsWidget
 
 from models.product_catalog import PRODUCT_PRICES
 
@@ -39,6 +34,8 @@ class POSView(QWidget):
         self.timer.timeout.connect(self._update_time)
         self.timer.start(1000)
         
+        self.transaction_buttons = None  # Will be initialized in _create_products_widget
+
         self._setup_ui()
         self._update_time()
 
@@ -184,22 +181,9 @@ class POSView(QWidget):
         
         # Add horizontal buttons widget and connect signal
         self.horizontal_buttons = HorizontalButtonsWidget(self)
-        self.horizontal_buttons.action_triggered.connect(self._handle_horizontal_action)
         layout.addWidget(self.horizontal_buttons)
 
         return order_frame
-    
-    # Add new handler method:
-    def _handle_horizontal_action(self, action_type):
-        """Handle horizontal button actions"""
-        action_map = {
-            'hold': self.hold_transaction,
-            'void': self.void_transaction,
-            'no_sale': self.no_sale
-        }
-        
-        if action_type in action_map:
-            action_map[action_type]()
 
     def _create_products_widget(self):
         """Create products panel"""
@@ -231,27 +215,9 @@ class POSView(QWidget):
         center_layout.setContentsMargins(0, 0, 0, 0)
         center_layout.setSpacing(8)
 
-        # Create vertical buttons section
-        vertical_section = QFrame()
-        vertical_layout = QVBoxLayout(vertical_section)
-        vertical_layout.setContentsMargins(0, 0, 0, 0)
-        vertical_layout.setSpacing(8)
-
-        for button_type in TransactionButtonType:
-            config = TransactionButtonConfig.get_config(button_type)
-            btn = QPushButton(config['text'])
-            btn.setStyleSheet(ButtonStyles.get_transaction_button_style(button_type))
-            button_config = self.layout_config.get_button_config('transaction')
-            btn.setFixedSize(
-                button_config['width'],
-                button_config['height']
-            )
-            if config['action']:
-                btn.clicked.connect(getattr(self, config['action']))
-            vertical_layout.addWidget(btn)
-
-        vertical_layout.addStretch()
-        center_layout.addWidget(vertical_section)
+        # Create and add transaction buttons widget
+        self.transaction_buttons = TransactionButtonsWidget()
+        center_layout.addWidget(self.transaction_buttons)
 
         # Create and connect product grid
         self.product_grid = ProductGridWidget()
@@ -352,30 +318,46 @@ class POSView(QWidget):
         """Handle other payment types"""
         print("Other Payment button clicked")
 
-    def hold_transaction(self):
-        """Handle hold transaction"""
-        print("Not This Hold horizontal button clicked")
+    # def hold_transaction(self):
+    #     """Handle hold transaction"""
+    #     print("Not This Hold horizontal button clicked")
 
-    def void_transaction(self):
-        """Handle void transaction"""
-        print("Not This Void horizontal button clicked")
+    # def void_transaction(self):
+    #     """Handle void transaction"""
+    #     print("Not This Void horizontal button clicked")
 
-    def paid_in(self):
-        """Handle paid in"""
-        print("Paid in button clicked")
+    # def paid_in(self):
+    #     """Handle paid in"""
+    #     print("Paid in button clicked")
 
-    def paid_out(self):
-        """Handle paid out"""
-        print("Paid out button clicked")
+    # def paid_out(self):
+    #     """Handle paid out"""
+    #     print("Paid out button clicked")
 
-    def no_sale(self):
-        """Handle no sale"""
-        print("Vertical No Sale button clicked")
+    # def no_sale(self):
+    #     """Handle no sale"""
+    #     print("Vertical No Sale button clicked")
 
-    def apply_discount(self):
-        """Handle discount"""
-        print("Discount button clicked")
+    # def apply_discount(self):
+    #     """Handle discount"""
+    #     print("Discount button clicked")
 
-    def show_numpad(self):
-        """Show numpad"""
-        print("num pad button clicked")
+    # def show_numpad(self):
+    #     """Show numpad"""
+    #     print("num pad button clicked")
+
+    # Add new handler for transaction actions
+    # def _handle_transaction_action(self, action_type):
+    #     """Handle actions from transaction buttons widget"""
+    #     action_map = {
+    #         'HOLD': self.hold_transaction,
+    #         'VOID': self.void_transaction,
+    #         'PAID_IN': self.paid_in,
+    #         'PAID_OUT': self.paid_out,
+    #         'NO_SALE': self.no_sale,
+    #         'DISCOUNT': self.apply_discount,
+    #         'NUM_PAD': self.show_numpad
+    #     }
+        
+    #     if action_type in action_map:
+    #         action_map[action_type]()
