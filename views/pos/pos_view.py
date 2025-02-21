@@ -337,7 +337,6 @@ class POSView(QWidget):
         """
         pass
 
-    # Event Handlers
     def _filter_products(self):
         """Filter products based on search input"""
         search_text = self.search_input.text()
@@ -350,8 +349,9 @@ class POSView(QWidget):
         # Use pending quantity if available
         if self.pending_quantity is not None:
             quantity = self.pending_quantity
-            # Reset numpad and pending quantity
-            self.numpad_widget._on_clear()
+            # Reset both numpad and pending quantity
+            self.numpad_widget._current_value = "0"  # Reset internal value
+            self.numpad_widget._update_display()     # Update display
             self.pending_quantity = None
         
         # Add item with quantity
@@ -363,6 +363,7 @@ class POSView(QWidget):
         
         self._update_totals()
         self.search_input.clear_search()
+
 
     def _handle_numpad_value_change(self, value: str):
         """Handle numpad value changes"""
@@ -377,6 +378,7 @@ class POSView(QWidget):
         except ValueError:
             self.pending_quantity = None
 
+    # Event Handlers
     def _on_order_cleared(self):
         """Handle order being cleared"""
         self._update_totals()
