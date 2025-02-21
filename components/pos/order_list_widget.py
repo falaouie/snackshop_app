@@ -280,6 +280,18 @@ class OrderListWidget(QFrame):
             self.selected_item = None
             self._update_display()
 
+    def remove_item(self, item):
+        """Remove a specific item from the order list
+        
+        Args:
+            item: The OrderItem object to remove
+        """
+        if item in self.order_items:
+            self.order_items.remove(item)
+            self._update_display()
+            self._update_quantity_summary()
+            self.item_removed.emit(item)
+
     def _update_display(self):
         """Update the entire order display"""
         self._clear_display()
