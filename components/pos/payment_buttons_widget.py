@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QPushButton
+from PyQt5.QtWidgets import QFrame, QHBoxLayout, QPushButton, QVBoxLayout
 from PyQt5.QtCore import pyqtSignal
 from styles import ButtonStyles
 from styles.layouts import layout_config
@@ -19,7 +19,7 @@ class PaymentButtonsWidget(QFrame):
 
     def _setup_ui(self):
         """Initialize the payment buttons UI"""
-        main_layout = QHBoxLayout(self)
+        main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(6)
         
