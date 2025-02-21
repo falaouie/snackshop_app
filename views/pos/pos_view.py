@@ -17,6 +17,7 @@ from components.pos.order_type_widget import OrderTypeWidget
 from components.pos.horizontal_buttons_widget import HorizontalButtonsWidget
 from components.pos.transaction_buttons_widget import TransactionButtonsWidget
 from components.pos.payment_buttons_widget import PaymentButtonsWidget
+from components.numpad import NumpadWidget, NumpadMode
 
 from models.product_catalog import PRODUCT_PRICES
 
@@ -28,6 +29,8 @@ class POSView(QWidget):
         self.exchange_rate = 90000
         self.prices = PRODUCT_PRICES 
         self.keyboard = VirtualKeyboard(self)
+        self.pending_quantity = None  # Track pending quantity from numpad
+
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._update_time)
         self.timer.start(1000)
@@ -245,8 +248,11 @@ class POSView(QWidget):
         intermediate_layout.setContentsMargins(10, 10, 10, 10)
         intermediate_layout.setSpacing(10)
         intermediate_layout.addStretch()
+
         # Add numpad widget (left side)
-        self.numpad_widget = self._create_numpad_widget()
+        self.numpad_widget = NumpadWidget(self)
+        # Connect to track value changes
+        self.numpad_widget.display.textChanged.connect(self._handle_numpad_value_change)
         intermediate_layout.addWidget(self.numpad_widget)
 
         # Create right side container for totals and payment
@@ -271,136 +277,6 @@ class POSView(QWidget):
         main_layout.addWidget(intermediate_container)
 
         return products_frame
-    
-    def _create_numpad_widget(self):
-        """Create the numpad widget with updated dimensions"""
-        # Main container for the numpad
-        numpad_container = QFrame()
-        numpad_container.setStyleSheet("""
-            QFrame {
-                background: white;
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-            }
-        """)
-        numpad_container.setFixedWidth(350)  # Fixed width remains the same
-        
-        # Main horizontal layout
-        main_layout = QHBoxLayout(numpad_container)
-        main_layout.setContentsMargins(8, 8, 8, 8)
-        main_layout.setSpacing(8)
-
-        # Create mode buttons container
-        mode_container = QFrame()
-        mode_layout = QVBoxLayout(mode_container)
-        mode_layout.setContentsMargins(0, 0, 0, 0)
-        mode_layout.setSpacing(4)
-        
-        # Mode button styles
-        mode_button_style = """
-            QPushButton {
-                background: #F5F5F5;
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-                padding: 8px;
-                font-size: 14px;
-                min-width: 50px;
-                min-height: 60px;  /* Increased height for better touch targets */
-            }
-            QPushButton:hover {
-                background: #EBEBEB;
-            }
-            QPushButton:checked {
-                background: #007AFF;
-                color: white;
-                border: none;
-            }
-        """
-
-        # Create mode buttons
-        mode_buttons = []
-        for mode in ['QTY', 'WGT', 'USD', 'LBP']:
-            btn = QPushButton(mode)
-            btn.setCheckable(True)
-            btn.setStyleSheet(mode_button_style)
-            mode_layout.addWidget(btn)
-            mode_buttons.append(btn)
-        
-        # Set QTY as default selected
-        mode_buttons[0].setChecked(True)
-        
-        # Add stretch to bottom of mode buttons
-        mode_layout.addStretch()
-
-        # Create right side container (display + numpad)
-        right_container = QFrame()
-        right_layout = QVBoxLayout(right_container)
-        right_layout.setContentsMargins(0, 0, 0, 0)
-        right_layout.setSpacing(8)
-
-        # Create display
-        display = QLineEdit()
-        display.setAlignment(Qt.AlignRight)
-        display.setReadOnly(True)
-        display.setText("0")
-        display.setStyleSheet("""
-            QLineEdit {
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-                padding: 8px;
-                font-size: 18px;  /* Increased font size */
-                background: #F9F9F9;
-                min-height: 50px;  /* Increased height */
-            }
-        """)
-        right_layout.addWidget(display)
-
-        # Create numpad grid
-        numpad_grid = QFrame()
-        grid_layout = QGridLayout(numpad_grid)
-        grid_layout.setContentsMargins(0, 0, 0, 0)
-        grid_layout.setSpacing(8)  # Increased spacing
-
-        # Number button style
-        number_button_style = """
-            QPushButton {
-                background: white;
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-                padding: 8px;
-                font-size: 18px;  /* Increased font size */
-                min-width: 50px;  /* Increased width */
-                min-height: 50px; /* Increased height */
-            }
-            QPushButton:hover {
-                background: #F5F5F5;
-            }
-            QPushButton:pressed {
-                background: #EBEBEB;
-            }
-        """
-
-        # Create number buttons
-        numbers = [
-            ['7', '8', '9'],
-            ['4', '5', '6'],
-            ['1', '2', '3'],
-            ['0', '.', 'C']
-        ]
-
-        for i, row in enumerate(numbers):
-            for j, num in enumerate(row):
-                btn = QPushButton(num)
-                btn.setStyleSheet(number_button_style)
-                grid_layout.addWidget(btn, i, j)
-
-        right_layout.addWidget(numpad_grid)
-
-        # Add containers to main layout
-        main_layout.addWidget(mode_container)
-        main_layout.addWidget(right_container, 1)
-
-        return numpad_container
 
     def _create_bottom_bar(self):
         """Bottom bar remains unchanged - contains only order type widget"""
@@ -468,10 +344,38 @@ class POSView(QWidget):
         self.product_grid.set_search_text(search_text)
 
     def _handle_product_click(self, item_name):
-        """Handle product button click"""
+        """Handle product button click with quantity support"""
+        quantity = 1  # Default quantity
+        
+        # Use pending quantity if available
+        if self.pending_quantity is not None:
+            quantity = self.pending_quantity
+            # Reset numpad and pending quantity
+            self.numpad_widget._on_clear()
+            self.pending_quantity = None
+        
+        # Add item with quantity
         self.order_list.add_item(item_name, self.prices.get(item_name, 0))
+        
+        # If quantity > 1, add additional quantities
+        for _ in range(quantity - 1):
+            self.order_list.add_item(item_name, self.prices.get(item_name, 0))
+        
         self._update_totals()
         self.search_input.clear_search()
+
+    def _handle_numpad_value_change(self, value: str):
+        """Handle numpad value changes"""
+        try:
+            # Clean the value (remove formatting)
+            clean_value = value.replace(',', '')
+            # Only update pending quantity if it's a valid number and in QTY mode
+            if self.numpad_widget.current_mode == NumpadMode.QTY:
+                self.pending_quantity = int(clean_value) if clean_value != '0' else None
+            else:
+                self.pending_quantity = None
+        except ValueError:
+            self.pending_quantity = None
 
     def _on_order_cleared(self):
         """Handle order being cleared"""
