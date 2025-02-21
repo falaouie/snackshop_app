@@ -344,21 +344,21 @@ class POSView(QWidget):
 
     def _handle_product_click(self, item_name):
         """Handle product button click with quantity support"""
-        # Check if item exists in order list
-        existing_item = self._find_existing_item(item_name)
-        
-        # Get quantity from numpad if available, else default to 1
-        new_quantity = self.pending_quantity if self.pending_quantity is not None else 1
-        
-        if existing_item and new_quantity > 0:
-            # Show quantity decision dialog
-            self._show_quantity_dialog(item_name, existing_item.quantity, new_quantity)
+        # If using numpad (has pending quantity)
+        if self.pending_quantity is not None:
+            # Check if item exists in order list
+            existing_item = self._find_existing_item(item_name)
+            if existing_item:
+                # Show quantity decision dialog
+                self._show_quantity_dialog(item_name, existing_item.quantity, self.pending_quantity)
+            else:
+                # Add new item with numpad quantity
+                self._add_product_with_quantity(item_name, self.pending_quantity)
         else:
-            # Process new item normally
-            self._add_product_with_quantity(item_name, new_quantity)
-        
-        self._update_totals()
-        self.search_input.clear_search()
+            # Direct click - original behavior (add quantity of 1)
+            self.order_list.add_item(item_name, self.prices.get(item_name, 0))
+            self._update_totals()
+            self.search_input.clear_search()
 
     def _add_product_with_quantity(self, item_name, quantity):
         """Add new product with specified quantity"""
