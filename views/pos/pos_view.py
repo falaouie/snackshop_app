@@ -4,9 +4,6 @@ from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 
-from button_definitions.types import PaymentButtonType
-from button_definitions.payment import PaymentButtonConfig
-
 from styles import POSStyles
 from styles.buttons import ButtonStyles
 from styles.layouts import layout_config
@@ -19,6 +16,7 @@ from components.keyboard import VirtualKeyboard
 from components.pos.order_type_widget import OrderTypeWidget
 from components.pos.horizontal_buttons_widget import HorizontalButtonsWidget
 from components.pos.transaction_buttons_widget import TransactionButtonsWidget
+from components.pos.payment_buttons_widget import PaymentButtonsWidget
 
 from models.product_catalog import PRODUCT_PRICES
 
@@ -255,18 +253,10 @@ class POSView(QWidget):
         
         layout.addStretch()
 
-        for button_type in PaymentButtonType:
-            config = PaymentButtonConfig.get_config(button_type)
-            btn = QPushButton(config['text'])
-            btn.setStyleSheet(ButtonStyles.get_payment_button_style(button_type))
-            button_config = self.layout_config.get_button_config('payment')
-            btn.setFixedSize(
-                button_config['width'],
-                button_config['height']
-            )
-            if config['action']:
-                btn.clicked.connect(getattr(self, config['action']))
-            layout.addWidget(btn)
+        # Add payment buttons widget
+        self.payment_buttons = PaymentButtonsWidget()
+        self.payment_buttons.action_triggered.connect(self._on_payment_action)
+        layout.addWidget(self.payment_buttons)
 
         return bottom_bar
 
@@ -297,6 +287,17 @@ class POSView(QWidget):
         # if action_type == 'VOID':
         #     self._clear_current_order()
         #     self._update_transaction_log()
+        pass
+
+    def _on_payment_action(self, action_type):
+        """Hook for payment-related coordination.
+        
+        Future use cases:
+        - Payment flow management
+        - Receipt generation
+        - Order status updates
+        - Cross-widget coordination for payment process
+        """
         pass
 
     # Event Handlers
@@ -339,56 +340,3 @@ class POSView(QWidget):
         from ..view_manager import ViewManager
         ViewManager.get_instance().switch_back_to_pin_view_from_pos(self.user_id)
         self.deleteLater()
-
-    # Payment/Transaction Methods
-    def process_cash_payment(self):
-        """Handle cash payment"""
-        print("Cash button clicked")
-
-    def process_other_payment(self):
-        """Handle other payment types"""
-        print("Other Payment button clicked")
-
-    # def hold_transaction(self):
-    #     """Handle hold transaction"""
-    #     print("Not This Hold horizontal button clicked")
-
-    # def void_transaction(self):
-    #     """Handle void transaction"""
-    #     print("Not This Void horizontal button clicked")
-
-    # def paid_in(self):
-    #     """Handle paid in"""
-    #     print("Paid in button clicked")
-
-    # def paid_out(self):
-    #     """Handle paid out"""
-    #     print("Paid out button clicked")
-
-    # def no_sale(self):
-    #     """Handle no sale"""
-    #     print("Vertical No Sale button clicked")
-
-    # def apply_discount(self):
-    #     """Handle discount"""
-    #     print("Discount button clicked")
-
-    # def show_numpad(self):
-    #     """Show numpad"""
-    #     print("num pad button clicked")
-
-    # Add new handler for transaction actions
-    # def _handle_transaction_action(self, action_type):
-    #     """Handle actions from transaction buttons widget"""
-    #     action_map = {
-    #         'HOLD': self.hold_transaction,
-    #         'VOID': self.void_transaction,
-    #         'PAID_IN': self.paid_in,
-    #         'PAID_OUT': self.paid_out,
-    #         'NO_SALE': self.no_sale,
-    #         'DISCOUNT': self.apply_discount,
-    #         'NUM_PAD': self.show_numpad
-    #     }
-        
-    #     if action_type in action_map:
-    #         action_map[action_type]()
