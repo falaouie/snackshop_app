@@ -28,6 +28,7 @@ class ProductGridWidget(QFrame):
         self.category_buttons = {}
         self.search_text = ""
         
+        self.category_bar = self._create_category_bar()
         self._setup_ui()
         # Initialize first category
         self._show_category_items(self.categories[0])
@@ -39,7 +40,7 @@ class ProductGridWidget(QFrame):
         main_layout.setSpacing(8)
 
         # Horizontal Categories Row
-        main_layout.addWidget(self._create_category_bar())
+        # main_layout.addWidget(self._create_category_bar())
 
         # Products Grid Area
         self.products_scroll = QScrollArea()
@@ -54,6 +55,10 @@ class ProductGridWidget(QFrame):
         
         main_layout.addWidget(self.products_scroll, 1)
 
+    def get_category_bar(self):
+        """Return the category buttons bar widget"""
+        return self.category_bar
+    
     def _create_category_bar(self):
         """Create horizontal category buttons bar"""
         category_frame = QFrame()

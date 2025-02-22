@@ -18,9 +18,7 @@ class TransactionButtonsWidget(QFrame):
         
         self.setStyleSheet("""
             QFrame {
-                background: white;
-                border-left: 1px solid #DEDEDE;
-                border-right: 1px solid #DEDEDE;
+                background: transparent;
             }
         """)
         self._setup_ui()

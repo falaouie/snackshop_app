@@ -49,26 +49,108 @@ class POSView(QWidget):
         top_bar_container = self._create_top_bar()
         main_layout.addWidget(top_bar_container)
 
-        # Main Content Area with Splitter
+        # Create main content area with splitter
         content_splitter = QSplitter(Qt.Horizontal)
         content_splitter.setStyleSheet(POSStyles.SPLITTER)
+        content_splitter.setHandleWidth(
+            self.layout_config.get_pos_layout()['splitter_handle_width']
+        )
+        
+        # Left container (will hold order_type and left column)
+        left_container = QWidget()
+        left_container.setStyleSheet(POSStyles.LEFT_CONTAINER())
+        left_layout = QVBoxLayout(left_container)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(
+        self.layout_config.get_pos_layout()['order_type_button_spacing']
+        )
+
+        # Create order type container with fixed height
+        order_type_container = QWidget()
+        order_type_container.setStyleSheet(POSStyles.ORDER_TYPE_CONTAINER())
+        order_type_container.setFixedHeight(
+            self.layout_config.get_pos_layout()['order_type_container_height']
+        )
+        order_type_layout = QVBoxLayout(order_type_container)
+        order_type_layout.setContentsMargins(0, 0, 0, 0)
+        order_type_layout.setSpacing(0)
+
+        # Create and add order type widget spanning both order_list and center_panel
+        self.order_type_widget = OrderTypeWidget()
+        self.order_type_widget.order_type_changed.connect(self._on_order_type_changed)
+        order_type_layout.addWidget(self.order_type_widget)
+
+        # Add order type container to left layout
+        left_layout.addWidget(order_type_container)
+
+        # Create inner splitter for order_list and center_panel
+        inner_splitter = QSplitter(Qt.Horizontal)
+        inner_splitter.setStyleSheet(POSStyles.SPLITTER)
+        inner_splitter.setHandleWidth(
+            self.layout_config.get_pos_layout()['splitter_handle_width']
+        )
         
         # Left Side - Order Details
         self.order_widget = self._create_order_widget()
         self.order_widget.setStyleSheet(POSStyles.ORDER_PANEL(
             self.layout_config.get_pos_layout()['order_panel_width']
         ))
-        content_splitter.addWidget(self.order_widget)
+        inner_splitter.addWidget(self.order_widget)
+        
+        # Center Panel
+        self.center_panel = self._create_center_panel()
+        inner_splitter.addWidget(self.center_panel)
+
+        # Add inner splitter to left container
+        left_layout.addWidget(inner_splitter)
+        
+        # Add left container to main splitter
+        content_splitter.addWidget(left_container)
         
         # Right Side - Products Grid
         self.products_widget = self._create_products_widget()
         content_splitter.addWidget(self.products_widget)
         
+        # Add content splitter to main layout
         main_layout.addWidget(content_splitter, 1)
 
-        # Create and add bottom bar
+        # Create and add bottom bar (empty for now)
         self.bottom_bar = self._create_bottom_bar()
         main_layout.addWidget(self.bottom_bar)
+
+    def _create_center_panel(self):
+        """Create center panel with transaction buttons"""
+        center_panel = QFrame()
+        center_panel.setFixedWidth(self.layout_config.get_pos_layout()['center_panel_width'])
+        center_panel.setStyleSheet(POSStyles.CENTER_PANEL())
+        
+        center_layout = QVBoxLayout(center_panel)
+        center_layout.setContentsMargins(0, 0, 0, 0)
+        center_layout.setSpacing(8)
+
+        # Add top stretch for vertical centering
+        # center_layout.addStretch(1)
+
+        # Create and add transaction buttons widget
+        self.transaction_buttons = TransactionButtonsWidget()
+        self.transaction_buttons.action_triggered.connect(self._on_transaction_action)
+        
+        # Create container for horizontal centering
+        button_container = QWidget()
+        button_container_layout = QHBoxLayout(button_container)
+        button_container_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Add stretches for horizontal centering
+        button_container_layout.addStretch(1)
+        button_container_layout.addWidget(self.transaction_buttons)
+        button_container_layout.addStretch(1)
+        
+        center_layout.addWidget(button_container)
+        
+        # Add bottom stretch for vertical centering
+        center_layout.addStretch(1)
+
+        return center_panel
 
     def _create_top_bar(self):
         """Create top bar with employee info, search, and lock button"""
@@ -187,102 +269,75 @@ class POSView(QWidget):
         return order_frame
 
     def _create_products_widget(self):
-        """Create products panel with updated layout structure"""
+        """Create products panel with grid and intermediate section"""
         products_frame = QFrame()
-        
-        # Main layout for products area
-        main_layout = QHBoxLayout(products_frame)
-        main_layout.setContentsMargins(0, 5, 0, 0)
-        main_layout.setSpacing(8)
+        products_frame.setStyleSheet(POSStyles.PRODUCTS_FRAME())
 
-        # Center panel - now extends full height
-        center_panel = QFrame()
-        center_panel.setFixedWidth(self.layout_config.get_pos_layout()['center_panel_width'])
-        center_panel.setStyleSheet(POSStyles.CENTER_PANEL())
-        
-        center_layout = QVBoxLayout(center_panel)
-        center_layout.setContentsMargins(0, 0, 0, 0)
-        center_layout.setSpacing(8)
+        main_layout = QVBoxLayout(products_frame)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
-        # Add top stretch to center the buttons vertically
-        # center_layout.addStretch(1)
-
-        # Create and add transaction buttons widget
-        self.transaction_buttons = TransactionButtonsWidget()
-        self.transaction_buttons.action_triggered.connect(self._on_transaction_action)
+        # Create category buttons container with fixed height
+        category_container = QWidget()
+        category_container.setStyleSheet(POSStyles.CATEGORY_CONTAINER())
+        category_container.setFixedHeight(
+            self.layout_config.get_pos_layout()['category_container_height']
+        )
+        category_layout = QVBoxLayout(category_container)
+        category_layout.setContentsMargins(0, 0, 0, 0)
+        category_layout.setSpacing(
+            self.layout_config.get_pos_layout()['category_button_spacing']
+        )
         
-        # Create a container for horizontal centering
-        button_container = QWidget()
-        button_container_layout = QHBoxLayout(button_container)
-        button_container_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Add stretches on both sides to center horizontally
-        button_container_layout.addStretch(1)
-        button_container_layout.addWidget(self.transaction_buttons)
-        button_container_layout.addStretch(1)
-        
-        center_layout.addWidget(button_container)
-        
-        # Add bottom stretch for vertical centering
-        center_layout.addStretch(1)
-
-        # Add center panel to main layout
-        main_layout.addWidget(center_panel)
-
-        # Right side container for product grid and intermediate section
-        right_container = QWidget()
-        right_layout = QVBoxLayout(right_container)
-        right_layout.setContentsMargins(0, 0, 0, 0)
-        right_layout.setSpacing(8)
-
-        # Create and connect product grid
+        # Create product grid and get its category bar
         self.product_grid = ProductGridWidget()
-        self.product_grid.product_selected.connect(self._handle_product_click)
-        right_layout.addWidget(self.product_grid, 1)
+        category_layout.addWidget(self.product_grid.get_category_bar())
+        
+        # Add category container to main layout
+        main_layout.addWidget(category_container)
 
-        # Intermediate section (numpad and payment)
+        # Add product grid
+        self.product_grid.product_selected.connect(self._handle_product_click)
+        main_layout.addWidget(self.product_grid, 1)
+
+        # Create intermediate section
         intermediate_container = QFrame()
-        intermediate_container.setFixedHeight(self.layout_config.get_pos_layout()['intermediate_container_height'])
+        intermediate_container.setFixedHeight(
+            self.layout_config.get_pos_layout()['intermediate_container_height']
+        )
         intermediate_container.setStyleSheet(POSStyles.INTERMEDIATE_CONTAINER())
         
-        # Layout for intermediate container
         intermediate_layout = QHBoxLayout(intermediate_container)
         intermediate_layout.setContentsMargins(10, 10, 10, 10)
         intermediate_layout.setSpacing(10)
 
-        # Add numpad widget (left side)
+        # Add numpad
         self.numpad_widget = NumpadWidget(self)
         self.numpad_widget.display.textChanged.connect(self._handle_numpad_value_change)
         intermediate_layout.addWidget(self.numpad_widget)
 
-        # Create container for totals and payment
+        # Add payment section
         payment_container = QFrame()
+        payment_container.setStyleSheet(POSStyles.PAYMENT_CONTAINER())
+        
         payment_layout = QHBoxLayout(payment_container)
         payment_layout.setContentsMargins(0, 0, 0, 0)
         payment_layout.setSpacing(10)
 
-        # Add payment buttons
         self.payment_buttons = PaymentButtonsWidget()
         self.payment_buttons.action_triggered.connect(self._on_payment_action)
         payment_layout.addWidget(self.payment_buttons)
 
-        # Add totals widget
         self.totals_widget = TotalsWidget(self.exchange_rate)
         payment_layout.addWidget(self.totals_widget)
 
-        # Add payment container to intermediate layout
         intermediate_layout.addWidget(payment_container, 1)
-
-        # Add intermediate container to right layout
-        right_layout.addWidget(intermediate_container)
-
-        # Add right container to main layout
-        main_layout.addWidget(right_container, 1)
+        main_layout.addWidget(intermediate_container)
 
         return products_frame
 
     def _create_bottom_bar(self):
-        """Bottom bar remains unchanged - contains only order type widget"""
+        """Create empty bottom bar for future use"""
         bottom_bar = QFrame()
         bottom_bar.setStyleSheet(POSStyles.BOTTOM_BAR(
             self.layout_config.get_pos_layout()['bottom_bar_height']
@@ -290,12 +345,8 @@ class POSView(QWidget):
         layout = QHBoxLayout(bottom_bar)
         layout.setContentsMargins(10, 5, 10, 10)
         layout.setSpacing(6)
-
-        # Create and add order type widget
-        self.order_type_widget = OrderTypeWidget()
-        self.order_type_widget.order_type_changed.connect(self._on_order_type_changed)
-        layout.addWidget(self.order_type_widget)
         
+        # Add stretch to keep the bar but leave it empty
         layout.addStretch()
 
         return bottom_bar

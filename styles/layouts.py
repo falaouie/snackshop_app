@@ -7,8 +7,13 @@ class LayoutSizes:
         'pos_top_bar_height': 50,
         'pos_order_panel_width': 300,
         'pos_bottom_bar_height': 70,
-        'pos_center_panel_width': 120,  # Your current fixed width
-        'pos_intermediate_container_height': 350,  # Your current fixed height
+        'pos_center_panel_width': 100,
+        'pos_order_type_container_height': 50,
+        'pos_category_container_height': 50,
+        'pos_intermediate_container_height': 300,
+        'pos_splitter_handle_width': 1,
+        'pos_order_type_button_spacing': 6,
+        'pos_category_button_spacing': 6,
 
         # search input
         'pos_search_input_width': 250,
@@ -105,8 +110,13 @@ class LayoutSizes:
         'pos_top_bar_height': 60,
         'pos_order_panel_width': 350,
         'pos_bottom_bar_height': 80,
-        'pos_center_panel_width': 120,  # Your current fixed width
-        'pos_intermediate_container_height': 350,  # Your current fixed height
+        'pos_center_panel_width': 120,
+        'pos_order_type_container_height': 60,
+        'pos_category_container_height': 60,
+        'pos_intermediate_container_height': 350,
+        'pos_splitter_handle_width': 1,
+        'pos_order_type_button_spacing': 8,
+        'pos_category_button_spacing': 8,
 
         # search input
         'pos_search_input_width': 300,
@@ -203,8 +213,13 @@ class LayoutSizes:
         'pos_top_bar_height': 70,
         'pos_order_panel_width': 400,
         'pos_bottom_bar_height': 90,
-        'pos_center_panel_width': 180,
-        'pos_intermediate_container_height': 450,
+        'pos_center_panel_width': 140,
+        'pos_order_type_container_height': 70,
+        'pos_category_container_height': 70,
+        'pos_intermediate_container_height': 400,
+        'pos_splitter_handle_width': 1,
+        'pos_order_type_button_spacing': 10,
+        'pos_category_button_spacing': 10,
 
         # search input
         'pos_search_input_width': 600,
@@ -318,7 +333,12 @@ class LayoutConfig:
             'order_panel_width': self.screen_config.get_size('pos_order_panel_width'),
             'bottom_bar_height': self.screen_config.get_size('pos_bottom_bar_height'),
             'center_panel_width': self.screen_config.get_size('pos_center_panel_width'),
+            'order_type_container_height': self.screen_config.get_size('pos_order_type_container_height'),
+            'category_container_height': self.screen_config.get_size('pos_category_container_height'),
             'intermediate_container_height': self.screen_config.get_size('pos_intermediate_container_height'),
+            'splitter_handle_width': self.screen_config.get_size('pos_splitter_handle_width'),
+            'order_type_button_spacing': self.screen_config.get_size('pos_order_type_button_spacing'),
+            'category_button_spacing': self.screen_config.get_size('pos_category_button_spacing'),
             'search_input': {
                 'width': self.screen_config.get_size('pos_search_input_width'),
                 'height': self.screen_config.get_size('pos_search_input_height')

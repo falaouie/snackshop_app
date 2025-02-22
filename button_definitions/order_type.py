@@ -9,13 +9,13 @@ class OrderTypeButtonConfig:
         "border_color": "#DEDEDE",
         # Selected state
         "selected_text_color": "white",
-        "selected_background": "#2196F3",
+        "selected_background": "black",
         "selected_border_color": "#2196F3",
         # Hover state
-        "hover_background": "#F8F9FA",
+        "hover_background": "darkgrey",
         "hover_border_color": "#2196F3",
         # Selected hover state
-        "selected_hover_background": "#1E88E5",
+        "selected_hover_background": "darkgrey",
     }
 
     BUTTON_CONFIGS = {
