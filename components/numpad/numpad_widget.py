@@ -41,6 +41,9 @@ class NumpadWidget(QFrame):
         """Initialize the numpad UI"""
         self.setStyleSheet(NumpadStyles.CONTAINER)
         
+        # Enable focus and keyboard input
+        self.setFocusPolicy(Qt.StrongFocus)
+        
         # Main layout
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(*self.layout_config['main_margins'])
@@ -273,6 +276,36 @@ class NumpadWidget(QFrame):
         """Reset the numpad to initial state"""
         self._on_clear()
         self._on_mode_change(NumpadMode.QTY)
+
+    def keyPressEvent(self, event):
+        """Handle keyboard input"""
+        # Handle number keys
+        if event.key() >= Qt.Key_0 and event.key() <= Qt.Key_9:
+            number = event.text()
+            self._on_number_click(number)
+            
+        # Handle decimal point
+        elif event.key() == Qt.Key_Period:
+            if self.current_mode not in [NumpadMode.LBP, NumpadMode.QTY]:
+                self._on_number_click('.')
+                
+        # Handle backspace/delete
+        elif event.key() in [Qt.Key_Backspace, Qt.Key_Delete]:
+            current = self._current_value
+            if len(current) > 1:
+                self._current_value = current[:-1]
+                self._update_display()
+            else:
+                self._on_clear()
+                
+        # Let parent handle other keys
+        else:
+            super().keyPressEvent(event)
+
+    def focusInEvent(self, event):
+        """Handle focus to enable keyboard input"""
+        super().focusInEvent(event)
+        self.setFocus()
 
     def _format_display_value(self, value: str) -> str:
         """
