@@ -1,11 +1,10 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                                QPushButton, QFrame, QSplitter, QGridLayout, QLineEdit, QMessageBox)
+                                QPushButton, QFrame, QSplitter, QMessageBox)
 from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 
 from styles import POSStyles
-from styles.buttons import ButtonStyles
 from styles.layouts import layout_config
 
 from components.pos.order_list_widget import OrderListWidget
@@ -188,93 +187,97 @@ class POSView(QWidget):
         return order_frame
 
     def _create_products_widget(self):
-        """Create products panel"""
+        """Create products panel with updated layout structure"""
         products_frame = QFrame()
         
         # Main layout for products area
-        main_layout = QVBoxLayout(products_frame)
+        main_layout = QHBoxLayout(products_frame)
         main_layout.setContentsMargins(0, 5, 0, 0)
         main_layout.setSpacing(8)
 
-        # Container for products grid and center panel
-        content_container = QWidget()
-        content_layout = QHBoxLayout(content_container)
-        content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(10)
-
-        # Center buttons panel
+        # Center panel - now extends full height
         center_panel = QFrame()
-        center_panel.setFixedWidth(120)
-        center_panel.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-left: 1px solid #DEDEDE;
-                border-right: 1px solid #DEDEDE;
-            }
-        """)
+        center_panel.setFixedWidth(self.layout_config.get_pos_layout()['center_panel_width'])
+        center_panel.setStyleSheet(POSStyles.CENTER_PANEL())
         
         center_layout = QVBoxLayout(center_panel)
         center_layout.setContentsMargins(0, 0, 0, 0)
         center_layout.setSpacing(8)
 
+        # Add top stretch to center the buttons vertically
+        # center_layout.addStretch(1)
+
         # Create and add transaction buttons widget
         self.transaction_buttons = TransactionButtonsWidget()
         self.transaction_buttons.action_triggered.connect(self._on_transaction_action)
-        center_layout.addWidget(self.transaction_buttons)
+        
+        # Create a container for horizontal centering
+        button_container = QWidget()
+        button_container_layout = QHBoxLayout(button_container)
+        button_container_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Add stretches on both sides to center horizontally
+        button_container_layout.addStretch(1)
+        button_container_layout.addWidget(self.transaction_buttons)
+        button_container_layout.addStretch(1)
+        
+        center_layout.addWidget(button_container)
+        
+        # Add bottom stretch for vertical centering
+        center_layout.addStretch(1)
+
+        # Add center panel to main layout
+        main_layout.addWidget(center_panel)
+
+        # Right side container for product grid and intermediate section
+        right_container = QWidget()
+        right_layout = QVBoxLayout(right_container)
+        right_layout.setContentsMargins(0, 0, 0, 0)
+        right_layout.setSpacing(8)
 
         # Create and connect product grid
         self.product_grid = ProductGridWidget()
         self.product_grid.product_selected.connect(self._handle_product_click)
-        
-        # Add panels to content layout
-        content_layout.addWidget(center_panel)
-        content_layout.addWidget(self.product_grid, 1)
+        right_layout.addWidget(self.product_grid, 1)
 
-        # Add content container to main layout
-        main_layout.addWidget(content_container, 1)
-
-        # Create intermediate container for numpad and payment sections
+        # Intermediate section (numpad and payment)
         intermediate_container = QFrame()
-        intermediate_container.setFixedHeight(350)  # Set fixed height for the container
-        intermediate_container.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-top: 1px solid #DEDEDE;
-            }
-        """)
+        intermediate_container.setFixedHeight(self.layout_config.get_pos_layout()['intermediate_container_height'])
+        intermediate_container.setStyleSheet(POSStyles.INTERMEDIATE_CONTAINER())
         
         # Layout for intermediate container
         intermediate_layout = QHBoxLayout(intermediate_container)
         intermediate_layout.setContentsMargins(10, 10, 10, 10)
         intermediate_layout.setSpacing(10)
-        intermediate_layout.addStretch()
 
         # Add numpad widget (left side)
         self.numpad_widget = NumpadWidget(self)
-        # Connect to track value changes
         self.numpad_widget.display.textChanged.connect(self._handle_numpad_value_change)
         intermediate_layout.addWidget(self.numpad_widget)
 
-        # Create right side container for totals and payment
-        right_container = QFrame()
-        right_layout = QHBoxLayout(right_container)
-        right_layout.setContentsMargins(0, 0, 0, 0)
-        right_layout.setSpacing(10)
-        right_layout.addStretch()
-        # Add payment buttons to right container
+        # Create container for totals and payment
+        payment_container = QFrame()
+        payment_layout = QHBoxLayout(payment_container)
+        payment_layout.setContentsMargins(0, 0, 0, 0)
+        payment_layout.setSpacing(10)
+
+        # Add payment buttons
         self.payment_buttons = PaymentButtonsWidget()
         self.payment_buttons.action_triggered.connect(self._on_payment_action)
-        right_layout.addWidget(self.payment_buttons)
+        payment_layout.addWidget(self.payment_buttons)
 
-        # Add totals widget to right container
+        # Add totals widget
         self.totals_widget = TotalsWidget(self.exchange_rate)
-        right_layout.addWidget(self.totals_widget)
+        payment_layout.addWidget(self.totals_widget)
 
-        # Add right container to intermediate layout
-        intermediate_layout.addWidget(right_container, 1)
+        # Add payment container to intermediate layout
+        intermediate_layout.addWidget(payment_container, 1)
 
-        # Add intermediate container to main layout
-        main_layout.addWidget(intermediate_container)
+        # Add intermediate container to right layout
+        right_layout.addWidget(intermediate_container)
+
+        # Add right container to main layout
+        main_layout.addWidget(right_container, 1)
 
         return products_frame
 

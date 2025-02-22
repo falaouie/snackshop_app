@@ -80,6 +80,25 @@ class POSStyles:
             }}
         """
     
+    # center panel and intermediate container styles
+    @classmethod
+    def CENTER_PANEL(cls):
+        return """
+            QFrame {
+                background: white;
+                border-left: 1px solid #DEDEDE;
+                border-right: 1px solid #DEDEDE;
+            }
+        """
+
+    @classmethod
+    def INTERMEDIATE_CONTAINER(cls):
+        return """
+            QFrame {
+                background: white;
+                border-top: 1px solid #DEDEDE;
+            }
+    """
     # Order panel styles
     @classmethod
     def ORDER_PANEL(cls, width):

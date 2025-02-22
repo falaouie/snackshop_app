@@ -7,6 +7,8 @@ class LayoutSizes:
         'pos_top_bar_height': 50,
         'pos_order_panel_width': 300,
         'pos_bottom_bar_height': 70,
+        'pos_center_panel_width': 120,  # Your current fixed width
+        'pos_intermediate_container_height': 350,  # Your current fixed height
 
         # search input
         'pos_search_input_width': 250,
@@ -103,6 +105,8 @@ class LayoutSizes:
         'pos_top_bar_height': 60,
         'pos_order_panel_width': 350,
         'pos_bottom_bar_height': 80,
+        'pos_center_panel_width': 120,  # Your current fixed width
+        'pos_intermediate_container_height': 350,  # Your current fixed height
 
         # search input
         'pos_search_input_width': 300,
@@ -199,6 +203,8 @@ class LayoutSizes:
         'pos_top_bar_height': 70,
         'pos_order_panel_width': 400,
         'pos_bottom_bar_height': 90,
+        'pos_center_panel_width': 180,
+        'pos_intermediate_container_height': 450,
 
         # search input
         'pos_search_input_width': 600,
@@ -311,6 +317,8 @@ class LayoutConfig:
             'top_bar_height': self.screen_config.get_size('pos_top_bar_height'),
             'order_panel_width': self.screen_config.get_size('pos_order_panel_width'),
             'bottom_bar_height': self.screen_config.get_size('pos_bottom_bar_height'),
+            'center_panel_width': self.screen_config.get_size('pos_center_panel_width'),
+            'intermediate_container_height': self.screen_config.get_size('pos_intermediate_container_height'),
             'search_input': {
                 'width': self.screen_config.get_size('pos_search_input_width'),
                 'height': self.screen_config.get_size('pos_search_input_height')
