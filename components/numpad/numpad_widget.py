@@ -136,10 +136,10 @@ class NumpadWidget(QFrame):
                 layout.addWidget(btn, i, j)
 
         # Create Enter button that spans the rightmost column
-        enter_btn = QPushButton('Enter')
-        enter_btn.setStyleSheet(NumpadStyles.ENTER_BUTTON)
-        enter_btn.clicked.connect(self._on_enter)
-        layout.addWidget(enter_btn, 0, 3, 4, 1)  # Span 4 rows
+        # enter_btn = QPushButton('Enter')
+        # enter_btn.setStyleSheet(NumpadStyles.ENTER_BUTTON)
+        # enter_btn.clicked.connect(self._on_enter)
+        # layout.addWidget(enter_btn, 0, 3, 4, 1)  # Span 4 rows
 
         # Initialize dynamic button state
         self._update_dynamic_buttons()
