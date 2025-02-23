@@ -13,7 +13,7 @@ from components.pos.totals_widget import TotalsWidget
 from components.pos.search_widget import SearchWidget
 from components.keyboard import VirtualKeyboard
 from components.pos.order_type_widget import OrderTypeWidget
-from components.pos.horizontal_buttons_widget import HorizontalButtonsWidget
+# from components.pos.horizontal_buttons_widget import HorizontalButtonsWidget
 from components.pos.transaction_buttons_widget import TransactionButtonsWidget
 from components.pos.payment_buttons_widget import PaymentButtonsWidget
 from components.numpad import NumpadWidget, NumpadMode
@@ -262,9 +262,9 @@ class POSView(QWidget):
         layout.addWidget(self.order_list)
         
         # Add horizontal buttons widget and connect signal
-        self.horizontal_buttons = HorizontalButtonsWidget(self)
-        self.horizontal_buttons.action_triggered.connect(self._on_horizontal_action)
-        layout.addWidget(self.horizontal_buttons)
+        # self.horizontal_buttons = HorizontalButtonsWidget(self)
+        # self.horizontal_buttons.action_triggered.connect(self._on_horizontal_action)
+        # layout.addWidget(self.horizontal_buttons)
 
         return order_frame
 

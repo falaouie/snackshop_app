@@ -5,7 +5,7 @@ class ButtonType(Enum):
     PAYMENT = auto()
     TRANSACTION = auto()
     ORDER = auto()
-    HORIZONTAL = auto()
+    # HORIZONTAL = auto()
 
 class PaymentButtonType(Enum):
     """Specific payment button types"""
@@ -29,11 +29,11 @@ class OrderButtonType(Enum):
     TAKE_AWAY = "TAKE_AWAY"
     DELIVERY = "DELIVERY"
 
-class HorizontalButtonType(Enum):
-    """Horizontal button types in order panel"""
-    HOLD = "HOLD"
-    VOID = "VOID"
-    NO_SALE = "NO_SALE"
+# class HorizontalButtonType(Enum):
+#     """Horizontal button types in order panel"""
+#     HOLD = "HOLD"
+#     VOID = "VOID"
+#     NO_SALE = "NO_SALE"
 
 class ProductButtonType(Enum):
     """Product button type"""

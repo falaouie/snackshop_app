@@ -1,7 +1,7 @@
 from button_definitions import (
     PaymentButtonConfig,
     TransactionButtonConfig,
-    HorizontalButtonConfig,
+    # HorizontalButtonConfig,
     OrderTypeButtonConfig,
     CategoryButtonConfig,
     ProductButtonConfig
@@ -9,7 +9,7 @@ from button_definitions import (
 from button_definitions.types import (
     PaymentButtonType,
     TransactionButtonType,
-    HorizontalButtonType
+    # HorizontalButtonType
 )
 
 class ButtonStyles:
