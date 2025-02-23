@@ -8,12 +8,6 @@ class POSStyles:
     def init_screen_config(cls, config):
         cls.screen_config = config
     
-    # Delegate button styles to ButtonStyles class
-    get_payment_button_style = ButtonStyles.get_payment_button_style
-    get_transaction_button_style = ButtonStyles.get_transaction_button_style
-    get_horizontal_button_style = ButtonStyles.get_horizontal_button_style
-    get_order_button_style = ButtonStyles.get_order_button_style
-    
     # Top bar styles
     @classmethod
     def TOP_BAR(cls, height):

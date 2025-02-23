@@ -17,11 +17,6 @@ class ButtonStyles:
     # screen_config = None  # Will be set during initialization
     layout_config = None
 
-    # @classmethod
-    # def init_screen_config(cls, config):
-    #     """Initialize screen configuration"""
-    #     cls.screen_config = config
-
     @classmethod
     def init_layout_config(cls, config):
         """Initialize layout configuration"""
@@ -132,9 +127,6 @@ class ButtonStyles:
                     font-weight: 500;
                     min-width: {button_config['width']}px;
                 }}
-                QPushButton:hover {{
-                    background: {config['selected_hover_background']};
-                }}
             """
         else:
             return f"""
@@ -146,10 +138,6 @@ class ButtonStyles:
                     color: {config['text_color']};
                     font-size: {button_config['font_size']}px;
                     min-width: {button_config['width']}px;
-                }}
-                QPushButton:hover {{
-                    background: {config['hover_background']};
-                    border-color: {config['hover_border_color']};
                 }}
             """
 
@@ -173,9 +161,6 @@ class ButtonStyles:
                     font-size: {grid_config['category_button']['font_size']}px;
                     font-weight: 500;
                 }}
-                QPushButton:hover {{
-                    background: {config['selected_hover_background']};
-                }}
             """
         else:
             return f"""
@@ -186,10 +171,6 @@ class ButtonStyles:
                     padding: {grid_config['category_button']['padding']}px;
                     color: {config['text_color']};
                     font-size: {grid_config['category_button']['font_size']}px;
-                }}
-                QPushButton:hover {{
-                    background: {config['hover_background']};
-                    border-color: {config['hover_border_color']};
                 }}
             """
 

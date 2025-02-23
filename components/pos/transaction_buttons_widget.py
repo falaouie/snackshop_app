@@ -19,6 +19,7 @@ class TransactionButtonsWidget(QFrame):
         self.setStyleSheet("""
             QFrame {
                 background: transparent;
+                border: none;
             }
         """)
         self._setup_ui()
@@ -26,9 +27,8 @@ class TransactionButtonsWidget(QFrame):
     def _setup_ui(self):
         """Initialize the transaction buttons UI"""
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(8)
-        
         self._create_buttons(main_layout)
         main_layout.addStretch()  # Add stretch at the end
 

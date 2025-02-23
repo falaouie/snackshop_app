@@ -11,11 +11,6 @@ class OrderTypeButtonConfig:
         "selected_text_color": "white",
         "selected_background": "black",
         "selected_border_color": "#2196F3",
-        # Hover state
-        "hover_background": "darkgrey",
-        "hover_border_color": "#2196F3",
-        # Selected hover state
-        "selected_hover_background": "darkgrey",
     }
 
     BUTTON_CONFIGS = {
