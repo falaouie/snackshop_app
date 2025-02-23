@@ -9,20 +9,29 @@ class PaymentButtonConfig:
     }
 
     BUTTON_CONFIGS = {
-        PaymentButtonType.CASH: {
-            "text": "PAY CASH",
+        PaymentButtonType.CASH_USD: {
+            "text": "CASH USD",
             "colors": {
-                "primary": "#006400",
-                "hover": "#48A848",
+                "primary": "#006400",  # Dark green
+                "hover": "#48A848",    # Lighter green
                 "text": DEFAULTS["text_color"]
             },
-            "action": "process_cash_payment"
+            "action": "process_cash_usd_payment"
+        },
+        PaymentButtonType.CASH_LBP: {
+            "text": "CASH LBP",
+            "colors": {
+                "primary": "#004D40",  # Dark teal
+                "hover": "#00897B",    # Lighter teal
+                "text": DEFAULTS["text_color"]
+            },
+            "action": "process_cash_lbp_payment"
         },
         PaymentButtonType.OTHER: {
             "text": "PAY OTHER",
             "colors": {
-                "primary": "#FFBF00",
-                "hover": "#FFB300",
+                "primary": "#FFBF00",  # Amber
+                "hover": "#FFB300",    # Lighter amber
                 "text": DEFAULTS["text_color"]
             },
             "action": "process_other_payment"

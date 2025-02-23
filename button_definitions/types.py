@@ -9,7 +9,8 @@ class ButtonType(Enum):
 
 class PaymentButtonType(Enum):
     """Specific payment button types"""
-    CASH = "CASH"
+    CASH_USD = "CASH_USD"
+    CASH_LBP = "CASH_LBP"
     OTHER = "OTHER"
 
 class TransactionButtonType(Enum):

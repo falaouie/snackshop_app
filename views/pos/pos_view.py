@@ -326,6 +326,7 @@ class POSView(QWidget):
 
         self.payment_buttons = PaymentButtonsWidget()
         self.payment_buttons.action_triggered.connect(self._on_payment_action)
+        self.payment_buttons.currency_mode_changed.connect(self.numpad_widget.set_currency_mode)
         payment_layout.addWidget(self.payment_buttons)
 
         self.totals_widget = TotalsWidget(self.exchange_rate)
