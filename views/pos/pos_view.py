@@ -56,34 +56,16 @@ class POSView(QWidget):
             self.layout_config.get_pos_layout()['splitter_handle_width']
         )
         
-        # Left container (will hold order_type and left column)
+        # Left container (will hold left column)
         left_container = QWidget()
         left_container.setStyleSheet(POSStyles.LEFT_CONTAINER())
         left_layout = QVBoxLayout(left_container)
         left_layout.setContentsMargins(0, 0, 0, 0)
         left_layout.setSpacing(
-        self.layout_config.get_pos_layout()['order_type_button_spacing']
+            self.layout_config.get_pos_layout()['order_type_button_spacing']
         )
-
-        # Create order type container with fixed height
-        order_type_container = QWidget()
-        order_type_container.setStyleSheet(POSStyles.ORDER_TYPE_CONTAINER())
-        order_type_container.setFixedHeight(
-            self.layout_config.get_pos_layout()['order_type_container_height']
-        )
-        order_type_layout = QVBoxLayout(order_type_container)
-        order_type_layout.setContentsMargins(0, 0, 0, 0)
-        order_type_layout.setSpacing(0)
-
-        # Create and add order type widget spanning both order_list and center_panel
-        self.order_type_widget = OrderTypeWidget()
-        self.order_type_widget.order_type_changed.connect(self._on_order_type_changed)
-        order_type_layout.addWidget(self.order_type_widget)
-
-        # Add order type container to left layout
-        left_layout.addWidget(order_type_container)
-
-        # Create inner splitter for order_list and center_panel
+        
+        # Create inner splitter for order_list and center_panel first
         inner_splitter = QSplitter(Qt.Horizontal)
         inner_splitter.setStyleSheet(POSStyles.SPLITTER)
         inner_splitter.setHandleWidth(
@@ -101,8 +83,26 @@ class POSView(QWidget):
         self.center_panel = self._create_center_panel()
         inner_splitter.addWidget(self.center_panel)
 
-        # Add inner splitter to left container
+        # Add inner splitter to left container first
         left_layout.addWidget(inner_splitter)
+
+        # Create order type container with fixed height
+        order_type_container = QWidget()
+        order_type_container.setStyleSheet(POSStyles.ORDER_TYPE_CONTAINER())
+        order_type_container.setFixedHeight(
+            self.layout_config.get_pos_layout()['order_type_container_height']
+        )
+        order_type_layout = QVBoxLayout(order_type_container)
+        order_type_layout.setContentsMargins(0, 0, 0, 0)
+        order_type_layout.setSpacing(0)
+
+        # Create and add order type widget 
+        self.order_type_widget = OrderTypeWidget()
+        self.order_type_widget.order_type_changed.connect(self._on_order_type_changed)
+        order_type_layout.addWidget(self.order_type_widget)
+
+        # Add order type container to left layout after the splitter
+        left_layout.addWidget(order_type_container)
         
         # Add left container to main splitter
         content_splitter.addWidget(left_container)
@@ -114,7 +114,7 @@ class POSView(QWidget):
         # Add content splitter to main layout
         main_layout.addWidget(content_splitter, 1)
 
-        # Create and add bottom bar (empty for now)
+        # Create and add bottom bar
         self.bottom_bar = self._create_bottom_bar()
         main_layout.addWidget(self.bottom_bar)
 

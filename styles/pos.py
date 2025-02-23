@@ -101,8 +101,7 @@ class POSStyles:
         return """
             QFrame, QWidget {
                 background: white;
-                border-left: 1px solid #DEDEDE;
-                border-right: 1px solid #DEDEDE;
+                border: px solid #DEDEDE;
             }
         """
 
@@ -151,7 +150,7 @@ class POSStyles:
         return f"""
             QFrame {{
                 background: white;
-                border-right: 1px solid #DEDEDE;
+                border: 1px solid #DEDEDE;
                 width: {width}px;
             }}
         """
