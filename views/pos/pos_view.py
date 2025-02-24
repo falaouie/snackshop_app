@@ -33,8 +33,12 @@ class POSView(QWidget):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._update_time)
         self.timer.start(1000)
-        
-        self.transaction_buttons = None  # Will be initialized in _create_products_widget
+
+        # Track last clicked product and timer
+        self.last_numpad_product = None
+        self.button_protection_timer = QTimer(self)
+        self.button_protection_timer.setSingleShot(True)
+        self.button_protection_timer.timeout.connect(self._reset_button_protection)
 
         self._setup_ui()
         self._update_time()
@@ -268,6 +272,7 @@ class POSView(QWidget):
 
         return order_frame
 
+
     def _create_products_widget(self):
         """Create products panel with grid and intermediate section"""
         products_frame = QFrame()
@@ -277,12 +282,29 @@ class POSView(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # Create category buttons container with fixed height
+        # Create and add category container
+        category_container = self._create_category_container()
+        main_layout.addWidget(category_container)
+
+        # Add product grid
+        self.product_grid = ProductGridWidget()
+        self.product_grid.product_selected.connect(self._handle_product_click)
+        main_layout.addWidget(self.product_grid, 1)
+
+        # Create and add intermediate section
+        intermediate_container = self._create_intermediate_container()
+        main_layout.addWidget(intermediate_container)
+
+        return products_frame
+    
+    def _create_category_container(self):
+        """Create container for category buttons"""
         category_container = QWidget()
         category_container.setStyleSheet(POSStyles.CATEGORY_CONTAINER())
         category_container.setFixedHeight(
             self.layout_config.get_pos_layout()['category_container_height']
         )
+        
         category_layout = QVBoxLayout(category_container)
         category_layout.setContentsMargins(0, 0, 0, 0)
         category_layout.setSpacing(
@@ -290,52 +312,54 @@ class POSView(QWidget):
         )
         
         # Create product grid and get its category bar
-        self.product_grid = ProductGridWidget()
+        if not hasattr(self, 'product_grid'):
+            self.product_grid = ProductGridWidget()
         category_layout.addWidget(self.product_grid.get_category_bar())
         
-        # Add category container to main layout
-        main_layout.addWidget(category_container)
-
-        # Add product grid
-        self.product_grid.product_selected.connect(self._handle_product_click)
-        main_layout.addWidget(self.product_grid, 1)
-
-        # Create intermediate section
-        intermediate_container = QFrame()
-        intermediate_container.setFixedHeight(
+        return category_container
+    
+    def _create_intermediate_container(self):
+        """Create container for numpad and payment section"""
+        container = QFrame()
+        container.setFixedHeight(
             self.layout_config.get_pos_layout()['intermediate_container_height']
         )
-        intermediate_container.setStyleSheet(POSStyles.INTERMEDIATE_CONTAINER())
+        container.setStyleSheet(POSStyles.INTERMEDIATE_CONTAINER())
         
-        intermediate_layout = QHBoxLayout(intermediate_container)
-        intermediate_layout.setContentsMargins(10, 10, 10, 10)
-        intermediate_layout.setSpacing(10)
+        layout = QHBoxLayout(container)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(10)
 
         # Add numpad
         self.numpad_widget = NumpadWidget(self)
-        self.numpad_widget.display.textChanged.connect(self._handle_numpad_value_change)
-        intermediate_layout.addWidget(self.numpad_widget)
+        self.numpad_widget.value_changed.connect(self._handle_numpad_value_change)
+        layout.addWidget(self.numpad_widget)
 
         # Add payment section
-        payment_container = QFrame()
-        payment_container.setStyleSheet(POSStyles.PAYMENT_CONTAINER())
-        
-        payment_layout = QHBoxLayout(payment_container)
-        payment_layout.setContentsMargins(0, 0, 0, 0)
-        payment_layout.setSpacing(10)
+        payment_container = self._create_payment_container()
+        layout.addWidget(payment_container, 1)
 
+        return container
+    
+    def _create_payment_container(self):
+        """Create payment buttons and totals container"""
+        container = QFrame()
+        container.setStyleSheet(POSStyles.PAYMENT_CONTAINER())
+        
+        layout = QHBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(10)
+
+        # Add payment buttons
         self.payment_buttons = PaymentButtonsWidget()
         self.payment_buttons.action_triggered.connect(self._on_payment_action)
-        self.payment_buttons.currency_mode_changed.connect(self.numpad_widget.set_currency_mode)
-        payment_layout.addWidget(self.payment_buttons)
+        layout.addWidget(self.payment_buttons)
 
+        # Add totals widget
         self.totals_widget = TotalsWidget(self.exchange_rate)
-        payment_layout.addWidget(self.totals_widget)
+        layout.addWidget(self.totals_widget)
 
-        intermediate_layout.addWidget(payment_container, 1)
-        main_layout.addWidget(intermediate_container)
-
-        return products_frame
+        return container
 
     def _create_bottom_bar(self):
         """Create empty bottom bar for future use"""
@@ -382,15 +406,39 @@ class POSView(QWidget):
         pass
 
     def _on_payment_action(self, action_type):
-        """Hook for payment-related coordination.
-        
-        Future use cases:
-        - Payment flow management
-        - Receipt generation
-        - Order status updates
-        - Cross-widget coordination for payment process
-        """
-        pass
+        """Handle payment button clicks"""
+        try:
+            if self.pending_value is not None:
+                # Validate before any conversion
+                if action_type == 'CASH_LBP' and '.' in self.pending_value:
+                    self._show_validation_message("Only whole numbers accepted for LBP")
+                    self.pending_value = None
+                    self.numpad_widget.clear()
+                    return
+                
+                # Convert based on payment type
+                try:
+                    if action_type == 'CASH_LBP':
+                        amount = int(self.pending_value)  # Direct conversion, no float
+                    else:
+                        amount = float(self.pending_value)
+                except ValueError:
+                    self._show_validation_message("Invalid amount")
+                    self.pending_value = None
+                    self.numpad_widget.clear()
+                    return
+
+                # Process payment with validated amount
+                print(f"Processing {action_type} payment with amount: {amount}")
+                # Future: Implement actual payment processing
+                
+                self.pending_value = None
+                self.numpad_widget.clear()
+                
+        except Exception as e:
+            print(f"Error in payment processing: {e}")
+            self.pending_value = None
+            self.numpad_widget.clear()
 
     def _filter_products(self):
         """Filter products based on search input"""
@@ -398,24 +446,89 @@ class POSView(QWidget):
         self.product_grid.set_search_text(search_text)
 
     def _handle_product_click(self, item_name):
-        """Handle product button click with quantity support"""
-        # If using numpad (has pending quantity)
-        if self.pending_quantity is not None:
-            # Check if item exists in order list
-            existing_item = self._find_existing_item(item_name)
-            if existing_item:
-                # Show quantity decision dialog
-                self._show_quantity_dialog(item_name, existing_item.quantity, self.pending_quantity)
-            else:
-                # Add new item with numpad quantity
-                self._add_product_with_quantity(item_name, self.pending_quantity)
-        else:
-            # Direct click - original behavior (add quantity of 1)
-            self.order_list.add_item(item_name, self.prices.get(item_name, 0))
-            self._update_totals()
-            self.search_input.clear_search()
+        """Handle product button click"""
+        # If this product is in protection period, ignore the click
+        if self.last_numpad_product == item_name and self.button_protection_timer.isActive():
+            return
 
-    def _add_product_with_quantity(self, item_name, quantity):
+        try:
+            # If has pending value from numpad
+            if self.pending_value is not None:
+                if '.' in self.pending_value:
+                    self._show_validation_message("Only whole numbers accepted for products")
+                    return
+
+                quantity = int(self.pending_value)
+                if quantity > 0:
+                    existing_item = self._find_existing_item(item_name)
+                    if existing_item:
+                        self._show_quantity_dialog(item_name, existing_item.quantity, quantity)
+                    else:
+                        self._add_product_with_quantity(item_name, quantity)
+                    
+                    # Start protection for this product button
+                    self._protect_button(item_name)
+                
+                self.pending_value = None
+            else:
+                # Regular click - add quantity of 1
+                self.order_list.add_item(item_name, self.prices.get(item_name, 0))
+                self._update_totals()
+            
+            self.search_input.clear_search()
+            self.numpad_widget.clear()
+            
+        except ValueError:
+            self.pending_value = None
+            self.numpad_widget.clear()
+
+    def _protect_button(self, item_name):
+        """Request button protection from product grid"""
+        self.last_numpad_product = item_name
+        self.product_grid.disable_button_temporarily(item_name)
+        self.button_protection_timer.start(500)
+
+    def _reset_button_protection(self):
+        """Request button protection removal"""
+        if self.last_numpad_product:
+            self.product_grid.enable_button(self.last_numpad_product)
+        self.last_numpad_product = None
+
+    def _show_validation_message(self, message):
+        """Show validation message to user"""
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle('Input Validation')
+        msg_box.setText(message)
+        msg_box.setStandardButtons(QMessageBox.Ok)
+        msg_box.setStyleSheet("""
+            QMessageBox {
+                background-color: white;
+            }
+            QLabel {
+                font-size: 14px;
+                padding: 10px;
+            }
+            QPushButton {
+                padding: 8px 15px;
+                font-size: 13px;
+                min-width: 80px;
+                margin: 5px;
+                border: 1px solid #DEDEDE;
+                border-radius: 4px;
+                background: white;
+            }
+            QPushButton:hover {
+                background: #F5F5F5;
+                border-color: #2196F3;
+            }
+        """)
+        msg_box.exec_()
+        
+        # Clear numpad after validation message
+        self.numpad_widget.clear()
+        self.pending_value = None
+
+    def _add_product_with_quantity(self, item_name: str, quantity: int):
         """Add new product with specified quantity"""
         price = self.prices.get(item_name, 0)
         for _ in range(quantity):
@@ -423,7 +536,7 @@ class POSView(QWidget):
         
         self._update_totals()
         self.search_input.clear_search()
-        self._reset_numpad()
+        self.numpad_widget.clear()
 
     def _reset_numpad(self):
         """Reset numpad state"""
@@ -486,35 +599,39 @@ class POSView(QWidget):
             self._update_item_quantity(item_name, new_qty)
         
         # Reset numpad regardless of choice (including cancel)
-        self._reset_numpad()
+        self.numpad_widget.clear()
+        self.pending_value = None
 
-    def _update_item_quantity(self, item_name, final_quantity):
+    def _update_item_quantity(self, item_name: str, final_quantity: int):
         """Update item quantity in order list"""
-        # First remove existing item
-        existing_item = self._find_existing_item(item_name)
-        if existing_item:
-            self.order_list.remove_item(existing_item)
-        
-        # Add item with new quantity
-        price = self.prices.get(item_name, 0)
-        for _ in range(final_quantity):
-            self.order_list.add_item(item_name, price)
-        
-        self._update_totals()
-        self.search_input.clear_search()
+        try:
+            # Remove existing item first
+            existing_item = self._find_existing_item(item_name)
+            if existing_item:
+                self.order_list.remove_item(existing_item)
+            
+            # Add item with new quantity
+            price = self.prices.get(item_name, 0)
+            for _ in range(final_quantity):
+                self.order_list.add_item(item_name, price)
+            
+            self._update_totals()
+            self.search_input.clear_search()
+            self.numpad_widget.clear()
+            
+        except Exception as e:
+            print(f"Error updating quantity: {e}")  # For debugging
+            self.numpad_widget.clear()
+            self.pending_value = None
 
     def _handle_numpad_value_change(self, value: str):
         """Handle numpad value changes"""
         try:
-            # Clean the value (remove formatting)
-            clean_value = value.replace(',', '')
-            # Only update pending quantity if it's a valid number and in QTY mode
-            if self.numpad_widget.current_mode == NumpadMode.QTY:
-                self.pending_quantity = int(clean_value) if clean_value != '0' else None
-            else:
-                self.pending_quantity = None
+            clean_value = value.strip()
+            # Store the raw value - let the action handlers handle validation
+            self.pending_value = clean_value if clean_value != '0' else None
         except ValueError:
-            self.pending_quantity = None
+            self.pending_value = None
 
     # Event Handlers
     def _on_order_cleared(self):

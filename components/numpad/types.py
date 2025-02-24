@@ -2,10 +2,10 @@ from enum import Enum, auto
 
 class NumpadMode(Enum):
     """Available modes for the numpad component"""
-    QTY = auto()  # Quantity mode - whole numbers only
-    WGT = auto()  # Weight mode - allows decimals
-    USD = auto()  # US Dollar mode - 2 decimal places
-    LBP = auto()  # Lebanese Pound mode - whole numbers
+    QTY = auto()   # For quantities and inventory
+    USD = auto()   # For USD amounts
+    LBP = auto()   # For LBP amounts
+    DEFAULT = auto() # For standalone operation
 
 class NumpadState(Enum):
     """Operating state of the numpad"""
@@ -21,13 +21,13 @@ class NumpadValidation:
             'min_value': 1,
             'max_value': 9999
         },
-        NumpadMode.WGT: {
-            'allow_decimal': True,
-            'max_digits': 6,
-            'decimal_places': 3,
-            'min_value': 0.001,
-            'max_value': 999.999
-        },
+        # NumpadMode.WGT: {
+        #     'allow_decimal': True,
+        #     'max_digits': 6,
+        #     'decimal_places': 3,
+        #     'min_value': 0.001,
+        #     'max_value': 999.999
+        # },
         NumpadMode.USD: {
             'allow_decimal': True,
             'max_digits': 8,

@@ -1,79 +1,69 @@
-class POSStyles:
-    """POS view specific styles"""
-    screen_config = None
-    
-    @classmethod
-    def init_screen_config(cls, config):
-        cls.screen_config = config
-    
-    # Existing styles remain...
+class ProductGridWidget(QFrame):
+    # ... existing code ...
 
-    @classmethod
-    def ORDER_TYPE_CONTAINER(cls):
-        """Style for the container holding order type buttons"""
-        return """
-            QWidget {
-                background: white;
-                border-bottom: 1px solid #DEDEDE;
+    def _populate_grid(self, items):
+        """Populate grid with product buttons"""
+        product_style = ButtonStyles.get_product_button_style()
+        grid_config = self.layout_config.get_product_grid_config()
+
+        for i, item in enumerate(items):
+            btn = QPushButton(item)
+            btn.setProperty('product_name', item)  # Track product name
+            btn.setProperty('disabled_by_numpad', False)  # Track disabled state
+            btn.setFixedSize(
+                grid_config['product_button']['width'],
+                grid_config['product_button']['height']
+            )
+            btn.setStyleSheet(product_style)
+            btn.clicked.connect(lambda checked, name=item: self.product_selected.emit(name))
+            
+            row = i // 3  # 3 columns per row
+            col = i % 3
+            self.products_grid.addWidget(btn, row, col)
+
+    def disable_button_temporarily(self, product_name):
+        """Handle temporary button disable with styling"""
+        button = self.find_product_button(product_name)
+        if button:
+            self._apply_disabled_style(button)
+            return True
+        return False
+
+    def enable_button(self, product_name):
+        """Reset button to normal state"""
+        button = self.find_product_button(product_name)
+        if button:
+            self._reset_button_style(button)
+
+    def _apply_disabled_style(self, button):
+        """Apply disabled style to button"""
+        button.setProperty('disabled_by_numpad', True)
+        base_style = ButtonStyles.get_product_button_style()
+        disabled_style = base_style + """
+            QPushButton[disabled_by_numpad="true"] {
+                background-color: #E0E0E0;
+                color: #666666;
             }
         """
+        button.setStyleSheet(disabled_style)
+        self._refresh_button_style(button)
 
-    @classmethod
-    def CATEGORY_CONTAINER(cls):
-        """Style for the container holding category buttons"""
-        return """
-            QWidget {
-                background: white;
-                border-bottom: 1px solid #DEDEDE;
-            }
-        """
+    def _reset_button_style(self, button):
+        """Reset button to normal style"""
+        button.setProperty('disabled_by_numpad', False)
+        button.setStyleSheet(ButtonStyles.get_product_button_style())
+        self._refresh_button_style(button)
 
-    @classmethod
-    def CENTER_PANEL(cls):
-        """Style for the center panel holding transaction buttons"""
-        return """
-            QFrame {
-                background: white;
-                border-left: 1px solid #DEDEDE;
-                border-right: 1px solid #DEDEDE;
-            }
-        """
+    def _refresh_button_style(self, button):
+        """Force button style refresh"""
+        button.style().unpolish(button)
+        button.style().polish(button)
+        button.update()
 
-    @classmethod
-    def INTERMEDIATE_CONTAINER(cls):
-        """Style for the intermediate container holding numpad and payment sections"""
-        return """
-            QFrame {
-                background: white;
-                border-top: 1px solid #DEDEDE;
-            }
-        """
-
-    @classmethod
-    def PRODUCTS_FRAME(cls):
-        """Style for the main products frame"""
-        return """
-            QFrame {
-                background: #F8F9FA;
-            }
-        """
-
-    @classmethod
-    def LEFT_CONTAINER(cls):
-        """Style for the left container holding order type and order list"""
-        return """
-            QWidget {
-                background: white;
-            }
-        """
-
-    @classmethod
-    def PAYMENT_CONTAINER(cls):
-        """Style for the payment section container"""
-        return """
-            QFrame {
-                background: white;
-                border-left: 1px solid #DEDEDE;
-                padding: 10px;
-            }
-        """
+    def find_product_button(self, product_name):
+        """Find a product button by its name"""
+        for i in range(self.products_grid.count()):
+            widget = self.products_grid.itemAt(i).widget()
+            if isinstance(widget, QPushButton) and widget.property('product_name') == product_name:
+                return widget
+        return None

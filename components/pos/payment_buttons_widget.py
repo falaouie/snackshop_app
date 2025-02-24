@@ -4,14 +4,12 @@ from styles import ButtonStyles
 from styles.layouts import layout_config
 from button_definitions.types import PaymentButtonType
 from button_definitions.payment import PaymentButtonConfig
-from components.numpad.types import NumpadMode 
 
 class PaymentButtonsWidget(QFrame):
     """Widget for managing payment buttons"""
     
     # Signals
     action_triggered = pyqtSignal(str)  # Emits the triggered action type
-    currency_mode_changed = pyqtSignal(object)  # Emits the NumpadMode
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -41,20 +39,10 @@ class PaymentButtonsWidget(QFrame):
                     button_config['height']
                 )
                 
-                # Connect button handlers
+                # Connect button handler - simplified for Phase 1
                 btn.clicked.connect(
                     lambda checked, type=button_type.value: self._handle_action_triggered(type)
                 )
-                
-                # Connect mode change handlers
-                if button_type == PaymentButtonType.CASH_USD:
-                    btn.clicked.connect(lambda: self.currency_mode_changed.emit(NumpadMode.USD))
-                    btn.clicked.connect(self.process_cash_usd_payment)
-                elif button_type == PaymentButtonType.CASH_LBP:
-                    btn.clicked.connect(lambda: self.currency_mode_changed.emit(NumpadMode.LBP))
-                    btn.clicked.connect(self.process_cash_lbp_payment)
-                elif button_type == PaymentButtonType.OTHER:
-                    btn.clicked.connect(self.process_other_payment)
                 
                 # Store button reference
                 self.payment_buttons[button_type.value] = btn
@@ -64,17 +52,15 @@ class PaymentButtonsWidget(QFrame):
         """Handle button action trigger"""
         self.action_triggered.emit(action_type)
 
-    # Temporary test methods
+    # Payment processing methods will be implemented in future phases
     def process_cash_usd_payment(self):
-        """Handle USD cash payment"""
-        print("CASH USD button clicked")
+        """Handle USD cash payment - placeholder"""
+        pass
 
     def process_cash_lbp_payment(self):
-        """Handle LBP cash payment"""
-        print("CASH LBP button clicked")
+        """Handle LBP cash payment - placeholder"""
+        pass
 
     def process_other_payment(self):
-        """Handle other payment types"""
-        print("Other Payment button clicked")
-        # Reset to QTY mode
-        self.currency_mode_changed.emit(NumpadMode.QTY) # remove later
+        """Handle other payment types - placeholder"""
+        pass
