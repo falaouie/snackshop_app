@@ -29,6 +29,7 @@ class POSView(QWidget):
         self.prices = PRODUCT_PRICES 
         self.keyboard = VirtualKeyboard(self)
         self.pending_quantity = None  # Track pending quantity from numpad
+        self.pending_value = None  # Track pending value from numpad
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self._update_time)

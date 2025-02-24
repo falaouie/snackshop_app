@@ -1,0 +1,132 @@
+Refactoring Plan
+Phase 1: Create a Service Layer and Base Infrastructure
+
+Create a ServiceLocator pattern
+
+Implement a simple service locator to decouple components
+Define interfaces for services
+Register concrete implementations at application startup
+
+
+Create PaymentService
+
+Move payment processing logic from the view to this service
+Handle currency calculations and different payment types
+Use enums consistently for payment types
+
+
+Create OrderService
+
+Move order management logic from OrderListWidget
+Implement methods for adding, updating, removing items
+Handle order state management
+
+
+Define Constants and Configuration
+
+Create a central configuration module
+Move hardcoded values (like exchange rate) to configuration
+
+
+
+Phase 2: Refactor POSView Class
+
+Split POSView into smaller components
+
+Create a controller class to handle business logic
+Make POSView focus solely on UI concerns
+Use delegation pattern to connect UI events to controller actions
+
+
+Replace hardcoded literals with enum values
+
+Replace 'CASH_LBP' with PaymentButtonType.CASH_LBP.value
+Ensure consistent use of enums throughout the codebase
+
+
+Extract validation logic
+
+Create dedicated validators for different input types
+Consistently apply validation rules across the application
+
+
+Implement event-driven communication
+
+Replace direct coupling with event-based communication
+Consider a mediator pattern for component communication
+
+
+
+Phase 3: Refine Component Interactions
+
+Improve signal/slot connections
+
+Make components completely decoupled from each other
+Connect all signals at the controller level
+
+
+Create view models
+
+Add view models to transform data models for presentation
+Handle UI-specific logic in view models
+
+
+Implement state management
+
+Create a state management solution for complex UI states
+Ensure consistent state handling across the application
+
+
+
+Phase 4: Add Extensibility
+
+Prepare for database integration
+
+Create repository interfaces
+Add in-memory implementations for now
+Design for future database implementation
+
+
+Implement plugin architecture
+
+Create extension points for future features
+Make components replaceable and extensible
+
+
+
+Detailed Implementation Plan for Phase 1
+Let's start with Phase 1, which will give us the foundation for further refactoring without requiring a massive rewrite:
+Step 1: Create a Service Locator
+Create a new file core/service_locator.py:
+
+Implement a simple registry for services
+Allow services to be registered and retrieved by type
+
+Step 2: Define Service Interfaces
+Create a new directory services/interfaces/ with these files:
+
+payment_service.py - Define PaymentService interface
+order_service.py - Define OrderService interface
+product_service.py - Define ProductService interface
+
+Step 3: Implement Concrete Services
+Create implementations in services/implementations/:
+
+memory_payment_service.py - Handle payment calculations and processing
+memory_order_service.py - Handle order management
+memory_product_service.py - Provide product data from current hardcoded values
+
+Step 4: Create Configuration Manager
+Create config/app_config.py:
+
+Move exchange rate to configuration
+Define configuration categories (POS, UI, Business)
+Provide defaults and override capability
+
+Step 5: Refactor POSView to Use Services
+Modify pos_view.py:
+
+Inject services through constructor
+Replace direct access to PRODUCT_PRICES with ProductService
+Replace direct payment handling with PaymentService
+Replace order list manipulation with OrderService
