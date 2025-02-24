@@ -283,13 +283,15 @@ class POSView(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # Create and add category container
+        # Create product grid FIRST
+        self.product_grid = ProductGridWidget()
+        self.product_grid.product_selected.connect(self._handle_product_click)
+
+        # Then create the category container using the existing product grid
         category_container = self._create_category_container()
         main_layout.addWidget(category_container)
 
-        # Add product grid
-        self.product_grid = ProductGridWidget()
-        self.product_grid.product_selected.connect(self._handle_product_click)
+        # Add the product grid
         main_layout.addWidget(self.product_grid, 1)
 
         # Create and add intermediate section
@@ -312,9 +314,7 @@ class POSView(QWidget):
             self.layout_config.get_pos_layout()['category_button_spacing']
         )
         
-        # Create product grid and get its category bar
-        if not hasattr(self, 'product_grid'):
-            self.product_grid = ProductGridWidget()
+        # Use the existing product grid - remove the conditional creation
         category_layout.addWidget(self.product_grid.get_category_bar())
         
         return category_container
