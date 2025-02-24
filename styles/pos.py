@@ -1,5 +1,3 @@
-from .buttons import ButtonStyles
-
 class POSStyles:
     """POS view specific styles"""
     screen_config = None
