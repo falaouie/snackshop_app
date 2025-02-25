@@ -55,7 +55,7 @@ class NumpadStyles:
             background: white;
             border: 1px solid #DEDEDE;
             border-radius: 4px;
-            padding: 8px;
+            padding: 2px;
         }
         QPushButton:hover {
             background: #F5F5F5;
@@ -77,8 +77,8 @@ class NumpadConfig:
     # Default dimensions
     DIMENSIONS = {
         'width': 350,           # Total numpad width
-        'display_height': 50,   # Height of display area
-        'button_size': 70,      # Size of number buttons
+        'display_height': 45,   # Height of display area
+        'button_size': 45,      # Size of number buttons
         'qty_button_size': 70,  # Size of QTY button
         'spacing': 8,           # Spacing between elements
     }
@@ -128,7 +128,7 @@ class NumpadConfig:
                 spacing = self.screen_config.get_size('numpad_spacing')
                 return {
                     'main_margins': (spacing, spacing, spacing, spacing),
-                    'grid_margins': (0, 0, 0, 0),
+                    'grid_margins': (2, 2, 2, 2),
                     'grid_spacing': spacing,
                     'display_row_spacing': spacing,
                 }

@@ -241,10 +241,10 @@ class LayoutSizes:
         'keyboard_spacing': 5,
 
         # Numpad specific settings
-        'numpad_button_size': 70,
-        'numpad_display_height': 50,
-        'numpad_spacing': 8,
-        'numpad_font_size': 20,
+        'numpad_button_size': 45,
+        'numpad_display_height': 45,
+        'numpad_spacing': 5,
+        'numpad_font_size': 16,
         'numpad_width': 350,
     }
 
