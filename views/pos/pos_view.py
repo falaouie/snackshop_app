@@ -25,11 +25,11 @@ from controllers.pos_controller import POSController
 
 
 class POSView(QWidget):
+    # Define constants
+    BUTTON_PROTECTION_TIMEOUT_MS = 500
+
     def __init__(self, user_id, parent=None):
         super().__init__(parent)
-        # Define constants
-        BUTTON_PROTECTION_TIMEOUT_MS = 500
-
         self.user_id = user_id
         self.layout_config = layout_config.get_instance()
 
