@@ -12,14 +12,16 @@ snackshop_app/
   │   ├── category.py                # Category button configurations
   │   └── order_type.py              # Order type button configurations
   │
-  ├── styles/                        # UI styling system
-  │   ├── __init__.py                # Style exports
+  ├── styles/                        # UI styling system (centralized)
+  │   ├── __init__.py                # Style exports and initialization
   │   ├── buttons.py                 # Button-specific styles
-  │   ├── layouts.py                 # Layout-related styles
+  │   ├── layouts.py                 # Layout-related styles and sizes
   │   ├── components.py              # Other component styles
   │   ├── app.py                     # Application-wide styles
   │   ├── auth.py                    # Authentication screen styles
-  │   └── pos.py                     # POS screen styles
+  │   ├── pos.py                     # POS screen styles
+  │   ├── keyboard.py                # Keyboard component styles (moved from components)
+  │   └── numpad.py                  # Numpad component styles (moved from components)
   │
   ├── config/                        # Application configuration
   │   ├── __init__.py                # Configuration exports
@@ -30,16 +32,14 @@ snackshop_app/
   │   ├── __init__.py                # Component exports
   │   ├── keyboard/                  # Virtual keyboard component
   │   │   ├── __init__.py            # Keyboard exports
-  │   │   ├── keyboard.py            # Keyboard implementation
+  │   │   ├── keyboard.py            # Keyboard implementation (uses centralized styles)
   │   │   ├── manager.py             # Keyboard manager
-  │   │   ├── styles.py              # Keyboard styles
   │   │   └── types.py               # Keyboard type definitions
   │   │
   │   ├── numpad/                    # Numpad component
   │   │   ├── __init__.py            # Numpad exports
-  │   │   ├── numpad_widget.py       # Numpad widget implementation
+  │   │   ├── numpad_widget.py       # Numpad widget implementation (uses centralized styles)
   │   │   ├── manager.py             # Numpad manager
-  │   │   ├── styles.py              # Numpad styles
   │   │   └── types.py               # Numpad modes and validation rules
   │   │
   │   ├── input/                     # Input components

@@ -12,62 +12,66 @@ class NumpadStyles:
         }
     """
 
-    # Display style
-    DISPLAY = """
-        QLineEdit {
+    # Display style template with parameters for responsive sizing
+    DISPLAY_TEMPLATE = """
+        QLineEdit {{
             border: 1px solid #DEDEDE;
             border-radius: 4px;
             padding: 8px;
-            font-size: 24px;
+            font-size: {font_size}px;
             background: #F9F9F9;
-        }
-        QLineEdit:disabled {
+            min-height: {min_height}px;
+        }}
+        QLineEdit:disabled {{
             background: #F9F9F9;
             color: #333;
-        }
+        }}
     """
-
-    # QTY mode button style
-    QTY_BUTTON = """
-        QPushButton {
+    
+    # Number button style template with parameters for responsive sizing
+    NUMBER_BUTTON_TEMPLATE = """
+        QPushButton {{
             background: white;
             border: 1px solid #DEDEDE;
             border-radius: 4px;
             padding: 8px;
-            font-size: 16px;
-        }
-        QPushButton:hover {
+            font-size: {font_size}px;
+            min-width: {button_size}px;
+            min-height: {button_size}px;
+        }}
+        QPushButton:hover {{
             background: #F5F5F5;
-        }
-        QPushButton:checked {
-            background: #007AFF;
-            color: white;
-            border: none;
-        }
-        QPushButton:pressed {
+        }}
+        QPushButton:pressed {{
             background: #EBEBEB;
-        }
-    """
-
-    # Number button style
-    NUMBER_BUTTON = """
-        QPushButton {
-            background: white;
-            border: 1px solid #DEDEDE;
-            border-radius: 4px;
-            padding: 2px;
-        }
-        QPushButton:hover {
-            background: #F5F5F5;
-        }
-        QPushButton:pressed {
-            background: #EBEBEB;
-        }
-        QPushButton:disabled {
+        }}
+        QPushButton:disabled {{
             background: #F5F5F5;
             color: #999;
-        }
+        }}
     """
+
+    @classmethod
+    def get_display_style(cls, config):
+        """Get responsive display style based on configuration"""
+        font_size = config.get_dimensions()['display_height'] // 2
+        min_height = config.get_dimensions()['display_height']
+        
+        return cls.DISPLAY_TEMPLATE.format(
+            font_size=font_size,
+            min_height=min_height
+        )
+    
+    @classmethod
+    def get_number_button_style(cls, config):
+        """Get responsive number button style based on configuration"""
+        button_size = config.get_dimensions()['button_size']
+        font_size = config.get_dimensions().get('font_size', 20)  # Use default if not found
+        
+        return cls.NUMBER_BUTTON_TEMPLATE.format(
+            font_size=font_size,
+            button_size=button_size
+        )
 
 class NumpadConfig:
     """Configuration for numpad dimensions and layout"""

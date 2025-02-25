@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QFrame,
 from PyQt5.QtCore import Qt, pyqtSignal
 from .types import NumpadMode, NumpadState
 from .manager import NumpadManager
-from .styles import NumpadConfig
+from styles.numpad import NumpadStyles, NumpadConfig
 
 class NumpadWidget(QFrame):
     """
@@ -33,19 +33,19 @@ class NumpadWidget(QFrame):
         
     def _setup_ui(self):
         """Initialize the numpad UI"""
-        self.setStyleSheet("""
-            QFrame {
-                background: white;
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-            }
-        """)
+        # Get the configuration
+        self.config = NumpadConfig.get_instance()
+        self.dimensions = self.config.get_dimensions()
+        self.layout_config = self.config.get_layout()
+        
+        # Apply container style
+        self.setStyleSheet(NumpadStyles.CONTAINER)
         
         # Main layout
         layout = QVBoxLayout(self)
-        margins = self.layout['main_margins']
+        margins = self.layout_config['main_margins']
         layout.setContentsMargins(*margins)
-        layout.setSpacing(self.layout['grid_spacing'])
+        layout.setSpacing(self.layout_config['grid_spacing'])
         
         # Create display
         self.display = self._create_display()
@@ -54,8 +54,8 @@ class NumpadWidget(QFrame):
         # Create number grid
         self.grid_container = QFrame()
         self.grid_layout = QGridLayout(self.grid_container)
-        self.grid_layout.setContentsMargins(*self.layout['grid_margins'])
-        self.grid_layout.setSpacing(self.layout['grid_spacing'])
+        self.grid_layout.setContentsMargins(*self.layout_config['grid_margins'])
+        self.grid_layout.setSpacing(self.layout_config['grid_spacing'])
         
         self._create_number_grid()
         layout.addWidget(self.grid_container)
@@ -86,47 +86,15 @@ class NumpadWidget(QFrame):
         display.setReadOnly(True)
         display.setText("0")
         
-        font_size = self.config.get_dimensions()['display_height'] // 2
-        min_height = self.config.get_dimensions()['display_height']
+        # Use the centralized style
+        display.setStyleSheet(NumpadStyles.get_display_style(self.config))
         
-        display.setStyleSheet(f"""
-            QLineEdit {{
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-                padding: 8px;
-                font-size: {font_size}px;
-                background: #F9F9F9;
-                min-height: {min_height}px;
-            }}
-            QLineEdit:disabled {{
-                background: #F9F9F9;
-                color: #333;
-            }}
-        """)
         return display
 
     def _create_number_grid(self):
         """Create the number button grid"""
-        button_size = self.dimensions['button_size']
-        font_size = self.dimensions.get('font_size', 20)  # Use default if not found
-        
-        button_style = f"""
-            QPushButton {{
-                background: white;
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-                padding: 8px;
-                font-size: {font_size}px;
-                min-width: {button_size}px;
-                min-height: {button_size}px;
-            }}
-            QPushButton:hover {{
-                background: #F5F5F5;
-            }}
-            QPushButton:pressed {{
-                background: #EBEBEB;
-            }}
-        """
+        # Use the centralized style
+        button_style = NumpadStyles.get_number_button_style(self.config)
         
         # Create number buttons (1-9)
         numbers = [

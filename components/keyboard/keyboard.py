@@ -5,7 +5,7 @@ from PyQt5.QtGui import QPixmap, QPainter, QDoubleValidator
 from PyQt5.QtSvg import QSvgRenderer
 from typing import Optional
 from .manager import KeyboardManager
-from .styles import KeyboardStyles, KeyboardConfig, KeyboardEnabledInputStyles
+from styles.keyboard import KeyboardStyles, KeyboardConfig, KeyboardEnabledInputStyles
 from .types import KeyboardType
 
 class KeyboardEnabledInput(QLineEdit):
