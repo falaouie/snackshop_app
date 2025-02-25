@@ -13,19 +13,32 @@ from components.pos.totals_widget import TotalsWidget
 from components.pos.search_widget import SearchWidget
 from components.keyboard import VirtualKeyboard
 from components.pos.order_type_widget import OrderTypeWidget
-# from components.pos.horizontal_buttons_widget import HorizontalButtonsWidget
 from components.pos.transaction_buttons_widget import TransactionButtonsWidget
 from components.pos.payment_buttons_widget import PaymentButtonsWidget
-from components.numpad import NumpadWidget, NumpadMode
+from components.numpad import NumpadWidget
+from button_definitions.types import PaymentButtonType, OrderButtonType, TransactionButtonType
+from components.numpad.types import NumpadMode
 
 from models.product_catalog import PRODUCT_PRICES
+
+from controllers.pos_controller import POSController
+
 
 class POSView(QWidget):
     def __init__(self, user_id, parent=None):
         super().__init__(parent)
+        # Define constants
+        BUTTON_PROTECTION_TIMEOUT_MS = 500
+
         self.user_id = user_id
         self.layout_config = layout_config.get_instance()
-        self.exchange_rate = 90000
+
+         # Create controller 
+        self.controller = POSController()
+        
+        # Get exchange rate from controller
+        self.exchange_rate = self.controller.get_exchange_rate()
+
         self.prices = PRODUCT_PRICES 
         self.keyboard = VirtualKeyboard(self)
         self.pending_quantity = None  # Track pending quantity from numpad
@@ -410,29 +423,26 @@ class POSView(QWidget):
         """Handle payment button clicks"""
         try:
             if self.pending_value is not None:
-                # Validate before any conversion
-                if action_type == 'CASH_LBP' and '.' in self.pending_value:
-                    self._show_validation_message("Only whole numbers accepted for LBP")
+                # First validate the input
+                is_valid, message = self.controller.validate_payment_input(
+                    action_type, self.pending_value)
+                    
+                if not is_valid:
+                    self._show_validation_message(message)
                     self.pending_value = None
                     self.numpad_widget.clear()
                     return
-                
-                # Convert based on payment type
-                try:
-                    if action_type == 'CASH_LBP':
-                        amount = int(self.pending_value)  # Direct conversion, no float
-                    else:
-                        amount = float(self.pending_value)
-                except ValueError:
-                    self._show_validation_message("Invalid amount")
-                    self.pending_value = None
-                    self.numpad_widget.clear()
-                    return
-
-                # Process payment with validated amount
-                print(f"Processing {action_type} payment with amount: {amount}")
-                # Future: Implement actual payment processing
-                
+                    
+                # Process the payment
+                success, message = self.controller.process_payment(
+                    action_type, self.pending_value)
+                    
+                if not success:
+                    self._show_validation_message(message)
+                else:
+                    print(f"Payment processed: {message}")
+                    # Future: Show success message, print receipt, etc.
+                    
                 self.pending_value = None
                 self.numpad_widget.clear()
                 
@@ -444,6 +454,7 @@ class POSView(QWidget):
     def _filter_products(self):
         """Filter products based on search input"""
         search_text = self.search_input.text()
+        filtered_products = self.controller.get_filtered_products(search_text)
         self.product_grid.set_search_text(search_text)
 
     def _handle_product_click(self, item_name):
@@ -455,39 +466,75 @@ class POSView(QWidget):
         try:
             # If has pending value from numpad
             if self.pending_value is not None:
-                if '.' in self.pending_value:
-                    self._show_validation_message("Only whole numbers accepted for products")
+                # Validate quantity
+                is_valid, message = self.controller.validate_product_quantity(self.pending_value)
+                if not is_valid:
+                    self._show_validation_message(message)
                     return
 
                 quantity = int(self.pending_value)
-                if quantity > 0:
-                    existing_item = self._find_existing_item(item_name)
-                    if existing_item:
-                        self._show_quantity_dialog(item_name, existing_item.quantity, quantity)
+                existing_item = self.controller.find_existing_item(item_name)
+                if existing_item:
+                    self._show_quantity_dialog(item_name, existing_item.quantity, quantity)
+                else:
+                    success = self.controller.add_product_to_order(item_name, quantity)
+                    if not success:
+                        self._show_validation_message(f"Failed to add {item_name}")
                     else:
-                        self._add_product_with_quantity(item_name, quantity)
-                    
-                    # Start protection for this product button
-                    self._protect_button(item_name)
+                        self.refresh_order_display()
+                
+                # Start protection for this product button
+                self._protect_button(item_name)
                 
                 self.pending_value = None
             else:
                 # Regular click - add quantity of 1
-                self.order_list.add_item(item_name, self.prices.get(item_name, 0))
-                self._update_totals()
+                success = self.controller.add_product_to_order(item_name)
+                if not success:
+                    self._show_validation_message(f"Failed to add {item_name}")
+                else:
+                    self.refresh_order_display()
             
             self.search_input.clear_search()
             self.numpad_widget.clear()
             
-        except ValueError:
+        except Exception as e:
+            print(f"Error in product click: {e}")
             self.pending_value = None
             self.numpad_widget.clear()
+
+    def refresh_order_display(self):
+        """Refresh the order list display from the controller data"""
+        # Get current order items from service through controller
+        order_summary = self.controller.get_order_summary()
+        
+        # First clear the current display 
+        # We need to directly manipulate the widget to ensure UI is cleared
+        self.order_list._clear_display()
+        self.order_list.order_items = []
+        
+        # Re-add each item to the OrderListWidget
+        for item_data in order_summary['items']:
+            # Create a new OrderItem with proper data
+            from models.order_item import OrderItem
+            from decimal import Decimal
+            
+            # Add to internal list first
+            item = OrderItem(
+                name=item_data['name'],
+                price=Decimal(str(item_data['price'])), 
+                quantity=item_data['quantity']
+            )
+            self.order_list.order_items.append(item)
+        
+        # Update the UI display
+        self.order_list._update_display()
 
     def _protect_button(self, item_name):
         """Request button protection from product grid"""
         self.last_numpad_product = item_name
         self.product_grid.disable_button_temporarily(item_name)
-        self.button_protection_timer.start(500)
+        self.button_protection_timer.start(self.BUTTON_PROTECTION_TIMEOUT_MS)
 
     def _reset_button_protection(self):
         """Request button protection removal"""
@@ -531,11 +578,14 @@ class POSView(QWidget):
 
     def _add_product_with_quantity(self, item_name: str, quantity: int):
         """Add new product with specified quantity"""
-        price = self.prices.get(item_name, 0)
-        for _ in range(quantity):
-            self.order_list.add_item(item_name, price)
+        # Get price from controller instead of direct lookup
+        price = self.controller.get_product_price(item_name)
         
-        self._update_totals()
+        # Use controller to add product
+        success = self.controller.add_product_to_order(item_name, quantity)
+        if success:
+            self.refresh_order_display()
+            
         self.search_input.clear_search()
         self.numpad_widget.clear()
 
@@ -547,10 +597,7 @@ class POSView(QWidget):
 
     def _find_existing_item(self, item_name):
         """Find an existing item in the order list"""
-        for item in self.order_list.order_items:
-            if item.name == item_name:
-                return item
-        return None
+        return self.controller.find_existing_item(item_name)
     
     def _show_quantity_dialog(self, item_name, current_qty, new_qty):
         """Show dialog for quantity decision"""
@@ -606,17 +653,12 @@ class POSView(QWidget):
     def _update_item_quantity(self, item_name: str, final_quantity: int):
         """Update item quantity in order list"""
         try:
-            # Remove existing item first
-            existing_item = self._find_existing_item(item_name)
-            if existing_item:
-                self.order_list.remove_item(existing_item)
+            # Update through controller
+            self.controller.update_item_quantity(item_name, final_quantity)
             
-            # Add item with new quantity
-            price = self.prices.get(item_name, 0)
-            for _ in range(final_quantity):
-                self.order_list.add_item(item_name, price)
+            # Refresh the display
+            self.refresh_order_display()
             
-            self._update_totals()
             self.search_input.clear_search()
             self.numpad_widget.clear()
             
@@ -637,19 +679,25 @@ class POSView(QWidget):
     # Event Handlers
     def _on_order_cleared(self):
         """Handle order being cleared"""
+        # Clear the order in the service layer
+        self.controller.clear_order()
+        # Update the UI
         self._update_totals()
 
     def _on_item_removed(self, item):
         """Handle item removal from order"""
+        # Remove the item in the service layer
+        self.controller.remove_item_from_order(item)
+        # Update the UI
         self._update_totals()
 
     def _on_order_type_changed(self, order_type):
         """Handle order type changes"""
-        pass
+        self.controller.set_order_type(order_type)
 
     def _update_totals(self):
         """Update totals display"""
-        total_usd = self.order_list.total_amount
+        total_usd = self.controller.get_order_total()
         self.totals_widget.update_totals(total_usd)
 
     def _update_time(self):

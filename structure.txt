@@ -1,58 +1,93 @@
 snackshop_app/
-│
-├── assets/                     # Static assets directory
-│   └── images/                # Image assets (icons, logos, etc.)
-│
-├── button_definitions/         # Button configurations and types
-│   ├── __init__.py           # Exports all button types and configs
-│   ├── types.py              # All button type enums
-│   ├── base.py               # Base button configuration class
-│   ├── payment.py            # Payment button configurations
-│   ├── transaction.py        # Transaction button configurations
-│   ├── horizontal.py         # Horizontal button configurations
-│   ├── product.py            # Product button configurations
-│   ├── category.py           # Category button configurations
-│   └── order.py              # Order type button configurations
-│
-├── styles/                     # UI styling system
-│   ├── __init__.py           # Style exports
-│   ├── base.py               # Base styling utilities
-│   ├── buttons.py            # Button-specific styles
-│   ├── layouts.py            # Layout-related styles
-│   └── components.py         # Other component styles
-│
-├── config/                     # Application configuration
-│   ├── __init__.py
-│   ├── screen_config.py      # Screen size and responsive configs
-│   └── style_constants.py    # Global style constants
-│
-├── components/                 # Reusable UI components
-│   ├── __init__.py
-│   ├── keyboard/             # Virtual keyboard component
-│   │   ├── __init__.py
-│   │   └── keyboard.py
-│   └── pos/                  # POS-specific components
-│       ├── __init__.py
-│       ├── order_list_widget.py    # Order list management component
-│       ├── product_grid_widget.py  # Product display grid component
-│       ├── totals_widget.py        # Totals and payments component
-│       └── search_widget.py        # Search functionality component
-│
-├── views/                      # Application views/screens
-│   ├── __init__.py           # View exports
-│   ├── auth/                 # Authentication related views
-│   │   ├── __init__.py
-│   │   ├── auth_container.py # Authentication container
-│   │   └── pin_view.py      # PIN entry view
-│   └── pos/                  # POS related views
-│       ├── __init__.py      # Exports POSView
-│       └── pos_view.py      # Main POS view (coordinator)
-│
-├── models/                     # Data models and business logic
-│   ├── __init__.py
-│   ├── product_catalog.py    # Product data and operations
-│   └── order_item.py         # Order item model
-│
-└── utilities/                  # Helper utilities
-    ├── __init__.py
-    └── utils.py              # General utility functions
+  ├── assets/                        # Static assets directory
+  │   └── images/                    # Image assets (icons, logos, etc.)
+  │
+  ├── button_definitions/            # Button configurations and types
+  │   ├── __init__.py                # Exports all button types and configs
+  │   ├── types.py                   # All button type enums
+  │   ├── payment.py                 # Payment button configurations
+  │   ├── transaction.py             # Transaction button configurations
+  │   ├── horizontal.py              # Horizontal button configurations
+  │   ├── product.py                 # Product button configurations
+  │   ├── category.py                # Category button configurations
+  │   └── order_type.py              # Order type button configurations
+  │
+  ├── styles/                        # UI styling system
+  │   ├── __init__.py                # Style exports
+  │   ├── buttons.py                 # Button-specific styles
+  │   ├── layouts.py                 # Layout-related styles
+  │   ├── components.py              # Other component styles
+  │   ├── app.py                     # Application-wide styles
+  │   ├── auth.py                    # Authentication screen styles
+  │   └── pos.py                     # POS screen styles
+  │
+  ├── config/                        # Application configuration
+  │   ├── __init__.py                # Configuration exports
+  │   ├── screen_config.py           # Screen size and responsive configs
+  │   └── style_constants.py         # Global style constants
+  │
+  ├── components/                    # Reusable UI components
+  │   ├── __init__.py                # Component exports
+  │   ├── keyboard/                  # Virtual keyboard component
+  │   │   ├── __init__.py            # Keyboard exports
+  │   │   ├── keyboard.py            # Keyboard implementation
+  │   │   ├── manager.py             # Keyboard manager
+  │   │   ├── styles.py              # Keyboard styles
+  │   │   └── types.py               # Keyboard type definitions
+  │   │
+  │   ├── numpad/                    # Numpad component
+  │   │   ├── __init__.py            # Numpad exports
+  │   │   ├── numpad_widget.py       # Numpad widget implementation
+  │   │   ├── manager.py             # Numpad manager
+  │   │   ├── styles.py              # Numpad styles
+  │   │   └── types.py               # Numpad modes and validation rules
+  │   │
+  │   ├── input/                     # Input components
+  │   │   ├── __init__.py            # Input component exports
+  │   │   ├── digit_box.py           # Individual digit input box
+  │   │   └── digit_input.py         # Multi-digit input field
+  │   │
+  │   └── pos/                       # POS-specific components
+  │       ├── __init__.py            # POS component exports
+  │       ├── order_list_widget.py   # Order list management component
+  │       ├── product_grid_widget.py # Product display grid component
+  │       ├── totals_widget.py       # Totals and payments component
+  │       ├── search_widget.py       # Search functionality component
+  │       ├── order_type_widget.py   # Order type selection component
+  │       ├── transaction_buttons_widget.py # Transaction action buttons
+  │       └── payment_buttons_widget.py # Payment method buttons
+  │
+  ├── views/                         # Application views/screens
+  │   ├── __init__.py                # View exports
+  │   ├── auth/                      # Authentication related views
+  │   │   ├── __init__.py            # Auth view exports
+  │   │   ├── auth_container.py      # Authentication container
+  │   │   ├── pin_view.py            # PIN entry view
+  │   │   ├── top_bar.py             # Top bar for auth screens
+  │   │   └── user_id_view.py        # User ID entry view
+  │   │
+  │   └── pos/                       # POS related views
+  │       ├── __init__.py            # Exports POSView
+  │       ├── pos_view.py            # Main POS view (coordinator)
+  │       ├── main_window.py         # Main application window
+  │       └── view_manager.py        # Manages view transitions
+  │
+  ├── models/                        # Data models and business logic
+  │   ├── __init__.py                # Model exports
+  │   ├── order_item.py              # Order item model
+  │   └── product_catalog.py         # Product data definitions
+  │
+  ├── controllers/                   # Controllers for coordination
+  │   ├── __init__.py                # Controller exports
+  │   └── pos_controller.py          # Controls POS operations
+  │
+  ├── services/                      # Business logic services
+  │   ├── __init__.py                # Service exports
+  │   ├── payment_service.py         # Payment processing logic
+  │   ├── order_service.py           # Order management service
+  │   ├── product_service.py         # Product data service
+  │   └── validation_service.py      # Validation rules service
+  │
+  └── utilities/                     # Helper utilities
+      ├── __init__.py                # Utility exports
+      └── utils.py                   # General utility functions

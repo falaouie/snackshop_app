@@ -318,6 +318,16 @@ class OrderListWidget(QFrame):
         unique_items = len(self.order_items)
         self.qty_summary_label.setText(f"Qty: {total_qty} | Items: {unique_items}")
 
+    def clear_items(self):
+        """Clear all items from the order list"""
+        self.order_items = []
+        # Clear the UI display
+        self._clear_display()
+        # Update the quantity summary
+        self._update_quantity_summary()
+        # Emit order cleared signal
+        self.order_cleared.emit()
+
     @property
     def total_amount(self):
         """Calculate total amount for all items"""
