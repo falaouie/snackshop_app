@@ -1,4 +1,5 @@
 from typing import Dict, Any
+from config.screen_config import screen_config
 
 class KeyboardStyles:
     # Base styles for the keyboard container
@@ -88,6 +89,8 @@ class KeyboardStyles:
 class KeyboardConfig:
     """Configuration class for keyboard dimensions and layout"""
     
+    _instance = None
+
     # Default dimensions
     DEFAULT_DIMENSIONS = {
         'key_width': 50,
@@ -119,20 +122,60 @@ class KeyboardConfig:
         'enter_hover': '#1E88E5',
     }
 
-    @classmethod
-    def get_dimensions(cls) -> Dict[str, int]:
-        """Get keyboard dimensions configuration"""
-        return cls.DEFAULT_DIMENSIONS.copy()
+    def __init__(self, screen_config_instance=None):
+        """Initialize keyboard config, optionally with screen config"""
+        self.screen_config = screen_config_instance
+        if screen_config_instance:
+            KeyboardConfig._instance = self
 
     @classmethod
-    def get_layout(cls) -> Dict[str, Any]:
+    def get_instance(cls):
+        """Get or create the singleton instance"""
+        if not cls._instance:
+            cls._instance = KeyboardConfig(screen_config)
+        return cls._instance
+          
+    def get_dimensions(self) -> Dict[str, int]:
+        """Get keyboard dimensions based on screen config if available"""
+        if self.screen_config:
+            try:
+                return {
+                    'key_width': self.screen_config.get_size('keyboard_key_width'),
+                    'key_height': self.screen_config.get_size('keyboard_key_height'),
+                    'space_width': self.screen_config.get_size('keyboard_space_width'),
+                    'space_height': self.screen_config.get_size('keyboard_space_height'),
+                    'enter_width': self.screen_config.get_size('keyboard_enter_width'),
+                    'enter_height': self.screen_config.get_size('keyboard_enter_height'),
+                    'handle_height': self.screen_config.get_size('keyboard_handle_height'),
+                    'control_button_size': self.screen_config.get_size('keyboard_control_button_size'),
+                }
+            except (AttributeError, KeyError):
+                # Fallback to default if any value is missing
+                print("Warning: Using default keyboard dimensions due to missing screen config values")
+                return self.DEFAULT_DIMENSIONS.copy()
+        return self.DEFAULT_DIMENSIONS.copy()
+
+    def get_layout(self) -> Dict[str, Any]:
         """Get keyboard layout configuration"""
-        return cls.LAYOUT.copy()
+        if self.screen_config:
+            try:
+                spacing = self.screen_config.get_size('keyboard_spacing')
+                return {
+                    'main_margins': (spacing, spacing, spacing, spacing),
+                    'main_spacing': spacing,
+                    'handle_margins': (spacing + 5, 0, spacing + 5, 0),
+                    'handle_spacing': spacing,
+                    'bottom_margins': (0, 0, 0, spacing + 5),
+                }
+            except (AttributeError, KeyError):
+                # Fallback to default if any value is missing
+                print("Warning: Using default keyboard layout due to missing screen config values")
+                return self.LAYOUT.copy()
+        return self.LAYOUT.copy()
 
-    @classmethod
-    def get_colors(cls) -> Dict[str, str]:
+    def get_colors(self) -> Dict[str, str]:
         """Get keyboard color configuration"""
-        return cls.COLORS.copy()
+        return self.COLORS.copy()
 
 class KeyboardEnabledInputStyles:
     """Styles for keyboard-enabled input fields"""
@@ -168,3 +211,6 @@ class KeyboardEnabledInputStyles:
             outline: none;
         }
     """
+
+# Create a global instance
+keyboard_config = KeyboardConfig()

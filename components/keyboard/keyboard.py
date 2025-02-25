@@ -98,7 +98,7 @@ class VirtualKeyboard(QWidget):
         self.is_minimized = False
         self.is_filtering = False
         # Load configuration
-        self.config = KeyboardConfig()
+        self.config = KeyboardConfig.get_instance() 
         self.dimensions = self.config.get_dimensions()
         self.layout_config = self.config.get_layout()
         

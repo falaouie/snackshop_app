@@ -103,6 +103,26 @@ class LayoutSizes:
         'container_margin': 10,
         'section_spacing': 15,
         'label_padding': 0,
+
+         # Keyboard specific settings
+        'keyboard_key_width': 45,
+        'keyboard_key_height': 45,
+        'keyboard_space_width': 250,
+        'keyboard_space_height': 40,
+        'keyboard_enter_width': 120,
+        'keyboard_enter_height': 40,
+        'keyboard_handle_height': 35,
+        'keyboard_control_button_size': 35,
+        'keyboard_font_size': 16,
+        'keyboard_padding': 6,
+        'keyboard_spacing': 4,
+
+        # Numpad specific settings
+        'numpad_button_size': 60,
+        'numpad_display_height': 45,
+        'numpad_spacing': 6,
+        'numpad_font_size': 18,
+        'numpad_width': 300,       
     }
 
     MEDIUM = {
@@ -206,6 +226,26 @@ class LayoutSizes:
         'container_margin': 15,
         'section_spacing': 20,
         'label_padding': 10,
+
+        # Keyboard specific settings
+        'keyboard_key_width': 50,
+        'keyboard_key_height': 50,
+        'keyboard_space_width': 320,
+        'keyboard_space_height': 45,
+        'keyboard_enter_width': 150,
+        'keyboard_enter_height': 45,
+        'keyboard_handle_height': 40,
+        'keyboard_control_button_size': 40,
+        'keyboard_font_size': 18,
+        'keyboard_padding': 8,
+        'keyboard_spacing': 5,
+
+        # Numpad specific settings
+        'numpad_button_size': 70,
+        'numpad_display_height': 50,
+        'numpad_spacing': 8,
+        'numpad_font_size': 20,
+        'numpad_width': 350,
     }
 
     LARGE = {
@@ -309,6 +349,26 @@ class LayoutSizes:
         'container_margin': 15,
         'section_spacing': 10,
         'label_padding': 5,
+
+        # Keyboard specific settings
+        'keyboard_key_width': 60,
+        'keyboard_key_height': 60,
+        'keyboard_space_width': 600,
+        'keyboard_space_height': 55,
+        'keyboard_enter_width': 180,
+        'keyboard_enter_height': 55,
+        'keyboard_handle_height': 45,
+        'keyboard_control_button_size': 45,
+        'keyboard_font_size': 22,
+        'keyboard_padding': 10,
+        'keyboard_spacing': 8,
+
+        # Numpad specific settings
+        'numpad_button_size': 60,
+        'numpad_display_height': 50,
+        'numpad_spacing': 8,
+        'numpad_font_size': 16,
+        'numpad_width': 400,
     }
 
 class LayoutConfig:
