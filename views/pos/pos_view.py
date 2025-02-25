@@ -529,6 +529,8 @@ class POSView(QWidget):
         
         # Update the UI display
         self.order_list._update_display()
+        # update totals
+        self._update_totals()
 
     def _protect_button(self, item_name):
         """Request button protection from product grid"""

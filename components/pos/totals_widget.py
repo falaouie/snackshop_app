@@ -15,7 +15,7 @@ class TotalsWidget(QFrame):
     def _setup_ui(self):
         """Initialize the totals widget UI"""
         # Main horizontal layout
-        totals_layout = QHBoxLayout(self)
+        totals_layout = QVBoxLayout(self)
         totals_layout.setContentsMargins(15, 10, 15, 10)
         totals_layout.setSpacing(20)
         totals_layout.addStretch(1)
