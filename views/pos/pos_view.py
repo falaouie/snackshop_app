@@ -16,8 +16,10 @@ from components.pos.order_type_widget import OrderTypeWidget
 from components.pos.transaction_buttons_widget import TransactionButtonsWidget
 from components.pos.payment_buttons_widget import PaymentButtonsWidget
 from components.numpad import NumpadWidget
-from button_definitions.types import PaymentButtonType, OrderButtonType, TransactionButtonType
-from components.numpad.types import NumpadMode
+from components.pos.usd_preset_widget import USDPresetWidget
+from components.pos.lbp_preset_widget import LBPPresetWidget
+from components.pos.card_payment_widget import CardPaymentWidget
+from components.pos.other_payment_widget import OtherPaymentWidget
 
 from models.product_catalog import PRODUCT_PRICES
 
@@ -32,6 +34,8 @@ class POSView(QWidget):
         super().__init__(parent)
         self.user_id = user_id
         self.layout_config = layout_config.get_instance()
+
+        self.current_currency_mode = None  # Tracks which currency type is active
 
          # Create controller 
         self.controller = POSController()
@@ -278,11 +282,6 @@ class POSView(QWidget):
         self.order_list.order_cleared.connect(self._on_order_cleared)
         self.order_list.item_removed.connect(self._on_item_removed)
         layout.addWidget(self.order_list)
-        
-        # Add horizontal buttons widget and connect signal
-        # self.horizontal_buttons = HorizontalButtonsWidget(self)
-        # self.horizontal_buttons.action_triggered.connect(self._on_horizontal_action)
-        # layout.addWidget(self.horizontal_buttons)
 
         return order_frame
 
@@ -347,33 +346,151 @@ class POSView(QWidget):
         # Add numpad
         self.numpad_widget = NumpadWidget(self)
         self.numpad_widget.value_changed.connect(self._handle_numpad_value_change)
+        if hasattr(self.numpad_widget, 'clear'):
+            old_clear = self.numpad_widget.clear
+            def new_clear():
+                old_clear()
+                self._on_numpad_cleared()
+            self.numpad_widget.clear = new_clear
         layout.addWidget(self.numpad_widget)
+        
+        # Add USD Preset Widget
+        self.usd_preset_widget = USDPresetWidget()
+        self.usd_preset_widget.preset_selected.connect(self._handle_preset_selected)
+        self.usd_preset_widget.payment_requested.connect(
+            lambda payment_type: self._on_payment_action(payment_type)
+        )
+        layout.addWidget(self.usd_preset_widget)
 
-        # Add payment section
-        payment_container = self._create_payment_container()
+        # Add LBP Preset Widget
+        self.lbp_preset_widget = LBPPresetWidget()
+        self.lbp_preset_widget.preset_selected.connect(self._handle_preset_selected)
+        self.lbp_preset_widget.payment_requested.connect(
+            lambda payment_type: self._on_payment_action(payment_type)
+        )
+        layout.addWidget(self.lbp_preset_widget)
+
+        # Create payment options container for totals and payment methods
+        payment_container = QFrame()
+        payment_container.setStyleSheet(POSStyles.PAYMENT_CONTAINER())
+        payment_layout = QVBoxLayout(payment_container)
+        payment_layout.setContentsMargins(5, 5, 5, 5)
+        payment_layout.setSpacing(10)
+        
+        # Add totals widget
+        self.totals_widget = TotalsWidget(self.exchange_rate)
+        payment_layout.addWidget(self.totals_widget)
+        
+        # Add card payment widget
+        self.card_payment_widget = CardPaymentWidget()
+        self.card_payment_widget.payment_requested.connect(lambda payment_type: self._on_payment_action(payment_type))
+        payment_layout.addWidget(self.card_payment_widget)
+        
+        # Add other payment widget
+        self.other_payment_widget = OtherPaymentWidget()
+        self.other_payment_widget.payment_requested.connect(lambda payment_type: self._on_payment_action(payment_type))
+        payment_layout.addWidget(self.other_payment_widget)
+        
+        # Add payment container to main layout
         layout.addWidget(payment_container, 1)
 
         return container
     
-    def _create_payment_container(self):
-        """Create payment buttons and totals container"""
-        container = QFrame()
-        container.setStyleSheet(POSStyles.PAYMENT_CONTAINER())
+    def _handle_preset_selected(self, amount):
+        """Handle preset amount selection with additive behavior and currency locking"""
+        # Determine currency type based on amount
+        is_lbp = amount >= 1000  # Simple heuristic to identify LBP
         
-        layout = QHBoxLayout(container)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(10)
+        current_value = self.numpad_widget._current_value
+        
+        # Check if we're starting with a fresh entry or adding to existing
+        if current_value == "0":
+            # Starting fresh - set the first amount and lock currency type
+            new_numeric_value = amount
+            self._set_currency_mode(is_lbp)
+        else:
+            # Adding to existing amount
+            try:
+                # Convert current value to float, removing any formatting
+                current_numeric_value = float(current_value.replace(',', ''))
+                # Add the new amount
+                new_numeric_value = current_numeric_value + amount
+            except ValueError:
+                # If there's an error parsing, just use the new amount
+                new_numeric_value = amount
+                self._set_currency_mode(is_lbp)
+        
+        # Format the value for display based on currency type
+        if is_lbp:
+            formatted_value = f"{int(new_numeric_value):,}"
+            numerical_value = str(int(new_numeric_value))
+            print(f"Updated LBP value: {formatted_value}")  # Debug print
+        else:
+            formatted_value = f"{new_numeric_value:,.2f}"
+            numerical_value = str(new_numeric_value)
+            print(f"Updated USD value: ${formatted_value}")  # Debug print
+        
+        # Update numpad display
+        self.numpad_widget._current_value = numerical_value
+        self.numpad_widget.display.setText(formatted_value)
+        
+        # Store the numerical value for payment processing
+        self.pending_value = numerical_value
 
-        # Add payment buttons
-        self.payment_buttons = PaymentButtonsWidget()
-        self.payment_buttons.action_triggered.connect(self._on_payment_action)
-        layout.addWidget(self.payment_buttons)
+    def _on_numpad_cleared(self):
+        """Handle numpad being cleared"""
+        # Enable both currency preset buttons
+        self._enable_preset_buttons(self.usd_preset_widget, True)
+        self._enable_preset_buttons(self.lbp_preset_widget, True)
+        self.current_currency_mode = None
 
-        # Add totals widget
-        self.totals_widget = TotalsWidget(self.exchange_rate)
-        layout.addWidget(self.totals_widget)
+    def _set_currency_mode(self, is_lbp):
+        """Set currency mode and disable the other currency's presets"""
+        if is_lbp:
+            # Enable LBP presets, disable USD presets
+            self._enable_preset_buttons(self.lbp_preset_widget, True)
+            self._enable_preset_buttons(self.usd_preset_widget, False)
+            self.current_currency_mode = "LBP"
+        else:
+            # Enable USD presets, disable LBP presets
+            self._enable_preset_buttons(self.usd_preset_widget, True)
+            self._enable_preset_buttons(self.lbp_preset_widget, False)
+            self.current_currency_mode = "USD"
 
-        return container
+    def _enable_preset_buttons(self, preset_widget, enabled):
+        """Enable or disable all preset buttons in a widget"""
+        # Find all QPushButtons in the widget layout except the payment button
+        for i in range(preset_widget.layout().count()):
+            item = preset_widget.layout().itemAt(i)
+            if item.widget() and isinstance(item.widget(), QPushButton):
+                # Skip the payment button at the bottom
+                if item.widget() != preset_widget.payment_btn:
+                    item.widget().setEnabled(enabled)
+                    if enabled:
+                        item.widget().setStyleSheet("""
+                            QPushButton {
+                                background: white;
+                                border: 1px solid #ddd;
+                                border-radius: 4px;
+                                padding: 5px;
+                                font-size: 14px;
+                            }
+                            QPushButton:hover {
+                                background: #f0f0f0;
+                                border-color: #1890ff;
+                            }
+                        """)
+                    else:
+                        item.widget().setStyleSheet("""
+                            QPushButton {
+                                background: #f5f5f5;
+                                border: 1px solid #ddd;
+                                border-radius: 4px;
+                                padding: 5px;
+                                font-size: 14px;
+                                color: #999;
+                            }
+                        """)
 
     def _create_bottom_bar(self):
         """Create empty bottom bar for future use"""
@@ -445,6 +562,9 @@ class POSView(QWidget):
                     
                 self.pending_value = None
                 self.numpad_widget.clear()
+            else:
+                # No amount entered, show message to enter amount first
+                self._show_validation_message("Please enter an amount first")
                 
         except Exception as e:
             print(f"Error in payment processing: {e}")

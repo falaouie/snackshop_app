@@ -298,19 +298,8 @@ class POSStyles:
     
     TOTALS_FRAME = """
         QFrame {
-            background: #F8F9FA;
-            border-top: 1px solid #DEDEDE;
-        }
-        QLabel {
-            color: #333;
-        }
-        .currency-usd {
-            font-size: 24px;
-            font-weight: bold;
-            color: #03991f;
-        }
-        .currency-lbp {
-            font-size: 20px;
-            color: #666;
+            background: white;
+            border: 1px solid #DEDEDE;
+            border-radius: 5px;
         }
     """

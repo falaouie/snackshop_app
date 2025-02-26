@@ -4,7 +4,7 @@ snackshop_app/
   │
   ├── button_definitions/            # Button configurations and types
   │   ├── __init__.py                # Exports all button types and configs
-  │   ├── types.py                   # All button type enums
+  │   ├── types.py                   # All button type enums (PaymentButtonType, etc.)
   │   ├── payment.py                 # Payment button configurations
   │   ├── transaction.py             # Transaction button configurations
   │   ├── horizontal.py              # Horizontal button configurations
@@ -14,14 +14,14 @@ snackshop_app/
   │
   ├── styles/                        # UI styling system (centralized)
   │   ├── __init__.py                # Style exports and initialization
-  │   ├── buttons.py                 # Button-specific styles
-  │   ├── layouts.py                 # Layout-related styles and sizes
+  │   ├── buttons.py                 # Button-specific styles (get_payment_button_style, etc.)
+  │   ├── layouts.py                 # Layout-related styles and sizes with LayoutConfig
   │   ├── components.py              # Other component styles
   │   ├── app.py                     # Application-wide styles
   │   ├── auth.py                    # Authentication screen styles
-  │   ├── pos.py                     # POS screen styles
-  │   ├── keyboard.py                # Keyboard component styles (moved from components)
-  │   └── numpad.py                  # Numpad component styles (moved from components)
+  │   ├── pos.py                     # POS screen styles (TOP_BAR, ORDER_PANEL, etc.)
+  │   ├── keyboard.py                # Keyboard component styles
+  │   └── numpad.py                  # Numpad component styles
   │
   ├── config/                        # Application configuration
   │   ├── __init__.py                # Configuration exports
@@ -32,13 +32,13 @@ snackshop_app/
   │   ├── __init__.py                # Component exports
   │   ├── keyboard/                  # Virtual keyboard component
   │   │   ├── __init__.py            # Keyboard exports
-  │   │   ├── keyboard.py            # Keyboard implementation (uses centralized styles)
-  │   │   ├── manager.py             # Keyboard manager
+  │   │   ├── keyboard.py            # Keyboard implementation
+  │   │   ├── manager.py             # Keyboard manager for input coordination
   │   │   └── types.py               # Keyboard type definitions
   │   │
   │   ├── numpad/                    # Numpad component
   │   │   ├── __init__.py            # Numpad exports
-  │   │   ├── numpad_widget.py       # Numpad widget implementation (uses centralized styles)
+  │   │   ├── numpad_widget.py       # Numpad widget implementation
   │   │   ├── manager.py             # Numpad manager
   │   │   └── types.py               # Numpad modes and validation rules
   │   │
@@ -51,11 +51,16 @@ snackshop_app/
   │       ├── __init__.py            # POS component exports
   │       ├── order_list_widget.py   # Order list management component
   │       ├── product_grid_widget.py # Product display grid component
-  │       ├── totals_widget.py       # Totals and payments component
+  │       ├── totals_widget.py       # Totals widget showing USD and LBP amounts
   │       ├── search_widget.py       # Search functionality component
   │       ├── order_type_widget.py   # Order type selection component
+  │       ├── usd_preset_widget.py   # NEW: USD denomination presets
+  │       ├── lbp_preset_widget.py   # NEW: LBP denomination presets
+  │       ├── payment_option_widget.py # NEW: Base class for payment options
+  │       ├── card_payment_widget.py # NEW: Card payment button widget
+  │       ├── other_payment_widget.py # NEW: Other payment button widget
   │       ├── transaction_buttons_widget.py # Transaction action buttons
-  │       └── payment_buttons_widget.py # Payment method buttons
+  │       └── payment_buttons_widget.py # DEPRECATED: Old payment method buttons
   │
   ├── views/                         # Application views/screens
   │   ├── __init__.py                # View exports
@@ -68,7 +73,7 @@ snackshop_app/
   │   │
   │   └── pos/                       # POS related views
   │       ├── __init__.py            # Exports POSView
-  │       ├── pos_view.py            # Main POS view (coordinator)
+  │       ├── pos_view.py            # Main POS view (coordinator) - UPDATED
   │       ├── main_window.py         # Main application window
   │       └── view_manager.py        # Manages view transitions
   │
@@ -79,7 +84,7 @@ snackshop_app/
   │
   ├── controllers/                   # Controllers for coordination
   │   ├── __init__.py                # Controller exports
-  │   └── pos_controller.py          # Controls POS operations
+  │   └── pos_controller.py          # Controls POS operations including payments
   │
   ├── services/                      # Business logic services
   │   ├── __init__.py                # Service exports

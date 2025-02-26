@@ -122,7 +122,29 @@ class LayoutSizes:
         'numpad_display_height': 45,
         'numpad_spacing': 6,
         'numpad_font_size': 18,
-        'numpad_width': 300,       
+        'numpad_width': 300,
+
+        # Preset button configurations
+        'preset_button_width': 140,
+        'preset_button_height': 35,
+        'preset_button_font_size': 14,
+        'preset_button_padding': 5,
+        'preset_button_radius': 4,
+        'preset_button_spacing': 5,
+
+        # Payment action button configurations
+        'payment_action_button_width': 140,
+        'payment_action_button_height': 40,
+        'payment_action_button_font_size': 15,
+        'payment_action_button_padding': 8,
+        'payment_action_button_radius': 5,
+
+        # Totals widget configurations
+        'totals_label_font_size': 16,
+        'totals_amount_font_size': 20,
+        'totals_header_font_size': 16,
+        'totals_widget_padding': 10,
+        'totals_section_spacing': 15,       
     }
 
     MEDIUM = {
@@ -246,6 +268,28 @@ class LayoutSizes:
         'numpad_spacing': 5,
         'numpad_font_size': 16,
         'numpad_width': 350,
+
+        # Preset button configurations
+        'preset_button_width': 140,
+        'preset_button_height': 35,
+        'preset_button_font_size': 14,
+        'preset_button_padding': 5,
+        'preset_button_radius': 4,
+        'preset_button_spacing': 5,
+
+        # Payment action button configurations
+        'payment_action_button_width': 140,
+        'payment_action_button_height': 40,
+        'payment_action_button_font_size': 15,
+        'payment_action_button_padding': 8,
+        'payment_action_button_radius': 5,
+
+        # Totals widget configurations
+        'totals_label_font_size': 16,
+        'totals_amount_font_size': 20,
+        'totals_header_font_size': 16,
+        'totals_widget_padding': 10,
+        'totals_section_spacing': 15,
     }
 
     LARGE = {
@@ -369,6 +413,28 @@ class LayoutSizes:
         'numpad_spacing': 8,
         'numpad_font_size': 16,
         'numpad_width': 400,
+
+        # Preset button configurations
+        'preset_button_width': 140,
+        'preset_button_height': 35,
+        'preset_button_font_size': 14,
+        'preset_button_padding': 5,
+        'preset_button_radius': 4,
+        'preset_button_spacing': 5,
+
+        # Payment action button configurations
+        'payment_action_button_width': 140,
+        'payment_action_button_height': 40,
+        'payment_action_button_font_size': 15,
+        'payment_action_button_padding': 8,
+        'payment_action_button_radius': 5,
+
+        # Totals widget configurations
+        'totals_label_font_size': 16,
+        'totals_amount_font_size': 20,
+        'totals_header_font_size': 16,
+        'totals_widget_padding': 10,
+        'totals_section_spacing': 15,
     }
 
 class LayoutConfig:
@@ -515,6 +581,37 @@ class LayoutConfig:
                 'padding': self.screen_config.get_size('category_button_padding'),
                 'radius': self.screen_config.get_size('category_button_radius')
             }
+        }
+    
+    def get_preset_button_config(self):
+        """Get preset button configurations"""
+        return {
+            'width': self.screen_config.get_size('preset_button_width'),
+            'height': self.screen_config.get_size('preset_button_height'),
+            'font_size': self.screen_config.get_size('preset_button_font_size'),
+            'padding': self.screen_config.get_size('preset_button_padding'),
+            'radius': self.screen_config.get_size('preset_button_radius'),
+            'spacing': self.screen_config.get_size('preset_button_spacing')
+        }
+
+    def get_payment_action_button_config(self):
+        """Get payment action button configurations"""
+        return {
+            'width': self.screen_config.get_size('payment_action_button_width'),
+            'height': self.screen_config.get_size('payment_action_button_height'),
+            'font_size': self.screen_config.get_size('payment_action_button_font_size'),
+            'padding': self.screen_config.get_size('payment_action_button_padding'),
+            'radius': self.screen_config.get_size('payment_action_button_radius')
+        }
+
+    def get_totals_widget_config(self):
+        """Get totals widget configurations"""
+        return {
+            'label_font_size': self.screen_config.get_size('totals_label_font_size'),
+            'amount_font_size': self.screen_config.get_size('totals_amount_font_size'),
+            'header_font_size': self.screen_config.get_size('totals_header_font_size'),
+            'padding': self.screen_config.get_size('totals_widget_padding'),
+            'spacing': self.screen_config.get_size('totals_section_spacing')
         }
 
 # Function to initialize the layout config
