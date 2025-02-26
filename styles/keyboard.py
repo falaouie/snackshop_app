@@ -1,216 +1,233 @@
-from typing import Dict, Any
+"""Keyboard styling and configuration"""
 from config.screen_config import screen_config
 
-class KeyboardStyles:
-    # Base styles for the keyboard container
-    KEYBOARD_BASE = """
-        VirtualKeyboard {
-            background: darkgrey;
-            border-radius: 10px;
-            padding: 10px;
-        }
-    """
-
-    # Handle bar styles
-    HANDLE_BAR = """
-        QFrame {
-            background: #444444;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-        }
-    """
-
-    # Control button styles (minimize, restore)
-    CONTROL_BUTTONS = """
-        QPushButton {
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 20px;
-            font-weight: bold;
-            width: 40px;
-        }
-        QPushButton:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-    """
-
-    # Regular key button styles
-    KEY_BUTTONS = """
-        QPushButton {
-            background: white;
-            border: 1px solid #DEDEDE;
-            border-radius: 10px;
-            padding: 8px;
-            color: #333;
-            font-size: 18px;
-        }
-        QPushButton:hover {
-            background: #F8F9FA;
-            border-color: #2196F3;
-        }
-    """
-
-    # Special key styles (Enter, Space)
-    SPACE_KEY = """
-        QPushButton {
-            background: white;
-            border: 1px solid #DEDEDE;
-            border-radius: 8px;
-            color: #333;
-            font-size: 14px;
-            min-width: 300px;
-            margin-left: 70px;
-            margin-right: 50px;
-            margin-bottom: 10px;
-        }
-        QPushButton:hover {
-            background: #F8F9FA;
-            border-color: #2196F3;
-        }
-    """
-
-    ENTER_KEY = """
-        QPushButton {
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            margin-right: 15px;
-        }
-        QPushButton:hover {
-            background: #1E88E5;
-        }
-    """
-
 class KeyboardConfig:
-    """Configuration class for keyboard dimensions and layout"""
-    
+    """Configuration for keyboard dimensions and layout"""
     _instance = None
-
-    # Default dimensions
-    DEFAULT_DIMENSIONS = {
-        'key_width': 50,
-        'key_height': 50,
-        'space_width': 600,
-        'space_height': 45,
-        'enter_width': 175,
-        'enter_height': 45,
-        'handle_height': 40,
-        'control_button_size': 40,
-    }
-
-    # Layout configuration
-    LAYOUT = {
-        'main_margins': (5, 5, 5, 5),
-        'main_spacing': 5,
-        'handle_margins': (10, 0, 10, 0),
-        'handle_spacing': 8,
-        'bottom_margins': (0, 0, 0, 10),
-    }
-
-    # Colors
-    COLORS = {
-        'background': 'darkgrey',
-        'handle': '#444444',
-        'key_border': '#DEDEDE',
-        'key_hover_border': '#2196F3',
-        'enter_background': '#2196F3',
-        'enter_hover': '#1E88E5',
-    }
-
-    def __init__(self, screen_config_instance=None):
-        """Initialize keyboard config, optionally with screen config"""
-        self.screen_config = screen_config_instance
-        if screen_config_instance:
-            KeyboardConfig._instance = self
-
+    
+    def __init__(self, screen_config=None):
+        self.screen_config = screen_config
+    
     @classmethod
     def get_instance(cls):
-        """Get or create the singleton instance"""
         if not cls._instance:
-            cls._instance = KeyboardConfig(screen_config)
+            from config.screen_config import screen_config
+            cls._instance = cls(screen_config)
         return cls._instance
-          
-    def get_dimensions(self) -> Dict[str, int]:
-        """Get keyboard dimensions based on screen config if available"""
-        if self.screen_config:
-            try:
-                return {
-                    'key_width': self.screen_config.get_size('keyboard_key_width'),
-                    'key_height': self.screen_config.get_size('keyboard_key_height'),
-                    'space_width': self.screen_config.get_size('keyboard_space_width'),
-                    'space_height': self.screen_config.get_size('keyboard_space_height'),
-                    'enter_width': self.screen_config.get_size('keyboard_enter_width'),
-                    'enter_height': self.screen_config.get_size('keyboard_enter_height'),
-                    'handle_height': self.screen_config.get_size('keyboard_handle_height'),
-                    'control_button_size': self.screen_config.get_size('keyboard_control_button_size'),
-                }
-            except (AttributeError, KeyError):
-                # Fallback to default if any value is missing
-                print("Warning: Using default keyboard dimensions due to missing screen config values")
-                return self.DEFAULT_DIMENSIONS.copy()
-        return self.DEFAULT_DIMENSIONS.copy()
-
-    def get_layout(self) -> Dict[str, Any]:
+    
+    def get_dimensions(self):
+        """Get keyboard dimensions from layout config"""
+        return {
+            'key_width': self.screen_config.get_size('keyboard_key_width'),
+            'key_height': self.screen_config.get_size('keyboard_key_height'),
+            'space_width': self.screen_config.get_size('keyboard_space_width'),
+            'space_height': self.screen_config.get_size('keyboard_space_height'),
+            'enter_width': self.screen_config.get_size('keyboard_enter_width'),
+            'enter_height': self.screen_config.get_size('keyboard_enter_height'),
+            'handle_height': self.screen_config.get_size('keyboard_handle_height'),
+            'control_button_size': self.screen_config.get_size('keyboard_control_button_size')
+        }
+    
+    def get_layout(self):
         """Get keyboard layout configuration"""
-        if self.screen_config:
-            try:
-                spacing = self.screen_config.get_size('keyboard_spacing')
-                return {
-                    'main_margins': (spacing, spacing, spacing, spacing),
-                    'main_spacing': spacing,
-                    'handle_margins': (spacing + 5, 0, spacing + 5, 0),
-                    'handle_spacing': spacing,
-                    'bottom_margins': (0, 0, 0, spacing + 5),
-                }
-            except (AttributeError, KeyError):
-                # Fallback to default if any value is missing
-                print("Warning: Using default keyboard layout due to missing screen config values")
-                return self.LAYOUT.copy()
-        return self.LAYOUT.copy()
-
-    def get_colors(self) -> Dict[str, str]:
-        """Get keyboard color configuration"""
-        return self.COLORS.copy()
+        return {
+            'main_margins': [10, 5, 10, 10],  # Left, top, right, bottom
+            'main_spacing': self.screen_config.get_size('keyboard_spacing'),
+            'handle_margins': [5, 0, 5, 0],
+            'handle_spacing': 8
+        }
 
 class KeyboardEnabledInputStyles:
-    """Styles for keyboard-enabled input fields"""
+    """Styles for input fields that work with virtual keyboard"""
     
+    # Base input style
     BASE_INPUT = """
         QLineEdit {
             border: 1px solid #DEDEDE;
-            border-radius: 20px;
-            padding: 8px 12px;
-            font-size: 14px;
-            color: #333;
+            border-radius: 4px;
+            padding: 5px 10px;
             background: white;
+            color: #333;
         }
         QLineEdit:focus {
             border-color: #2196F3;
-            outline: none;
         }
     """
-
+    
+    # Search input style
     SEARCH_INPUT = """
         QLineEdit {
             border: 1px solid #DEDEDE;
             border-radius: 20px;
-            padding: 8px 40px 8px 40px;
-            font-size: 14px;
-            color: #333;
-            min-width: 300px;
-            max-width: 400px;
+            padding: 5px 30px;
             background: white;
+            color: #333;
         }
         QLineEdit:focus {
             border-color: #2196F3;
-            outline: none;
         }
     """
 
-# Create a global instance
-keyboard_config = KeyboardConfig()
+class KeyboardStyles:
+    """Styles for keyboard and keyboard-enabled inputs"""
+    
+    # Base keyboard style
+    KEYBOARD_BASE = """
+        QWidget {
+            background: white;
+            border: 1px solid #DEDEDE;
+            border-radius: 5px;
+        }
+    """
+    
+    # Handle bar style
+    HANDLE_BAR = """
+        QFrame {
+            background: #F5F5F5;
+            border-bottom: 1px solid #DEDEDE;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+        }
+    """
+    
+    # Control buttons style
+    CONTROL_BUTTONS = """
+        QPushButton {
+            background: transparent;
+            border: none;
+            border-radius: 3px;
+            color: #666;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background: #E0E0E0;
+        }
+    """
+    
+    # Standard key buttons style
+    KEY_BUTTONS = """
+        QPushButton {
+            background: white;
+            border: 1px solid #DEDEDE;
+            border-radius: 4px;
+            color: #333;
+        }
+        QPushButton:hover {
+            background: #F5F5F5;
+            border-color: #2196F3;
+        }
+    """
+    
+    # Space key style
+    SPACE_KEY = """
+        QPushButton {
+            background: white;
+            border: 1px solid #DEDEDE;
+            border-radius: 4px;
+            color: #333;
+        }
+        QPushButton:hover {
+            background: #F5F5F5;
+            border-color: #2196F3;
+        }
+    """
+    
+    # Enter key style
+    ENTER_KEY = """
+        QPushButton {
+            background: #2196F3;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background: #1976D2;
+        }
+    """
+    
+    @staticmethod
+    def get_key_style(config):
+        """Get key button style with configurable font size
+        
+        Args:
+            config: Keyboard configuration
+        """
+        return f"""
+            QPushButton {{
+                background: white;
+                border: 1px solid #DEDEDE;
+                border-radius: 4px;
+                color: #333;
+                font-size: {config.screen_config.get_size('keyboard_font_size')}px;
+                padding: {config.screen_config.get_size('keyboard_padding')}px;
+            }}
+            QPushButton:hover {{
+                background: #F5F5F5;
+                border-color: #2196F3;
+            }}
+        """
+    
+    @staticmethod
+    def get_space_key_style(config):
+        """Get space key style with configurable font size
+        
+        Args:
+            config: Keyboard configuration
+        """
+        return f"""
+            QPushButton {{
+                background: white;
+                border: 1px solid #DEDEDE;
+                border-radius: 4px;
+                color: #333;
+                font-size: {config.screen_config.get_size('keyboard_font_size')}px;
+                font-weight: 500;
+            }}
+            QPushButton:hover {{
+                background: #F5F5F5;
+                border-color: #2196F3;
+            }}
+        """
+    
+    @staticmethod
+    def get_enter_key_style(config):
+        """Get enter key style with configurable font size
+        
+        Args:
+            config: Keyboard configuration
+        """
+        return f"""
+            QPushButton {{
+                background: #2196F3;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                font-size: {config.screen_config.get_size('keyboard_font_size')}px;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background: #1976D2;
+            }}
+        """
+    
+    @staticmethod
+    def get_control_button_style(config):
+        """Get control button style with configurable font size
+        
+        Args:
+            config: Keyboard configuration
+        """
+        return f"""
+            QPushButton {{
+                background: transparent;
+                border: none;
+                border-radius: 3px;
+                color: #666;
+                font-size: {config.screen_config.get_size('keyboard_font_size') - 2}px;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background: #E0E0E0;
+            }}
+        """

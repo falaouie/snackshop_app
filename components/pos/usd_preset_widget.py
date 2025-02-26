@@ -1,6 +1,7 @@
-# usd_preset_widget.py - Updated Version
+# components/pos/usd_preset_widget.py
 from .preset_payment_widget import PresetPaymentWidget
 from button_definitions.types import PaymentButtonType
+from styles.payment_widgets import PaymentWidgetStyles
 
 class USDPresetWidget(PresetPaymentWidget):
     """Widget for displaying USD preset buttons and payment option"""
@@ -18,23 +19,13 @@ class USDPresetWidget(PresetPaymentWidget):
             button_text="USD Cash",
             button_color="#1890ff",  # Blue
             hover_color="#096dd9",   # Darker blue
+            currency_type="USD",
             preset_values=preset_values,
             preset_format=usd_format,
             parent=parent
         )
         
-        # Customize button styles if needed
-        self.payment_btn.setStyleSheet("""
-            QPushButton {
-                background: #e6f7ff;
-                color: #1890ff;
-                border: 2px solid #1890ff;
-                border-radius: 5px;
-                padding: 8px;
-                font-size: 15px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background: #bae7ff;
-            }
-        """)
+        # Set USD-specific button style
+        action_config = self.layout_config.get_payment_action_button_config()
+        self.payment_btn.setStyleSheet(
+            PaymentWidgetStyles.get_usd_action_button_style(action_config))

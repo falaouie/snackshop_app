@@ -3,8 +3,8 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QPixmap
 from PyQt5.QtSvg import QSvgRenderer
 from components.keyboard import KeyboardEnabledInput, KeyboardType
-from styles import POSStyles
 from styles.layouts import layout_config
+from styles.components import SearchStyles
 
 class SearchWidget(KeyboardEnabledInput):
     """Widget for handling product search with virtual keyboard support"""
@@ -27,10 +27,9 @@ class SearchWidget(KeyboardEnabledInput):
         """Initialize the search widget UI"""
         self.setPlaceholderText("Search products...")
         pos_layout = self.layout_config.get_pos_layout()
-        self.setStyleSheet(POSStyles.SEARCH_INPUT(
-            pos_layout['search_input']['width'],
-            pos_layout['search_input']['height']
-        ))
+        width = pos_layout['search_input']['width']
+        height = pos_layout['search_input']['height']
+        self.setStyleSheet(SearchStyles.get_input_style(width, height))
 
     def _setup_search_icon(self):
         """Setup the search icon"""

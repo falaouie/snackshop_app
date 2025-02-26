@@ -1,9 +1,10 @@
+# components/pos/order_list_widget.py
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                             QFrame, QScrollArea, QToolButton, QMenu, QMessageBox)
 from PyQt5.QtCore import Qt, pyqtSignal
 from models.order_item import OrderItem
-from styles import POSStyles
-from styles.layouts import layout_config 
+from styles.layouts import layout_config
+from styles.order_widgets import OrderWidgetStyles
 
 class OrderListWidget(QFrame):
     """Widget for displaying and managing order items"""
@@ -17,15 +18,16 @@ class OrderListWidget(QFrame):
         super().__init__(parent)
         self.order_items = []
         self.selected_item = None
-        self.layout_config = layout_config.get_instance()  
+        self.layout_config = layout_config.get_instance()
+        
+        # Use the centralized style with width from layout config
+        order_panel_width = self.layout_config.get_pos_layout()['order_panel_width']
+        self.setStyleSheet(OrderWidgetStyles.get_container_style(order_panel_width))
+        
         self._setup_ui()
     
     def _setup_ui(self):
         """Initialize the order list UI"""
-        self.setStyleSheet(POSStyles.ORDER_PANEL(
-            self.layout_config.get_pos_layout()['order_panel_width']
-        ))
-        
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -35,11 +37,14 @@ class OrderListWidget(QFrame):
         
         # Order Items Area
         self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)   
-        self.scroll_area.setStyleSheet(POSStyles.SCROLL_AREA)
+        self.scroll_area.setWidgetResizable(True)
+        # Use centralized scroll area style
+        self.scroll_area.setStyleSheet(OrderWidgetStyles.SCROLL_AREA)
         
         self.order_list_widget = QWidget()
-        self.order_list_widget.setStyleSheet(POSStyles.ORDER_LIST_WIDGET)
+        # Use centralized order list widget style
+        self.order_list_widget.setStyleSheet(OrderWidgetStyles.ORDER_LIST_WIDGET)
+        
         self.order_list_layout = QVBoxLayout(self.order_list_widget)
         self.order_list_layout.setContentsMargins(5, 5, 5, 5)
         self.order_list_layout.setSpacing(5)
@@ -55,38 +60,23 @@ class OrderListWidget(QFrame):
     def _create_header(self):
         """Create order header with menu button"""
         header_frame = QFrame()
-        header_frame.setStyleSheet("""
-            QFrame {
-                background: #F8F9FA;
-                border: none;
-            }
-            QLabel {
-                color: #2196F3;
-                font-size: 16px;
-                font-weight: 500;
-            }
-        """)
+        # Use centralized order header style
+        header_frame.setStyleSheet(OrderWidgetStyles.ORDER_HEADER)
         
         header_layout = QHBoxLayout(header_frame)
-        header_layout.setContentsMargins(10, 5, 0, 5)
+        # Get margins from layout config
+        header_layout.setContentsMargins(
+            self.layout_config.screen_config.get_size('order_header_margin_left'),
+            self.layout_config.screen_config.get_size('order_header_margin_top'),
+            self.layout_config.screen_config.get_size('order_header_margin_right'),
+            self.layout_config.screen_config.get_size('order_header_margin_bottom')
+        )
         
         order_label = QLabel("ORDER # 1234")
         menu_btn = QToolButton()
         menu_btn.setText("⋮")
-        menu_btn.setStyleSheet("""
-            QToolButton {
-                border: none;
-                color: #2196F3;
-                font-size: 20px;
-                font-weight: bold;
-                padding-left: 5px;
-                padding-right: 5px;
-            }
-            QToolButton:hover {
-                background: #EEEEEE;
-                border-radius: 4px;
-            }
-        """)
+        # Use centralized menu button style
+        menu_btn.setStyleSheet(OrderWidgetStyles.HEADER_MENU_BUTTON)
         menu_btn.clicked.connect(self._show_menu)
         
         header_layout.addWidget(order_label)
@@ -98,42 +88,23 @@ class OrderListWidget(QFrame):
     def _create_quantity_summary(self):
         """Create frame showing total quantity and unique items"""
         summary_frame = QFrame()
-        summary_frame.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-top: 1px solid #DEDEDE;
-            }
-            QLabel {
-                color: #666;
-                font-size: 13px;
-            }
-        """)
+        # Use centralized quantity summary style
+        summary_frame.setStyleSheet(OrderWidgetStyles.QUANTITY_SUMMARY)
         
         summary_layout = QHBoxLayout(summary_frame)
-        summary_layout.setContentsMargins(15, 8, 15, 8)
+        # Get margins from layout config
+        summary_layout.setContentsMargins(
+            self.layout_config.screen_config.get_size('order_summary_margin_left'),
+            self.layout_config.screen_config.get_size('order_summary_margin_top'),
+            self.layout_config.screen_config.get_size('order_summary_margin_right'),
+            self.layout_config.screen_config.get_size('order_summary_margin_bottom')
+        )
         
         self.qty_summary_label = QLabel("Qty: 0 | Items: 0")
         summary_layout.addWidget(self.qty_summary_label)
         summary_layout.addStretch()
         
         return summary_frame
-
-    def add_item(self, item_name: str, price: float) -> None:
-        """Add an item to the order or increment its quantity if it exists"""
-        existing_item = None
-        for item in self.order_items:
-            if item.name == item_name:
-                existing_item = item
-                break
-        
-        if existing_item:
-            existing_item.quantity += 1
-            self._update_display()
-        else:
-            new_item = OrderItem(item_name, price)
-            self.order_items.append(new_item)
-            self._add_item_to_display(new_item)
-            self._update_quantity_summary()
 
     def _add_item_to_display(self, item: OrderItem) -> None:
         """Add a new item row to the order display"""
@@ -143,28 +114,24 @@ class OrderListWidget(QFrame):
         # Create item row
         item_widget = QFrame()
         item_widget.setProperty('selected', False)
-        item_widget.setStyleSheet("""
-            QFrame {
-                background: white;
-                border-bottom: 1px solid #EEEEEE;
-                padding: 2px;
-            }
-            QFrame[selected="true"] {
-                background: #E3F2FD;
-                border: 1px solid #2196F3;
-                border-radius: 4px;
-            }
-            QLabel {
-                color: #333;
-            }
-        """)
+        # Use centralized order item style
+        item_widget.setStyleSheet(OrderWidgetStyles.ORDER_ITEM)
         
         item_layout = QHBoxLayout(item_widget)
-        item_layout.setContentsMargins(5, 2, 5, 2)
+        # Get margins from layout config
+        item_layout.setContentsMargins(
+            self.layout_config.screen_config.get_size('order_item_margin_left'),
+            self.layout_config.screen_config.get_size('order_item_margin_top'),
+            self.layout_config.screen_config.get_size('order_item_margin_right'),
+            self.layout_config.screen_config.get_size('order_item_margin_bottom')
+        )
         
         # Quantity
         qty_label = QLabel(str(item.quantity))
-        qty_label.setFixedWidth(30)
+        # Use width from layout config
+        qty_label.setFixedWidth(
+            self.layout_config.screen_config.get_size('order_quantity_label_width')
+        )
         qty_label.setAlignment(Qt.AlignCenter)
         
         # Name
@@ -173,7 +140,10 @@ class OrderListWidget(QFrame):
         # Total
         total_label = QLabel(f"{item.get_total():.2f}")
         total_label.setAlignment(Qt.AlignRight)
-        total_label.setFixedWidth(60)
+        # Use width from layout config
+        total_label.setFixedWidth(
+            self.layout_config.screen_config.get_size('order_total_label_width')
+        )
         
         item_layout.addWidget(qty_label)
         item_layout.addWidget(name_label)
@@ -191,7 +161,8 @@ class OrderListWidget(QFrame):
     def _show_menu(self):
         """Show the order actions menu"""
         menu = QMenu(self)
-        menu.setStyleSheet(POSStyles.MENU)
+        # Use centralized menu style
+        menu.setStyleSheet(OrderWidgetStyles.MENU)
 
         clear_action = menu.addAction("Cancel Order")
         clear_item = menu.addAction("Remove Selected Item")
@@ -215,61 +186,35 @@ class OrderListWidget(QFrame):
             item = self.order_list_layout.itemAt(i).widget()
             if item and isinstance(item, QFrame):
                 item.setProperty('selected', False)
+                item.setStyleSheet(OrderWidgetStyles.ORDER_ITEM)
                 item.style().unpolish(item)
                 item.style().polish(item)
         
         widget.setProperty('selected', True)
+        # Use centralized selected item style
+        widget.setStyleSheet(OrderWidgetStyles.ORDER_ITEM_SELECTED)
         widget.style().unpolish(widget)
         widget.style().polish(widget)
         self.selected_item = widget
 
     def clear_order(self):
-      """Clear all items from the order after confirmation"""
-      # Create message box
-      msg_box = QMessageBox(self)
-      msg_box.setWindowTitle('Clear Order')
-      msg_box.setText('Are you sure you want to clear the current order?')
-      msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-      msg_box.setDefaultButton(QMessageBox.No)
-      
-      # Apply styling to the message box
-      msg_box.setStyleSheet("""
-          QMessageBox {
-              background-color: white;
-              border: 1px solid #DEDEDE;
-              border-radius: 4px;
-          }
-          QMessageBox QLabel {
-              color: #333;
-              font-size: 14px;
-              padding: 10px;
-          }
-          QPushButton {
-              background-color: white;
-              border: 1px solid #DEDEDE;
-              border-radius: 4px;
-              min-width: 80px;
-              padding: 6px 12px;
-              margin: 4px;
-              color: #333;
-          }
-          QPushButton:hover {
-              background-color: #F0F0F0;
-              border-color: #2196F3;
-              color: #2196F3;
-          }
-          QPushButton:default {
-              border-color: #2196F3;
-              color: #2196F3;
-          }
-      """)
-      
-      reply = msg_box.exec_()
-      
-      if reply == QMessageBox.Yes:
-          self.order_items = []
-          self._update_display()
-          self.order_cleared.emit()
+        """Clear all items from the order after confirmation"""
+        # Create message box
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle('Clear Order')
+        msg_box.setText('Are you sure you want to clear the current order?')
+        msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg_box.setDefaultButton(QMessageBox.No)
+        
+        # Apply centralized message box style
+        msg_box.setStyleSheet(OrderWidgetStyles.MESSAGE_BOX)
+        
+        reply = msg_box.exec_()
+        
+        if reply == QMessageBox.Yes:
+            self.order_items = []
+            self._update_display()
+            self.order_cleared.emit()
 
     def remove_selected_item(self):
         """Remove the currently selected item"""

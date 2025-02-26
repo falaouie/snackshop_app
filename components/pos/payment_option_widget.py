@@ -1,7 +1,8 @@
-# payment_option_widget.py - Updated version
+# components/pos/payment_option_widget.py
 from PyQt5.QtWidgets import QFrame, QVBoxLayout, QPushButton
 from PyQt5.QtCore import pyqtSignal
 from styles.layouts import layout_config
+from styles.payment_widgets import PaymentWidgetStyles
 
 class PaymentOptionWidget(QFrame):
     """Base widget for payment option buttons"""
@@ -16,8 +17,9 @@ class PaymentOptionWidget(QFrame):
         self.button_text = button_text
         self.button_color = button_color
         self.hover_color = hover_color
-        self.setStyleSheet("QFrame { background: white; border: 1px solid #dddddd; border-radius: 5px; }")
-        # IMPORTANT: We've moved this to the end to ensure derived classes have initialized their attributes
+        # Use the centralized container style
+        self.setStyleSheet(PaymentWidgetStyles.get_container_style())
+        # Initialize UI at the end to ensure derived classes have set their attributes
         self._init_ui()
 
     def _init_ui(self):
@@ -36,21 +38,11 @@ class PaymentOptionWidget(QFrame):
         
         # Add payment button that fills the widget
         self.payment_btn = QPushButton(self.button_text)
-        
-        self.payment_btn.setStyleSheet(f"""
-            QPushButton {{
-                background: {self.button_color};
-                color: white;
-                border: none;
-                border-radius: {action_config['radius']}px;
-                padding: {action_config['padding']}px;
-                font-size: {action_config['font_size']}px;
-                font-weight: bold;
-            }}
-            QPushButton:hover {{
-                background: {self.hover_color};
-            }}
-        """)
+        # Use dimensions from layout config
+        self.payment_btn.setFixedSize(action_config['width'], action_config['height'])
+        # Use centralized style system
+        self.payment_btn.setStyleSheet(PaymentWidgetStyles.get_payment_action_button_style(
+            self.payment_type, self.button_color, self.hover_color, action_config))
         self.payment_btn.clicked.connect(self._on_payment_requested)
         main_layout.addWidget(self.payment_btn)
         

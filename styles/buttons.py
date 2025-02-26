@@ -64,12 +64,15 @@ class ButtonStyles:
                 
         button_config = cls.layout_config.get_button_config('transaction')
         
+        # Get specific radius for transaction buttons
+        radius = cls.layout_config.screen_config.get_size('transaction_button_radius')
+        
         return f"""
             QPushButton {{
                 background-color: {config['colors']['primary']};
                 color: {config['colors']['text']};
                 border: none;
-                border-radius: {button_config['border_radius']}px;
+                border-radius: {radius}px;
                 padding: {button_config['padding']}px;
                 font-size: {button_config['font_size']}px;
                 font-weight: 500;

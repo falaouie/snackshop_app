@@ -1,8 +1,10 @@
+# components/pos/product_grid_widget.py
 from PyQt5.QtWidgets import (QFrame, QVBoxLayout, QHBoxLayout, QPushButton, 
                             QScrollArea, QWidget, QGridLayout)
 from PyQt5.QtCore import Qt, pyqtSignal
-from styles import POSStyles, ButtonStyles
+from styles import ButtonStyles
 from styles.layouts import layout_config
+from styles.grid_widgets import GridWidgetStyles
 from models.product_catalog import PRODUCTS_BY_CATEGORY, CATEGORIES
 from button_definitions.types import CategoryButtonType
 from button_definitions.category import CategoryButtonConfig
@@ -16,11 +18,8 @@ class ProductGridWidget(QFrame):
     
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setStyleSheet("""
-            QFrame {
-                background: #F8F9FA;
-            }
-        """)
+        # Use centralized style for container
+        self.setStyleSheet(GridWidgetStyles.CONTAINER)
         
         self.layout_config = layout_config.get_instance()
         self.categories = CATEGORIES
@@ -35,22 +34,35 @@ class ProductGridWidget(QFrame):
 
     def _setup_ui(self):
         """Initialize the product grid UI"""
+        # Get grid layout configuration
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 5, 0, 0)
-        main_layout.setSpacing(8)
-
-        # Horizontal Categories Row
-        # main_layout.addWidget(self._create_category_bar())
+        main_layout.setContentsMargins(
+            self.layout_config.screen_config.get_size('product_grid_main_margin_left'),
+            self.layout_config.screen_config.get_size('product_grid_main_margin_top'),
+            self.layout_config.screen_config.get_size('product_grid_main_margin_right'),
+            self.layout_config.screen_config.get_size('product_grid_main_margin_bottom')
+        )
+        main_layout.setSpacing(
+            self.layout_config.screen_config.get_size('product_grid_main_spacing')
+        )
 
         # Products Grid Area
         self.products_scroll = QScrollArea()
         self.products_scroll.setWidgetResizable(True)
-        self.products_scroll.setStyleSheet(POSStyles.SCROLL_AREA)
+        # Use GridWidgetStyles instead of POSStyles
+        self.products_scroll.setStyleSheet(GridWidgetStyles.SCROLL_AREA)
         
         products_container = QWidget()
         self.products_grid = QGridLayout(products_container)
-        self.products_grid.setSpacing(10)
-        self.products_grid.setContentsMargins(5, 5, 5, 5)
+        self.products_grid.setSpacing(
+            self.layout_config.screen_config.get_size('product_grid_items_spacing')
+        )
+        self.products_grid.setContentsMargins(
+            self.layout_config.screen_config.get_size('product_grid_items_margin_left'),
+            self.layout_config.screen_config.get_size('product_grid_items_margin_top'),
+            self.layout_config.screen_config.get_size('product_grid_items_margin_right'),
+            self.layout_config.screen_config.get_size('product_grid_items_margin_bottom')
+        )
         self.products_scroll.setWidget(products_container)
         
         main_layout.addWidget(self.products_scroll, 1)
@@ -62,11 +74,18 @@ class ProductGridWidget(QFrame):
     def _create_category_bar(self):
         """Create horizontal category buttons bar"""
         category_frame = QFrame()
-        category_frame.setStyleSheet("background: transparent;")
+        category_frame.setStyleSheet(GridWidgetStyles.CATEGORY_FRAME)
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(5, 0, 5, 0)
-        category_layout.setSpacing(8)
+        category_layout.setContentsMargins(
+            self.layout_config.screen_config.get_size('product_grid_category_margin_left'),
+            self.layout_config.screen_config.get_size('product_grid_category_margin_top'),
+            self.layout_config.screen_config.get_size('product_grid_category_margin_right'),
+            self.layout_config.screen_config.get_size('product_grid_category_margin_bottom')
+        )
+        category_layout.setSpacing(
+            self.layout_config.screen_config.get_size('product_grid_category_spacing')
+        )
 
         # Create category buttons
         for category in self.categories:
@@ -149,14 +168,7 @@ class ProductGridWidget(QFrame):
             self.products_grid.addWidget(btn, row, col)
 
     def find_product_button(self, product_name):
-        """Find a product button by its name
-        
-        Args:
-            product_name (str): Name of the product to find
-            
-        Returns:
-            QPushButton or None: The button if found, None otherwise
-        """
+        """Find a product button by its name"""
         for i in range(self.products_grid.count()):
             widget = self.products_grid.itemAt(i).widget()
             if isinstance(widget, QPushButton) and widget.property('product_name') == product_name:
@@ -181,12 +193,8 @@ class ProductGridWidget(QFrame):
         """Apply disabled style to button"""
         button.setProperty('disabled_by_numpad', True)
         base_style = ButtonStyles.get_product_button_style()
-        disabled_style = base_style + """
-            QPushButton[disabled_by_numpad="true"] {
-                background-color: #E0E0E0;
-                color: #666666;
-            }
-        """
+        # Use centralized style for disabled buttons
+        disabled_style = GridWidgetStyles.get_disabled_product_button_style(base_style)
         button.setStyleSheet(disabled_style)
         self._refresh_button_style(button)
 

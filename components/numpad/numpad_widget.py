@@ -27,32 +27,42 @@ class NumpadWidget(QFrame):
         # Get the configuration
         self.config = NumpadConfig.get_instance()
         self.dimensions = self.config.get_dimensions()
-        self.layout = self.config.get_layout()
+        self.layout_config = self.config.get_layout()
 
         self._setup_ui()
         
     def _setup_ui(self):
         """Initialize the numpad UI"""
         # Get the configuration
-        self.config = NumpadConfig.get_instance()
-        self.dimensions = self.config.get_dimensions()
-        self.layout_config = self.config.get_layout()
+        # self.config = NumpadConfig.get_instance()
+        # self.dimensions = self.config.get_dimensions()
+        # self.layout_config = self.config.get_layout()
         
         # Apply container style
         self.setStyleSheet(NumpadStyles.CONTAINER)
         
+        # Set fixed width for entire numpad if specified
+        # if 'width' in self.dimensions:
+        #     self.setFixedWidth(self.dimensions['width'])
+
         # Main layout
+        # layout = QVBoxLayout(self)
+        # margins = self.layout_config['main_margins']
+        # layout.setContentsMargins(*margins)
+        # layout.setSpacing(self.layout_config['grid_spacing'])
+
         layout = QVBoxLayout(self)
-        margins = self.layout_config['main_margins']
-        layout.setContentsMargins(*margins)
+        layout.setContentsMargins(*self.layout_config['main_margins'])
         layout.setSpacing(self.layout_config['grid_spacing'])
         
         # Create display
         self.display = self._create_display()
+        self.display.setFixedHeight(self.dimensions['display_height'])
         layout.addWidget(self.display)
         
         # Create number grid
         self.grid_container = QFrame()
+        self.grid_container.setStyleSheet(NumpadStyles.GRID_CONTAINER)
         self.grid_layout = QGridLayout(self.grid_container)
         self.grid_layout.setContentsMargins(*self.layout_config['grid_margins'])
         self.grid_layout.setSpacing(self.layout_config['grid_spacing'])
@@ -104,9 +114,14 @@ class NumpadWidget(QFrame):
             ['.', '0', '⌫']
         ]
         
+        # Get button size from config
+        button_size = self.dimensions['button_size']
+        
         for i, row in enumerate(numbers):
             for j, num in enumerate(row):
                 btn = QPushButton(num)
+                # Set fixed size using config dimensions
+                btn.setFixedSize(button_size, button_size)
                 btn.setStyleSheet(button_style)
                 if num == '⌫':
                     btn.clicked.connect(self._on_backspace)

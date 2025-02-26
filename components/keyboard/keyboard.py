@@ -168,9 +168,10 @@ class VirtualKeyboard(QWidget):
         self.close_btn.setFixedSize(self.dimensions['control_button_size'], 
                                     self.dimensions['control_button_size'])
         
-        self.minimize_btn.setStyleSheet(KeyboardStyles.CONTROL_BUTTONS)
-        self.restore_btn.setStyleSheet(KeyboardStyles.CONTROL_BUTTONS)
-        self.close_btn.setStyleSheet(KeyboardStyles.CONTROL_BUTTONS)
+        control_style = KeyboardStyles.get_control_button_style(self.config)
+        self.minimize_btn.setStyleSheet(control_style)
+        self.restore_btn.setStyleSheet(control_style)
+        self.close_btn.setStyleSheet(control_style)
         
         self.minimize_btn.clicked.connect(self._on_minimize)
         self.restore_btn.clicked.connect(self._on_restore)
@@ -335,8 +336,9 @@ class VirtualKeyboard(QWidget):
             btn.setFixedSize(*size)
         else:
             btn.setFixedSize(self.dimensions['key_width'], 
-                           self.dimensions['key_height'])
-        btn.setStyleSheet(KeyboardStyles.KEY_BUTTONS)
+                        self.dimensions['key_height'])
+        # Use enhanced key style from KeyboardStyles
+        btn.setStyleSheet(KeyboardStyles.get_key_style(self.config))
         return btn
 
     def _create_space_button(self):
@@ -344,7 +346,8 @@ class VirtualKeyboard(QWidget):
         btn = QPushButton(' ')
         btn.setFixedSize(self.dimensions['space_width'], 
                         self.dimensions['space_height'])
-        btn.setStyleSheet(KeyboardStyles.SPACE_KEY)
+        # Use enhanced space key style
+        btn.setStyleSheet(KeyboardStyles.get_space_key_style(self.config))
         return btn
 
     def _create_enter_button(self):
@@ -352,8 +355,9 @@ class VirtualKeyboard(QWidget):
         btn = QPushButton('↵  ENTER')
         btn.setFixedSize(self.dimensions['enter_width'], 
                         self.dimensions['enter_height'])
-        btn.setStyleSheet(KeyboardStyles.ENTER_KEY)
-        btn.clicked.connect(self._on_enter)  # Keep original enter functionality
+        # Use enhanced enter key style
+        btn.setStyleSheet(KeyboardStyles.get_enter_key_style(self.config))
+        btn.clicked.connect(self._on_enter)
         return btn
 
     def set_input(self, input_widget, keyboard_type=KeyboardType.FULL):

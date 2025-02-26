@@ -1,6 +1,7 @@
-# lbp_preset_widget.py - Updated Version
+# components/pos/lbp_preset_widget.py
 from .preset_payment_widget import PresetPaymentWidget
 from button_definitions.types import PaymentButtonType
+from styles.payment_widgets import PaymentWidgetStyles
 
 class LBPPresetWidget(PresetPaymentWidget):
     """Widget for displaying LBP preset buttons and payment option"""
@@ -9,7 +10,7 @@ class LBPPresetWidget(PresetPaymentWidget):
         # LBP preset values
         preset_values = [1000, 5000, 10000, 20000, 50000, 100000]
         
-        # Format function for LBP values
+        # Format function for LBP values (whole numbers with commas)
         def lbp_format(value):
             return f"{value:,}"
         
@@ -18,23 +19,13 @@ class LBPPresetWidget(PresetPaymentWidget):
             button_text="LBP Cash",
             button_color="#52c41a",  # Green
             hover_color="#389e0d",   # Darker green
+            currency_type="LBP",     # Use LBP currency type for styling
             preset_values=preset_values,
             preset_format=lbp_format,
             parent=parent
         )
         
-        # Customize button styles if needed
-        self.payment_btn.setStyleSheet("""
-            QPushButton {
-                background: #f6ffed;
-                color: #52c41a;
-                border: 2px solid #52c41a;
-                border-radius: 5px;
-                padding: 8px;
-                font-size: 15px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background: #d9f7be;
-            }
-        """)
+        # Set LBP-specific button style
+        action_config = self.layout_config.get_payment_action_button_config()
+        self.payment_btn.setStyleSheet(
+            PaymentWidgetStyles.get_lbp_action_button_style(action_config))

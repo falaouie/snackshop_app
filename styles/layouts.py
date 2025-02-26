@@ -36,6 +36,14 @@ class LayoutSizes:
         'transaction_button_height': 40,
         'transaction_button_font_size': 13,
         'transaction_button_padding': 5,
+
+        # transaction button related configs
+        'transaction_container_margin_left': 10,
+        'transaction_container_margin_top': 10,
+        'transaction_container_margin_right': 10,
+        'transaction_container_margin_bottom': 10,
+        'transaction_buttons_spacing': 8,
+        'transaction_button_radius': 6,
         
         # Order type button configurations
         'order_type_button_width': 100,
@@ -55,6 +63,23 @@ class LayoutSizes:
         'product_button_font_size': 14,
         'product_button_padding': 5,
         'product_button_radius': 4,
+
+        # product grid configs
+        'product_grid_main_margin_left': 0,
+        'product_grid_main_margin_top': 5,
+        'product_grid_main_margin_right': 0,
+        'product_grid_main_margin_bottom': 0,
+        'product_grid_main_spacing': 8,
+        'product_grid_category_margin_left': 5,
+        'product_grid_category_margin_top': 0,
+        'product_grid_category_margin_right': 5,
+        'product_grid_category_margin_bottom': 0,
+        'product_grid_category_spacing': 8,
+        'product_grid_items_margin_left': 5,
+        'product_grid_items_margin_top': 5,
+        'product_grid_items_margin_right': 5,
+        'product_grid_items_margin_bottom': 5,
+        'product_grid_items_spacing': 10,
 
         # Category button styling
         'category_button_font_size': 13,
@@ -117,12 +142,31 @@ class LayoutSizes:
         'keyboard_padding': 6,
         'keyboard_spacing': 4,
 
+        # keyboard related configs
+        'keyboard_main_margin_left': 10,
+        'keyboard_main_margin_top': 5,
+        'keyboard_main_margin_right': 10,
+        'keyboard_main_margin_bottom': 10,
+        'keyboard_handle_margin_left': 5,
+        'keyboard_handle_margin_top': 0,
+        'keyboard_handle_margin_right': 5,
+        'keyboard_handle_margin_bottom': 0,
+        'keyboard_handle_spacing': 8,
+
         # Numpad specific settings
         'numpad_button_size': 60,
         'numpad_display_height': 45,
         'numpad_spacing': 6,
         'numpad_font_size': 18,
         'numpad_width': 300,
+        'numpad_main_margin_left': 10,
+        'numpad_main_margin_top': 10,
+        'numpad_main_margin_right': 10,
+        'numpad_main_margin_bottom': 10,
+        'numpad_grid_margin_left': 5,
+        'numpad_grid_margin_top': 5,
+        'numpad_grid_margin_right': 5,
+        'numpad_grid_margin_bottom': 5,
 
         # Preset button configurations
         'preset_button_width': 140,
@@ -144,7 +188,23 @@ class LayoutSizes:
         'totals_amount_font_size': 20,
         'totals_header_font_size': 16,
         'totals_widget_padding': 10,
-        'totals_section_spacing': 15,       
+        'totals_section_spacing': 15,
+
+        # order list widget configs
+        'order_header_margin_left': 10,
+        'order_header_margin_top': 5,
+        'order_header_margin_right': 0,
+        'order_header_margin_bottom': 5,
+        'order_item_margin_left': 5,
+        'order_item_margin_top': 2,
+        'order_item_margin_right': 5,
+        'order_item_margin_bottom': 2,
+        'order_quantity_label_width': 30,
+        'order_total_label_width': 60,
+        'order_summary_margin_left': 15,
+        'order_summary_margin_top': 8,
+        'order_summary_margin_right': 15,
+        'order_summary_margin_bottom': 8,     
     }
 
     MEDIUM = {
@@ -175,6 +235,14 @@ class LayoutSizes:
         'transaction_button_height': 40,
         'transaction_button_font_size': 13,
         'transaction_button_padding': 5,
+        'transaction_button_radius': 6,
+
+        # transaction button related configs
+        'transaction_container_margin_left': 10,
+        'transaction_container_margin_top': 10,
+        'transaction_container_margin_right': 10,
+        'transaction_container_margin_bottom': 10,
+        'transaction_buttons_spacing': 8,
 
         # Horizontal button configurations
         'horizontal_button_width': 90,
@@ -200,6 +268,23 @@ class LayoutSizes:
         'product_button_font_size': 14,
         'product_button_padding': 5,
         'product_button_radius': 4,
+
+        # product grid configs
+        'product_grid_main_margin_left': 0,
+        'product_grid_main_margin_top': 5,
+        'product_grid_main_margin_right': 0,
+        'product_grid_main_margin_bottom': 0,
+        'product_grid_main_spacing': 8,
+        'product_grid_category_margin_left': 5,
+        'product_grid_category_margin_top': 0,
+        'product_grid_category_margin_right': 5,
+        'product_grid_category_margin_bottom': 0,
+        'product_grid_category_spacing': 8,
+        'product_grid_items_margin_left': 5,
+        'product_grid_items_margin_top': 5,
+        'product_grid_items_margin_right': 5,
+        'product_grid_items_margin_bottom': 5,
+        'product_grid_items_spacing': 10,
 
         # Category button styling
         'category_button_font_size': 13,
@@ -262,12 +347,31 @@ class LayoutSizes:
         'keyboard_padding': 8,
         'keyboard_spacing': 5,
 
+        # keyboard related configs
+        'keyboard_main_margin_left': 10,
+        'keyboard_main_margin_top': 5,
+        'keyboard_main_margin_right': 10,
+        'keyboard_main_margin_bottom': 10,
+        'keyboard_handle_margin_left': 5,
+        'keyboard_handle_margin_top': 0,
+        'keyboard_handle_margin_right': 5,
+        'keyboard_handle_margin_bottom': 0,
+        'keyboard_handle_spacing': 8,
+
         # Numpad specific settings
         'numpad_button_size': 45,
         'numpad_display_height': 45,
         'numpad_spacing': 5,
         'numpad_font_size': 16,
         'numpad_width': 350,
+        'numpad_main_margin_left': 10,
+        'numpad_main_margin_top': 10,
+        'numpad_main_margin_right': 10,
+        'numpad_main_margin_bottom': 10,
+        'numpad_grid_margin_left': 5,
+        'numpad_grid_margin_top': 5,
+        'numpad_grid_margin_right': 5,
+        'numpad_grid_margin_bottom': 5,
 
         # Preset button configurations
         'preset_button_width': 140,
@@ -290,6 +394,22 @@ class LayoutSizes:
         'totals_header_font_size': 16,
         'totals_widget_padding': 10,
         'totals_section_spacing': 15,
+
+        # order list widget configs
+        'order_header_margin_left': 10,
+        'order_header_margin_top': 5,
+        'order_header_margin_right': 0,
+        'order_header_margin_bottom': 5,
+        'order_item_margin_left': 5,
+        'order_item_margin_top': 2,
+        'order_item_margin_right': 5,
+        'order_item_margin_bottom': 2,
+        'order_quantity_label_width': 30,
+        'order_total_label_width': 60,
+        'order_summary_margin_left': 15,
+        'order_summary_margin_top': 8,
+        'order_summary_margin_right': 15,
+        'order_summary_margin_bottom': 8, 
     }
 
     LARGE = {
@@ -317,9 +437,17 @@ class LayoutSizes:
 
         # Transaction button configurations
         'transaction_button_width': 100,
-        'transaction_button_height': 40,
-        'transaction_button_font_size': 13,
+        'transaction_button_height': 70,
+        'transaction_button_font_size': 18,
         'transaction_button_padding': 5,
+        'transaction_button_radius': 25,
+
+        # transaction button related configs
+        'transaction_container_margin_left': 10,
+        'transaction_container_margin_top': 10,
+        'transaction_container_margin_right': 10,
+        'transaction_container_margin_bottom': 10,
+        'transaction_buttons_spacing': 28,
 
         # Horizontal button configurations
         'horizontal_button_width': 90,
@@ -345,6 +473,23 @@ class LayoutSizes:
         'product_button_font_size': 14,
         'product_button_padding': 5,
         'product_button_radius': 4,
+
+        # product grid configs
+        'product_grid_main_margin_left': 0,
+        'product_grid_main_margin_top': 5,
+        'product_grid_main_margin_right': 0,
+        'product_grid_main_margin_bottom': 0,
+        'product_grid_main_spacing': 8,
+        'product_grid_category_margin_left': 5,
+        'product_grid_category_margin_top': 0,
+        'product_grid_category_margin_right': 5,
+        'product_grid_category_margin_bottom': 0,
+        'product_grid_category_spacing': 8,
+        'product_grid_items_margin_left': 5,
+        'product_grid_items_margin_top': 5,
+        'product_grid_items_margin_right': 5,
+        'product_grid_items_margin_bottom': 5,
+        'product_grid_items_spacing': 10,
 
         # Category button styling
         'category_button_font_size': 13,
@@ -407,12 +552,31 @@ class LayoutSizes:
         'keyboard_padding': 10,
         'keyboard_spacing': 8,
 
+        # keyboard related configs
+        'keyboard_main_margin_left': 10,
+        'keyboard_main_margin_top': 5,
+        'keyboard_main_margin_right': 10,
+        'keyboard_main_margin_bottom': 10,
+        'keyboard_handle_margin_left': 5,
+        'keyboard_handle_margin_top': 0,
+        'keyboard_handle_margin_right': 5,
+        'keyboard_handle_margin_bottom': 0,
+        'keyboard_handle_spacing': 8,
+
         # Numpad specific settings
         'numpad_button_size': 60,
         'numpad_display_height': 50,
         'numpad_spacing': 8,
         'numpad_font_size': 16,
-        'numpad_width': 400,
+        'numpad_width': 600,
+        'numpad_main_margin_left': 10,
+        'numpad_main_margin_top': 10,
+        'numpad_main_margin_right': 10,
+        'numpad_main_margin_bottom': 10,
+        'numpad_grid_margin_left': 5,
+        'numpad_grid_margin_top': 5,
+        'numpad_grid_margin_right': 5,
+        'numpad_grid_margin_bottom': 5,
 
         # Preset button configurations
         'preset_button_width': 140,
@@ -435,6 +599,22 @@ class LayoutSizes:
         'totals_header_font_size': 16,
         'totals_widget_padding': 10,
         'totals_section_spacing': 15,
+
+        # order list widget configs
+        'order_header_margin_left': 10,
+        'order_header_margin_top': 5,
+        'order_header_margin_right': 0,
+        'order_header_margin_bottom': 5,
+        'order_item_margin_left': 5,
+        'order_item_margin_top': 2,
+        'order_item_margin_right': 5,
+        'order_item_margin_bottom': 2,
+        'order_quantity_label_width': 30,
+        'order_total_label_width': 60,
+        'order_summary_margin_left': 15,
+        'order_summary_margin_top': 8,
+        'order_summary_margin_right': 15,
+        'order_summary_margin_bottom': 8, 
     }
 
 class LayoutConfig:
