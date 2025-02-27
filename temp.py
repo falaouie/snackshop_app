@@ -21,44 +21,51 @@ def _create_intermediate_container(self):
         self.numpad_widget.clear = new_clear
     layout.addWidget(self.numpad_widget)
     
-    # Add USD Preset Widget (without removing the payment button yet)
+    # Create and add USD Preset Widget (no longer has payment button) 
     self.usd_preset_widget = USDPresetWidget()
     self.usd_preset_widget.preset_selected.connect(self._handle_preset_selected)
-    self.usd_preset_widget.payment_requested.connect(
-        lambda payment_type: self._on_payment_action(payment_type)
-    )
     layout.addWidget(self.usd_preset_widget)
 
-    # Add LBP Preset Widget (without removing the payment button yet)
+    # Create and add LBP Preset Widget (no longer has payment button)
     self.lbp_preset_widget = LBPPresetWidget()
     self.lbp_preset_widget.preset_selected.connect(self._handle_preset_selected)
-    self.lbp_preset_widget.payment_requested.connect(
-        lambda payment_type: self._on_payment_action(payment_type)
-    )
     layout.addWidget(self.lbp_preset_widget)
-    
-    # Create payment options container for totals and payment methods
+
+    # Create payment options container
     payment_container = QFrame()
     payment_container.setStyleSheet(POSStyles.PAYMENT_CONTAINER())
     payment_layout = QVBoxLayout(payment_container)
     payment_layout.setContentsMargins(5, 5, 5, 5)
     payment_layout.setSpacing(10)
     
-    # Now we'll get the payment buttons from the preset widgets and add them to the payment container
+    # Add dedicated payment widgets
+    # USD Payment Widget
+    self.cash_usd_widget = CashUSDPaymentWidget()
+    self.cash_usd_widget.payment_requested.connect(
+        lambda payment_type: self._on_payment_action(payment_type)
+    )
+    payment_layout.addWidget(self.cash_usd_widget)
     
-    # Get USD payment button reference (we'll remove it from its original layout in Step 3)
-    self.usd_payment_btn = self.usd_preset_widget.payment_btn
+    # LBP Payment Widget
+    self.cash_lbp_widget = CashLBPPaymentWidget()
+    self.cash_lbp_widget.payment_requested.connect(
+        lambda payment_type: self._on_payment_action(payment_type)
+    )
+    payment_layout.addWidget(self.cash_lbp_widget)
     
-    # Get LBP payment button reference (we'll remove it from its original layout in Step 3)
-    self.lbp_payment_btn = self.lbp_preset_widget.payment_btn
-    
-    # Add card payment widget
+    # Card Payment Widget
     self.card_payment_widget = CardPaymentWidget()
-    self.card_payment_widget.payment_requested.connect(lambda payment_type: self._on_payment_action(payment_type))
+    self.card_payment_widget.payment_requested.connect(
+        lambda payment_type: self._on_payment_action(payment_type)
+    )
+    payment_layout.addWidget(self.card_payment_widget)
     
-    # Add other payment widget
+    # Other Payment Widget
     self.other_payment_widget = OtherPaymentWidget()
-    self.other_payment_widget.payment_requested.connect(lambda payment_type: self._on_payment_action(payment_type))
+    self.other_payment_widget.payment_requested.connect(
+        lambda payment_type: self._on_payment_action(payment_type)
+    )
+    payment_layout.addWidget(self.other_payment_widget)
     
     # Add payment container to main layout
     layout.addWidget(payment_container)

@@ -1,71 +1,43 @@
-Current Refactoring Status & Next Steps
-here's a summary of where we are and what's pending:
-Completed
+Phase 1: Clean Separation of Preset Widgets from Payment Functionality
+Step 1.1: Update PresetPaymentWidget Base Class
 
-Service Layer Implementation:
+Remove all payment button related properties and parameters
+Focus solely on preset amount functionality
+Test: Temporary implementation in a copy file to verify structure
 
-Created payment_service.py, order_service.py, product_service.py, validation_service.py
-Services contain the core business logic
+Step 1.2: Update USDPresetWidget
 
+Remove all payment button related parameters
+Pass only preset values, format function, and currency type
+Test: Implement and verify preset functionality works
 
-Controller Pattern:
+Step 1.3: Update LBPPresetWidget
 
-Implemented pos_controller.py as a mediator between views and services
-Controller coordinates multiple services
+Same updates as USDPresetWidget
+Test: Implement and verify preset functionality works
 
+Phase 2: Enhance Payment Widget Consistency
+Step 2.1: Update PaymentWidgetStyles
 
-Basic View Refactoring:
+Ensure consistent styling for all payment buttons
+Test: Visual inspection of styles applied
 
-Updated POSView to use controller for most operations
-Implemented UI state synchronization with service layer
-Added refresh_order_display() method
+Step 2.2: Improve Cash Payment Widgets
 
+Update USD and LBP payment widgets to follow CardPaymentWidget pattern
+Ensure proper styling and configuration
+Test: Visual consistency and functional testing
 
-Project Structure:
+Phase 3: Update POSView to Use New Components
+Step 3.1: Update _create_intermediate_container Method
 
-Reorganized into components, services, controllers, models, views structure
-Applied proper separation of concerns
+Remove all code that manipulates or extracts buttons from preset widgets
+Use dedicated payment widgets
+Organize layout logically
+Test: Full application testing of payment flow
 
+Step 3.2: Final Cleanup
 
-
-Pending
-
-Remaining Hardcoded Values:
-
-Button protection timer (500ms) needs to be moved to constants
-Message box styles should be centralized
-
-
-Complete Service Integration:
-
-Some methods in POSView still directly access model data instead of using controller
-_add_product_with_quantity() needs to use the controller
-_find_existing_item() should use controller version
-
-
-Validation Service Enhancement:
-
-Complete integration with all input validations
-Ensure consistent error handling
-
-
-Code Cleanup:
-
-Remove redundant methods that just pass through to controller
-Extract common functionality to utility methods
-
-
-Testing & Documentation:
-
-Add unit tests for services and controllers
-Document the new architecture and components
-
-
-
-Important Files to Review
-If needed, the following files would be most important to examine:
-
-views/pos/pos_view.py - Main view with remaining refactoring needed
-controllers/pos_controller.py - Controller implementation
-services/payment_service.py, services/order_service.py - Core services
-components/pos/order_list_widget.py - A key component for UI state
+Remove any remaining commented code
+Add documentation as needed
+Test: Final verification of all functionality

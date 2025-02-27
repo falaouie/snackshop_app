@@ -19,12 +19,6 @@ class LayoutSizes:
         'pos_search_input_width': 250,
         'pos_search_input_height': 35,
 
-        # Payment button configurations
-        'payment_button_width': 120,
-        'payment_button_height': 45,
-        'payment_button_font_size': 16,
-        'payment_button_padding': 8,
-
         # Horizontal button configurations
         'horizontal_button_width': 90,
         'horizontal_button_height': 35,
@@ -224,12 +218,6 @@ class LayoutSizes:
         'pos_search_input_width': 300,
         'pos_search_input_height': 40,
 
-        # Payment button configurations
-        'payment_button_width': 120,  # SMALL value example
-        'payment_button_height': 45,
-        'payment_button_font_size': 16,
-        'payment_button_padding': 8,
-
         # Transaction button configurations
         'transaction_button_width': 100,
         'transaction_button_height': 40,
@@ -428,12 +416,6 @@ class LayoutSizes:
         # search input
         'pos_search_input_width': 600,
         'pos_search_input_height': 30,
-
-        # Payment button configurations
-        'payment_button_width': 120,  # SMALL value example
-        'payment_button_height': 45,
-        'payment_button_font_size': 16,
-        'payment_button_padding': 8,
 
         # Transaction button configurations
         'transaction_button_width': 100,
@@ -713,13 +695,6 @@ class LayoutConfig:
     def get_button_config(self, button_type):
         """Get button configurations based on type"""
         return {
-            'payment': {
-                'width': self.screen_config.get_size('payment_button_width'),
-                'height': self.screen_config.get_size('payment_button_height'),
-                'font_size': self.screen_config.get_size('payment_button_font_size'),
-                'padding': self.screen_config.get_size('payment_button_padding'),
-                'border_radius': self.screen_config.get_size('button_border_radius'), 
-            },
             'transaction': {
                 'width': self.screen_config.get_size('transaction_button_width'),
                 'height': self.screen_config.get_size('transaction_button_height'),

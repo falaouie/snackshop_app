@@ -11,16 +11,18 @@ from components.pos.order_list_widget import OrderListWidget
 from components.pos.product_grid_widget import ProductGridWidget
 from components.pos.totals_widget import TotalsWidget
 from components.pos.search_widget import SearchWidget
-from components.keyboard import VirtualKeyboard
+
 from components.pos.order_type_widget import OrderTypeWidget
 from components.pos.transaction_buttons_widget import TransactionButtonsWidget
-from components.pos.payment_buttons_widget import PaymentButtonsWidget
+# from components.pos.payment_buttons_widget import PaymentButtonsWidget
+from components.keyboard import VirtualKeyboard
 from components.numpad import NumpadWidget
 from components.pos.usd_preset_widget import USDPresetWidget
 from components.pos.lbp_preset_widget import LBPPresetWidget
 from components.pos.card_payment_widget import CardPaymentWidget
 from components.pos.other_payment_widget import OtherPaymentWidget
-
+from components.pos.cash_usd_payment_widget import CashUSDPaymentWidget
+from components.pos.cash_lbp_payment_widget import CashLBPPaymentWidget 
 from models.product_catalog import PRODUCT_PRICES
 
 from controllers.pos_controller import POSController
@@ -333,9 +335,6 @@ class POSView(QWidget):
     
     def _create_intermediate_container(self):
         """Create container for numpad and payment section"""
-        # Add import for PaymentButtonType
-        from button_definitions.types import PaymentButtonType
-        
         container = QFrame()
         container.setFixedHeight(
             self.layout_config.get_pos_layout()['intermediate_container_height']
@@ -360,45 +359,13 @@ class POSView(QWidget):
         # Create USD Preset Widget 
         self.usd_preset_widget = USDPresetWidget()
         self.usd_preset_widget.preset_selected.connect(self._handle_preset_selected)
-        
-        # Store reference to the USD payment button before adding widget to layout
-        usd_payment_btn = self.usd_preset_widget.payment_btn
-        
-        # Remove payment button from its current layout
-        usd_layout = self.usd_preset_widget.layout()
-        for i in range(usd_layout.count()):
-            item = usd_layout.itemAt(i)
-            if item.widget() == usd_payment_btn:
-                # Remove the stretch before the payment button
-                if i > 0 and usd_layout.itemAt(i-1).spacerItem():
-                    usd_layout.removeItem(usd_layout.itemAt(i-1))
-                # Remove the payment button from layout
-                usd_layout.removeWidget(usd_payment_btn)
-                break
-        
-        # Now add the USD preset widget (without payment button) to main layout
+
         layout.addWidget(self.usd_preset_widget)
 
         # Create LBP Preset Widget
         self.lbp_preset_widget = LBPPresetWidget()
         self.lbp_preset_widget.preset_selected.connect(self._handle_preset_selected)
-        
-        # CHANGE: Store reference to the LBP payment button
-        lbp_payment_btn = self.lbp_preset_widget.payment_btn
-        
-        # CHANGE: Remove LBP payment button from its current layout
-        lbp_layout = self.lbp_preset_widget.layout()
-        for i in range(lbp_layout.count()):
-            item = lbp_layout.itemAt(i)
-            if item.widget() == lbp_payment_btn:
-                # Remove the stretch before the payment button
-                if i > 0 and lbp_layout.itemAt(i-1).spacerItem():
-                    lbp_layout.removeItem(lbp_layout.itemAt(i-1))
-                # Remove the payment button from layout
-                lbp_layout.removeWidget(lbp_payment_btn)
-                break
-        
-        # Now add the LBP preset widget (without payment button) to main layout
+
         layout.addWidget(self.lbp_preset_widget)
 
         # Create payment options container
@@ -408,24 +375,25 @@ class POSView(QWidget):
         payment_layout.setContentsMargins(5, 5, 5, 5)
         payment_layout.setSpacing(10)
         
-        # Add the USD payment button to the payment container
-        payment_layout.addWidget(usd_payment_btn)
-        
-        # Connect the USD payment button signal
-        usd_payment_btn.clicked.connect(
-            lambda: self._on_payment_action(PaymentButtonType.CASH_USD.value)
+        # ADD USD widget
+        self.cash_usd_widget = CashUSDPaymentWidget()
+        # Connect signal from USD widget
+        self.cash_usd_widget.payment_requested.connect(
+            lambda payment_type: self._on_payment_action(payment_type)
         )
+        payment_layout.addWidget(self.cash_usd_widget)
         
-        # CHANGE: Add the LBP payment button to the payment container
-        payment_layout.addWidget(lbp_payment_btn)
-        
-        # CHANGE: Connect the LBP payment button signal
-        lbp_payment_btn.clicked.connect(
-            lambda: self._on_payment_action(PaymentButtonType.CASH_LBP.value)
+        # Add LBP widget
+        self.cash_lbp_widget = CashLBPPaymentWidget()
+        # Connect signal from LBP widget
+        self.cash_lbp_widget.payment_requested.connect(
+            lambda payment_type: self._on_payment_action(payment_type)
         )
-        
+        payment_layout.addWidget(self.cash_lbp_widget)
+
         # Create and add card payment widget
         self.card_payment_widget = CardPaymentWidget()
+        # Connect signal from card payment widget
         self.card_payment_widget.payment_requested.connect(
             lambda payment_type: self._on_payment_action(payment_type)
         )
@@ -433,6 +401,7 @@ class POSView(QWidget):
         
         # Create and add other payment widget
         self.other_payment_widget = OtherPaymentWidget()
+        # Connect signal from other payment widget
         self.other_payment_widget.payment_requested.connect(
             lambda payment_type: self._on_payment_action(payment_type)
         )
@@ -510,38 +479,36 @@ class POSView(QWidget):
 
     def _enable_preset_buttons(self, preset_widget, enabled):
         """Enable or disable all preset buttons in a widget"""
-        # Find all QPushButtons in the widget layout except the payment button
+        # Find all QPushButtons in the widget layout
         for i in range(preset_widget.layout().count()):
             item = preset_widget.layout().itemAt(i)
             if item.widget() and isinstance(item.widget(), QPushButton):
-                # Skip the payment button at the bottom
-                if item.widget() != preset_widget.payment_btn:
-                    item.widget().setEnabled(enabled)
-                    if enabled:
-                        item.widget().setStyleSheet("""
-                            QPushButton {
-                                background: white;
-                                border: 1px solid #ddd;
-                                border-radius: 4px;
-                                padding: 5px;
-                                font-size: 14px;
-                            }
-                            QPushButton:hover {
-                                background: #f0f0f0;
-                                border-color: #1890ff;
-                            }
-                        """)
-                    else:
-                        item.widget().setStyleSheet("""
-                            QPushButton {
-                                background: #f5f5f5;
-                                border: 1px solid #ddd;
-                                border-radius: 4px;
-                                padding: 5px;
-                                font-size: 14px;
-                                color: #999;
-                            }
-                        """)
+                item.widget().setEnabled(enabled)
+                if enabled:
+                    item.widget().setStyleSheet("""
+                        QPushButton {
+                            background: white;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            padding: 5px;
+                            font-size: 14px;
+                        }
+                        QPushButton:hover {
+                            background: #f0f0f0;
+                            border-color: #1890ff;
+                        }
+                    """)
+                else:
+                    item.widget().setStyleSheet("""
+                        QPushButton {
+                            background: #f5f5f5;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            padding: 5px;
+                            font-size: 14px;
+                            color: #999;
+                        }
+                    """)
 
     def _create_bottom_bar(self):
         """Create empty bottom bar for future use"""

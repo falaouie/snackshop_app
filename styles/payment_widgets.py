@@ -1,6 +1,9 @@
 # styles/payment_widgets.py
 """Styles for payment-related widgets"""
 
+# styles/payment_widgets.py
+"""Styles for payment-related widgets"""
+
 class PaymentWidgetStyles:
     """Styles for payment widgets including base, preset, and specific payment types"""
     
@@ -63,6 +66,8 @@ class PaymentWidgetStyles:
                 padding: {config['padding']}px;
                 font-size: {config['font_size']}px;
                 font-weight: bold;
+                min-width: {config['width']}px;
+                min-height: {config['height']}px;
             }}
             QPushButton:hover {{
                 background: {hover_color};
@@ -76,16 +81,18 @@ class PaymentWidgetStyles:
         """USD-specific action button style"""
         return f"""
             QPushButton {{
-                background: #e6f7ff;
-                color: #1890ff;
-                border: 2px solid #1890ff;
+                background: #1890ff;
+                color: white;
+                border: none;
                 border-radius: {config['radius']}px;
                 padding: {config['padding']}px;
                 font-size: {config['font_size']}px;
                 font-weight: bold;
+                min-width: {config['width']}px;
+                min-height: {config['height']}px;
             }}
             QPushButton:hover {{
-                background: #bae7ff;
+                background: #096dd9;
             }}
         """
     
@@ -94,16 +101,18 @@ class PaymentWidgetStyles:
         """LBP-specific action button style"""
         return f"""
             QPushButton {{
-                background: #f6ffed;
-                color: #52c41a;
-                border: 2px solid #52c41a;
+                background: #52c41a;
+                color: white;
+                border: none;
                 border-radius: {config['radius']}px;
                 padding: {config['padding']}px;
                 font-size: {config['font_size']}px;
                 font-weight: bold;
+                min-width: {config['width']}px;
+                min-height: {config['height']}px;
             }}
             QPushButton:hover {{
-                background: #d9f7be;
+                background: #389e0d;
             }}
         """
     
@@ -119,6 +128,8 @@ class PaymentWidgetStyles:
                 padding: {config['padding']}px;
                 font-size: {config['font_size']}px;
                 font-weight: bold;
+                min-width: {config['width']}px;
+                min-height: {config['height']}px;
             }}
             QPushButton:hover {{
                 background: #d4380d;
@@ -137,6 +148,8 @@ class PaymentWidgetStyles:
                 padding: {config['padding']}px;
                 font-size: {config['font_size']}px;
                 font-weight: bold;
+                min-width: {config['width']}px;
+                min-height: {config['height']}px;
             }}
             QPushButton:hover {{
                 background: #531dab;
