@@ -1,111 +1,70 @@
-# components/keyboard/keyboard.py
-# Update the following methods:
-
-def _setup_ui(self):
-    """Initialize the keyboard UI"""
-    self.main_layout = QVBoxLayout(self)
-    self.main_layout.setContentsMargins(*self.layout_config['main_margins'])
-    self.main_layout.setSpacing(self.layout_config['main_spacing'])
-
-    # Handle bar
-    self._setup_handle_bar()
-
-    # Keyboard container
-    self.keyboard_container = QWidget()
-    self.main_layout.addWidget(self.keyboard_container)
-
-    # Create initial keyboard layout
-    self._update_keyboard_layout()
-
-    # Bottom row with space and enter
-    self.bottom_row_widget = self._create_bottom_row()
-    self.main_layout.addWidget(self.bottom_row_widget)
-
-    # Apply base styles
-    self.setStyleSheet(KeyboardStyles.KEYBOARD_BASE)
-
-def _setup_handle_bar(self):
-    """Setup the drag handle bar with controls"""
-    self.drag_handle = QFrame()
-    self.drag_handle.setFixedHeight(self.dimensions['handle_height'])
-    self.drag_handle.setStyleSheet(KeyboardStyles.HANDLE_BAR)
+def _create_intermediate_container(self):
+    """Create container for numpad and payment section"""
+    container = QFrame()
+    container.setFixedHeight(
+        self.layout_config.get_pos_layout()['intermediate_container_height']
+    )
+    container.setStyleSheet(POSStyles.INTERMEDIATE_CONTAINER())
     
-    # Handle layout
-    self.handle_layout = QHBoxLayout(self.drag_handle)
-    self.handle_layout.setContentsMargins(*self.layout_config['handle_margins'])
-    self.handle_layout.setSpacing(self.layout_config['handle_spacing'])
+    layout = QHBoxLayout(container)
+    layout.setContentsMargins(10, 10, 10, 10)
+    layout.setSpacing(10)
 
-    # Drag icon
-    drag_icon = QLabel()
-    renderer = QSvgRenderer("assets/images/drag_icon.svg")
-    pixmap = QPixmap(24, 24)
-    pixmap.fill(Qt.transparent)
-    painter = QPainter(pixmap)
-    renderer.render(painter)
-    painter.end()
-    drag_icon.setPixmap(pixmap)
-    drag_icon.setStyleSheet("padding: 8px;")
+    # Add numpad
+    self.numpad_widget = NumpadWidget(self)
+    self.numpad_widget.value_changed.connect(self._handle_numpad_value_change)
+    if hasattr(self.numpad_widget, 'clear'):
+        old_clear = self.numpad_widget.clear
+        def new_clear():
+            old_clear()
+            self._on_numpad_cleared()
+        self.numpad_widget.clear = new_clear
+    layout.addWidget(self.numpad_widget)
     
-    self.handle_layout.addWidget(drag_icon)
-    self.handle_layout.addStretch()
+    # Add USD Preset Widget (without removing the payment button yet)
+    self.usd_preset_widget = USDPresetWidget()
+    self.usd_preset_widget.preset_selected.connect(self._handle_preset_selected)
+    self.usd_preset_widget.payment_requested.connect(
+        lambda payment_type: self._on_payment_action(payment_type)
+    )
+    layout.addWidget(self.usd_preset_widget)
 
-    # Control buttons
-    self.minimize_btn = QPushButton("−")
-    self.restore_btn = QPushButton("□")
-    self.close_btn = QPushButton("×")
+    # Add LBP Preset Widget (without removing the payment button yet)
+    self.lbp_preset_widget = LBPPresetWidget()
+    self.lbp_preset_widget.preset_selected.connect(self._handle_preset_selected)
+    self.lbp_preset_widget.payment_requested.connect(
+        lambda payment_type: self._on_payment_action(payment_type)
+    )
+    layout.addWidget(self.lbp_preset_widget)
     
-    # Set fixed size from dimensions config
-    self.minimize_btn.setFixedSize(self.dimensions['control_button_size'], 
-                               self.dimensions['control_button_size'])
-    self.restore_btn.setFixedSize(self.dimensions['control_button_size'], 
-                                self.dimensions['control_button_size'])
-    self.close_btn.setFixedSize(self.dimensions['control_button_size'], 
-                                self.dimensions['control_button_size'])
+    # Create payment options container for totals and payment methods
+    payment_container = QFrame()
+    payment_container.setStyleSheet(POSStyles.PAYMENT_CONTAINER())
+    payment_layout = QVBoxLayout(payment_container)
+    payment_layout.setContentsMargins(5, 5, 5, 5)
+    payment_layout.setSpacing(10)
     
-    # Use enhanced control button style from KeyboardStyles
-    control_style = KeyboardStyles.get_control_button_style(self.config)
-    self.minimize_btn.setStyleSheet(control_style)
-    self.restore_btn.setStyleSheet(control_style)
-    self.close_btn.setStyleSheet(control_style)
+    # Now we'll get the payment buttons from the preset widgets and add them to the payment container
     
-    self.minimize_btn.clicked.connect(self._on_minimize)
-    self.restore_btn.clicked.connect(self._on_restore)
-    self.close_btn.clicked.connect(self._on_close)
+    # Get USD payment button reference (we'll remove it from its original layout in Step 3)
+    self.usd_payment_btn = self.usd_preset_widget.payment_btn
     
-    self.handle_layout.addWidget(self.minimize_btn)
-    self.handle_layout.addWidget(self.restore_btn)
-    self.handle_layout.addWidget(self.close_btn)
-    self.restore_btn.hide()
+    # Get LBP payment button reference (we'll remove it from its original layout in Step 3)
+    self.lbp_payment_btn = self.lbp_preset_widget.payment_btn
+    
+    # Add card payment widget
+    self.card_payment_widget = CardPaymentWidget()
+    self.card_payment_widget.payment_requested.connect(lambda payment_type: self._on_payment_action(payment_type))
+    
+    # Add other payment widget
+    self.other_payment_widget = OtherPaymentWidget()
+    self.other_payment_widget.payment_requested.connect(lambda payment_type: self._on_payment_action(payment_type))
+    
+    # Add payment container to main layout
+    layout.addWidget(payment_container)
+    
+    # Add totals widget
+    self.totals_widget = TotalsWidget(self.exchange_rate)
+    layout.addWidget(self.totals_widget)
 
-    self.main_layout.addWidget(self.drag_handle)
-
-def _create_key_button(self, text, size=None):
-    """Create a standard keyboard key button"""
-    btn = QPushButton(text)
-    if size:
-        btn.setFixedSize(*size)
-    else:
-        btn.setFixedSize(self.dimensions['key_width'], 
-                       self.dimensions['key_height'])
-    # Use enhanced key style from KeyboardStyles
-    btn.setStyleSheet(KeyboardStyles.get_key_style(self.config))
-    return btn
-
-def _create_space_button(self):
-    """Create the space bar button"""
-    btn = QPushButton(' ')
-    btn.setFixedSize(self.dimensions['space_width'], 
-                    self.dimensions['space_height'])
-    # Use enhanced space key style
-    btn.setStyleSheet(KeyboardStyles.get_space_key_style(self.config))
-    return btn
-
-def _create_enter_button(self):
-    """Create the enter button"""
-    btn = QPushButton('↵  ENTER')
-    btn.setFixedSize(self.dimensions['enter_width'], 
-                    self.dimensions['enter_height'])
-    # Use enhanced enter key style
-    btn.setStyleSheet(KeyboardStyles.get_enter_key_style(self.config))
-    btn.clicked.connect(self._on_enter)
-    return btn
+    return container

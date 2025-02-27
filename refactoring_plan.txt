@@ -1,58 +1,36 @@
-1 SearchWidget
+Step 1: Investigate Widget Structure
 
-Replace hardcoded width/height with layout config
-Move inline styles to styles/components.py
+Examine the USD and LBP preset widget code to understand how the payment buttons are structured
+Identify how to access or extract those buttons while leaving the preset denomination buttons in place
 
+Step 2: Create Basic Payment Container Structure
 
-2 numpadWidget
+Modify the _create_intermediate_container() method to create a dedicated payment container
+Ensure all widgets remain in their horizontal arrangement
+Verify the basic layout renders correctly with all five components showing
 
-Replace button size and display height hardcoding
-Move button styles to styles/components.py
+Step 3: Extract USD Payment Button
 
+Access the USD payment button from the USD preset widget
+Move it to the payment container
+Maintain all event connections
+Test to ensure the USD payment functionality remains intact
 
-3 USDPresetWidget
+Step 4: Extract LBP Payment Button
 
-Replace fixed button sizes with layout config
-Move inline button styles to styles file
+Access the LBP payment button from the LBP preset widget
+Move it to the payment container below the USD payment button
+Maintain all event connections
+Test to ensure the LBP payment functionality remains intact
 
+Step 5: Adjust Spacing and Layout
 
-4 LBPPresetWidget
+Update spacing and margins for visual consistency
+Ensure all buttons are properly sized in the payment container
+Verify the entire layout renders correctly
 
-Replace fixed button sizes with layout config
-Move inline button styles to styles file
+Step 6: Final Testing
 
-
-5 CardPaymentWidget & PaymentOptionWidget
-
-Replace any hardcoded dimensions
-Move styles to styles/payment_widgets.py
-
-
-6 OtherPaymentWidget
-
-Align with CardPaymentWidget changes
-Ensure consistent styling
-
-
-7 TransactionButtonsWidget
-
-Replace fixed button dimensions
-Move frame styles to appropriate style file
-
-
-8 ProductGridWidget
-
-Replace fixed grid dimensions
-Centralize product button styling
-
-
-9 OrderListWidget
-
-Replace fixed dimensions for labels and containers
-Move inline styles to style files
-
-
-10 KeyboardWidget
-
-Replace hardcoded key dimensions
-Maintain complex interaction styling
+Test the complete payment flow using both USD and LBP buttons
+Verify currency mode locking works correctly
+Test responsiveness at different window sizes
