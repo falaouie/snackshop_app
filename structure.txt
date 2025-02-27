@@ -21,10 +21,10 @@ snackshop_app/
   │   ├── pos.py                     # POS screen styles (TOP_BAR, ORDER_PANEL, etc.)
   │   ├── keyboard.py                # Keyboard component styles
   │   ├── numpad.py                  # Numpad component styles
-  │   ├── payment_widgets.py         # NEW: Styles for payment-related widgets
-  │   ├── grid_widgets.py            # NEW: Styles for product grid and category widgets
-  │   ├── order_widgets.py           # NEW: Styles for order list and related components
-  │   └── transaction_widgets.py     # NEW: Styles for transaction-related widgets
+  │   ├── payment_widgets.py         # Styles for payment-related widgets
+  │   ├── grid_widgets.py            # Styles for product grid and category widgets
+  │   ├── order_widgets.py           # Styles for order list and related components
+  │   └── transaction_widgets.py     # Styles for transaction-related widgets
   │
   ├── config/                        # Application configuration
   │   ├── __init__.py                # Configuration exports
@@ -41,7 +41,7 @@ snackshop_app/
   │   │
   │   ├── numpad/                    # Numpad component
   │   │   ├── __init__.py            # Numpad exports
-  │   │   ├── numpad_widget.py       # Numpad widget implementation (refactored)
+  │   │   ├── numpad_widget.py       # Numpad widget implementation
   │   │   ├── manager.py             # Numpad manager
   │   │   └── types.py               # Numpad modes and validation rules
   │   │
@@ -52,18 +52,18 @@ snackshop_app/
   │   │
   │   └── pos/                       # POS-specific components
   │       ├── __init__.py            # POS component exports
-  │       ├── order_list_widget.py   # Order list management component (refactored)
-  │       ├── product_grid_widget.py # Product display grid component (refactored)
+  │       ├── order_list_widget.py   # Order list management component 
+  │       ├── product_grid_widget.py # Product display grid component
   │       ├── totals_widget.py       # Totals widget showing USD and LBP amounts
-  │       ├── search_widget.py       # Search functionality component (refactored)
+  │       ├── search_widget.py       # Search functionality component 
   │       ├── order_type_widget.py   # Order type selection component
-  │       ├── payment_option_widget.py # Base class for payment options (refactored)
-  │       ├── preset_payment_widget.py # NEW: Base class for preset payment options
-  │       ├── usd_preset_widget.py   # USD denomination presets (refactored)
-  │       ├── lbp_preset_widget.py   # LBP denomination presets (refactored)
-  │       ├── card_payment_widget.py # Card payment button widget (refactored)
-  │       ├── other_payment_widget.py # Other payment button widget (refactored)
-  │       └── transaction_buttons_widget.py # Transaction action buttons (refactored)
+  │       ├── payment_option_widget.py # Base class for payment options 
+  │       ├── preset_payment_widget.py # Base class for preset payment options
+  │       ├── usd_preset_widget.py   # USD denomination presets 
+  │       ├── lbp_preset_widget.py   # LBP denomination presets 
+  │       ├── card_payment_widget.py # Card payment button widget 
+  │       ├── other_payment_widget.py # Other payment button widget 
+  │       └── transaction_buttons_widget.py # Transaction action buttons
   │
   ├── views/                         # Application views/screens
   │   ├── __init__.py                # View exports
@@ -75,10 +75,11 @@ snackshop_app/
   │   │   └── user_id_view.py        # User ID entry view
   │   │
   │   └── pos/                       # POS related views
-  │       ├── __init__.py            # Exports POSView
-  │       ├── pos_view.py            # Main POS view (coordinator) - UPDATED
-  │       ├── main_window.py         # Main application window
-  │       └── view_manager.py        # Manages view transitions
+  │   |   ├── __init__.py            # Exports POSView
+  │   |   ├── pos_view.py            # Main POS view (coordinator)
+  │   |   └── view_manager.py        # Manages view transitions
+  │   ├── main_window.py             # Main application window
+
   │
   ├── models/                        # Data models and business logic
   │   ├── __init__.py                # Model exports
@@ -99,31 +100,3 @@ snackshop_app/
   └── utilities/                     # Helper utilities
       ├── __init__.py                # Utility exports
       └── utils.py                   # General utility functions
-Key Changes Made During Refactoring:
-
-Component-Specific Style Files:
-
-Added dedicated style files for each component type (payment_widgets.py, grid_widgets.py, etc.)
-Moved inline styles from component implementations to these dedicated style files
-Maintained visual consistency while improving organization
-
-
-Better Component Hierarchy:
-
-Added preset_payment_widget.py as a base class for preset payment widgets
-Removed deprecated payment_buttons_widget.py
-Simplified component inheritance hierarchy
-
-
-Layout Improvements:
-
-Added configuration for margins, spacing, and other layout properties to layouts.py
-Replaced hardcoded dimensions with references to layout_config
-Made all UI elements scale consistently based on size configuration
-
-
-Style Organization:
-
-Follows "component type" organization for styles
-components.py now focuses only on truly generic, widely reused elements
-Each widget type has its own dedicated style file

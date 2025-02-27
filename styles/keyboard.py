@@ -46,7 +46,7 @@ class KeyboardEnabledInputStyles:
             border: 1px solid #DEDEDE;
             border-radius: 4px;
             padding: 5px 10px;
-            background: white;
+            background: grey;
             color: #333;
         }
         QLineEdit:focus {
@@ -74,16 +74,14 @@ class KeyboardStyles:
     # Base keyboard style
     KEYBOARD_BASE = """
         QWidget {
-            background: white;
-            border: 1px solid #DEDEDE;
-            border-radius: 5px;
+            background: darkgrey;
         }
     """
     
     # Handle bar style
     HANDLE_BAR = """
         QFrame {
-            background: #F5F5F5;
+            background: grey;
             border-bottom: 1px solid #DEDEDE;
             border-top-left-radius: 5px;
             border-top-right-radius: 5px;
@@ -91,60 +89,60 @@ class KeyboardStyles:
     """
     
     # Control buttons style
-    CONTROL_BUTTONS = """
-        QPushButton {
-            background: transparent;
-            border: none;
-            border-radius: 3px;
-            color: #666;
-            font-weight: bold;
-        }
-        QPushButton:hover {
-            background: #E0E0E0;
-        }
-    """
+    # CONTROL_BUTTONS = """
+    #     QPushButton {
+    #         background: transparent;
+    #         border: none;
+    #         border-radius: 3px;
+    #         color: #666;
+    #         font-weight: bold;
+    #     }
+    #     QPushButton:hover {
+    #         background: #E0E0E0;
+    #     }
+    # """
     
     # Standard key buttons style
-    KEY_BUTTONS = """
-        QPushButton {
-            background: white;
-            border: 1px solid #DEDEDE;
-            border-radius: 4px;
-            color: #333;
-        }
-        QPushButton:hover {
-            background: #F5F5F5;
-            border-color: #2196F3;
-        }
-    """
+    # KEY_BUTTONS = """
+    #     QPushButton {
+    #         background: red;
+    #         border: 1px solid #DEDEDE;
+    #         border-radius: px;
+    #         color: #333;
+    #     }
+    #     QPushButton:hover {
+    #         background: #F5F5F5;
+    #         border-color: #2196F3;
+    #     }
+    # """
     
     # Space key style
-    SPACE_KEY = """
-        QPushButton {
-            background: white;
-            border: 1px solid #DEDEDE;
-            border-radius: 4px;
-            color: #333;
-        }
-        QPushButton:hover {
-            background: #F5F5F5;
-            border-color: #2196F3;
-        }
-    """
+    # SPACE_KEY = """
+    #     QPushButton {
+    #         background: white;
+    #         border: 1px solid #DEDEDE;
+    #         border-radius: 4px;
+    #         color: #333;
+    #     }
+    #     QPushButton:hover {
+    #         background: #F5F5F5;
+    #         border-color: #2196F3;
+    #     }
+    # """
     
     # Enter key style
-    ENTER_KEY = """
-        QPushButton {
-            background: #2196F3;
-            border: none;
-            border-radius: 4px;
-            color: white;
-            font-weight: bold;
-        }
-        QPushButton:hover {
-            background: #1976D2;
-        }
-    """
+    # ENTER_KEY = """
+    #     QPushButton {
+    #         background: #2196F3;
+    #         border: none;
+    #         border-radius: 4px;
+    #         color: white;
+    #         font-weight: bold;
+    #     }
+    #     QPushButton:hover {
+    #         background: #1976D2;
+    #     }
+    # """
     
     @staticmethod
     def get_key_style(config):
