@@ -1,77 +1,138 @@
-def _create_intermediate_container(self):
-    """Create container for numpad and payment section"""
-    container = QFrame()
-    container.setFixedHeight(
-        self.layout_config.get_pos_layout()['intermediate_container_height']
-    )
-    container.setStyleSheet(POSStyles.INTERMEDIATE_CONTAINER())
-    
-    layout = QHBoxLayout(container)
-    layout.setContentsMargins(10, 10, 10, 10)
-    layout.setSpacing(10)
+# Enhanced usd_preset_widget.py
+from .preset_payment_widget import PresetPaymentWidget
+from styles.payment_widgets import PaymentWidgetStyles
 
-    # Add numpad
-    self.numpad_widget = NumpadWidget(self)
-    self.numpad_widget.value_changed.connect(self._handle_numpad_value_change)
-    if hasattr(self.numpad_widget, 'clear'):
-        old_clear = self.numpad_widget.clear
-        def new_clear():
-            old_clear()
-            self._on_numpad_cleared()
-        self.numpad_widget.clear = new_clear
-    layout.addWidget(self.numpad_widget)
+class USDPresetWidget(PresetPaymentWidget):
+    """Widget for displaying USD preset buttons with enhanced styling"""
     
-    # Create and add USD Preset Widget (no longer has payment button) 
-    self.usd_preset_widget = USDPresetWidget()
-    self.usd_preset_widget.preset_selected.connect(self._handle_preset_selected)
-    layout.addWidget(self.usd_preset_widget)
+    def __init__(self, parent=None):
+        # USD preset values
+        preset_values = [1, 5, 10, 20, 50, 100]
+        
+        # Format function for USD values
+        def usd_format(value):
+            return f"${value:.2f}"
+        
+        # Custom USD-specific style overrides could be added here
+        self.style_override = {
+            'normal': {
+                'font-weight': 'bold',
+                'color': '#1890ff'
+            },
+            'hover': {
+                'background': '#e6f7ff',
+                'border-color': '#1890ff'
+            }
+        }
+        
+        super().__init__(
+            currency_type="USD",
+            preset_values=preset_values,
+            preset_format=usd_format,
+            parent=parent
+        )
+    
+    def _setup_ui(self):
+        """Override to apply USD-specific styling"""
+        # Get preset button config
+        preset_config = self.layout_config.get_preset_button_config()
+        
+        # Main layout with USD-specific margins
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(
+            preset_config.get('margin_left', 5),
+            preset_config.get('margin_top', 5),
+            preset_config.get('margin_right', 5),
+            preset_config.get('margin_bottom', 5)
+        )
+        main_layout.setSpacing(preset_config['spacing'])
+        
+        # Add one preset value per row
+        for preset_value in self.preset_values:
+            preset_btn = QPushButton(self.preset_format(preset_value))
+            
+            # Apply button sizing
+            preset_btn.setFixedHeight(preset_config['height'])
+            if 'width' in preset_config:
+                preset_btn.setFixedWidth(preset_config['width'])
+            
+            # Apply button styling with USD-specific overrides
+            preset_btn.setStyleSheet(
+                PaymentWidgetStyles.get_preset_button_style(
+                    self.currency_type, preset_config, self.style_override))
+            
+            # Connect to emit the numerical value
+            preset_btn.clicked.connect(lambda checked, v=preset_value: 
+                                    self.preset_selected.emit(v))
+            
+            main_layout.addWidget(preset_btn)
 
-    # Create and add LBP Preset Widget (no longer has payment button)
-    self.lbp_preset_widget = LBPPresetWidget()
-    self.lbp_preset_widget.preset_selected.connect(self._handle_preset_selected)
-    layout.addWidget(self.lbp_preset_widget)
 
-    # Create payment options container
-    payment_container = QFrame()
-    payment_container.setStyleSheet(POSStyles.PAYMENT_CONTAINER())
-    payment_layout = QVBoxLayout(payment_container)
-    payment_layout.setContentsMargins(5, 5, 5, 5)
-    payment_layout.setSpacing(10)
-    
-    # Add dedicated payment widgets
-    # USD Payment Widget
-    self.cash_usd_widget = CashUSDPaymentWidget()
-    self.cash_usd_widget.payment_requested.connect(
-        lambda payment_type: self._on_payment_action(payment_type)
-    )
-    payment_layout.addWidget(self.cash_usd_widget)
-    
-    # LBP Payment Widget
-    self.cash_lbp_widget = CashLBPPaymentWidget()
-    self.cash_lbp_widget.payment_requested.connect(
-        lambda payment_type: self._on_payment_action(payment_type)
-    )
-    payment_layout.addWidget(self.cash_lbp_widget)
-    
-    # Card Payment Widget
-    self.card_payment_widget = CardPaymentWidget()
-    self.card_payment_widget.payment_requested.connect(
-        lambda payment_type: self._on_payment_action(payment_type)
-    )
-    payment_layout.addWidget(self.card_payment_widget)
-    
-    # Other Payment Widget
-    self.other_payment_widget = OtherPaymentWidget()
-    self.other_payment_widget.payment_requested.connect(
-        lambda payment_type: self._on_payment_action(payment_type)
-    )
-    payment_layout.addWidget(self.other_payment_widget)
-    
-    # Add payment container to main layout
-    layout.addWidget(payment_container)
-    
-    # Add totals widget
-    self.totals_widget = TotalsWidget(self.exchange_rate)
-    layout.addWidget(self.totals_widget)
+# Enhanced lbp_preset_widget.py
+from .preset_payment_widget import PresetPaymentWidget
+from styles.payment_widgets import PaymentWidgetStyles
 
-    return container
+class LBPPresetWidget(PresetPaymentWidget):
+    """Widget for displaying LBP preset buttons with enhanced styling"""
+    
+    def __init__(self, parent=None):
+        # LBP preset values
+        preset_values = [1000, 5000, 10000, 20000, 50000, 100000]
+        
+        # Format function for LBP values (whole numbers with commas)
+        def lbp_format(value):
+            return f"{value:,}"
+        
+        # Custom LBP-specific style overrides
+        self.style_override = {
+            'normal': {
+                'font-weight': 'bold',
+                'color': '#52c41a'
+            },
+            'hover': {
+                'background': '#f6ffed',
+                'border-color': '#52c41a'
+            }
+        }
+        
+        super().__init__(
+            currency_type="LBP",
+            preset_values=preset_values,
+            preset_format=lbp_format,
+            parent=parent
+        )
+    
+    def _setup_ui(self):
+        """Override to apply LBP-specific styling"""
+        # Get preset button config
+        preset_config = self.layout_config.get_preset_button_config()
+        
+        # Main layout with LBP-specific margins
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(
+            preset_config.get('margin_left', 5),
+            preset_config.get('margin_top', 5),
+            preset_config.get('margin_right', 5),
+            preset_config.get('margin_bottom', 5)
+        )
+        main_layout.setSpacing(preset_config['spacing'])
+        
+        # Add one preset value per row
+        for preset_value in self.preset_values:
+            preset_btn = QPushButton(self.preset_format(preset_value))
+            
+            # Apply button sizing
+            preset_btn.setFixedHeight(preset_config['height'])
+            if 'width' in preset_config:
+                preset_btn.setFixedWidth(preset_config['width'])
+            
+            # Apply button styling with LBP-specific overrides
+            preset_btn.setStyleSheet(
+                PaymentWidgetStyles.get_preset_button_style(
+                    self.currency_type, preset_config, self.style_override))
+            
+            # Connect to emit the numerical value
+            preset_btn.clicked.connect(lambda checked, v=preset_value: 
+                                    self.preset_selected.emit(v))
+            
+            main_layout.addWidget(preset_btn)

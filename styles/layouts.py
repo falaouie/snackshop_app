@@ -550,7 +550,7 @@ class LayoutSizes:
         'numpad_display_height': 50,
         'numpad_spacing': 8,
         'numpad_font_size': 16,
-        'numpad_width': 600,
+        'numpad_width': 300,
         'numpad_main_margin_left': 10,
         'numpad_main_margin_top': 10,
         'numpad_main_margin_right': 10,
@@ -563,10 +563,15 @@ class LayoutSizes:
         # Preset button configurations
         'preset_button_width': 140,
         'preset_button_height': 35,
+        'preset_widget_width': 150,
+        'preset_button_margin_left': 5,
+        'preset_button_margin_top': 5,
+        'preset_button_margin_right': 5,
+        'preset_button_margin_bottom': 5,
         'preset_button_font_size': 14,
         'preset_button_padding': 5,
         'preset_button_radius': 4,
-        'preset_button_spacing': 5,
+        'preset_button_spacing': 5, 
 
         # Payment action button configurations
         'payment_action_button_width': 140,
@@ -743,6 +748,11 @@ class LayoutConfig:
         return {
             'width': self.screen_config.get_size('preset_button_width'),
             'height': self.screen_config.get_size('preset_button_height'),
+            'widget_width': self.screen_config.get_size('preset_widget_width'),
+            'margin_left': self.screen_config.get_size('preset_button_margin_left'),
+            'margin_top': self.screen_config.get_size('preset_button_margin_top'),
+            'margin_right': self.screen_config.get_size('preset_button_margin_right'),
+            'margin_bottom': self.screen_config.get_size('preset_button_margin_bottom'),
             'font_size': self.screen_config.get_size('preset_button_font_size'),
             'padding': self.screen_config.get_size('preset_button_padding'),
             'radius': self.screen_config.get_size('preset_button_radius'),

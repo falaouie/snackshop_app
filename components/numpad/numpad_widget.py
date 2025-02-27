@@ -42,8 +42,8 @@ class NumpadWidget(QFrame):
         self.setStyleSheet(NumpadStyles.CONTAINER)
         
         # Set fixed width for entire numpad if specified
-        # if 'width' in self.dimensions:
-        #     self.setFixedWidth(self.dimensions['width'])
+        if 'width' in self.dimensions:
+            self.setFixedWidth(self.dimensions['width'])
 
         # Main layout
         # layout = QVBoxLayout(self)
