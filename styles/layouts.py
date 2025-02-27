@@ -165,6 +165,11 @@ class LayoutSizes:
         # Preset button configurations
         'preset_button_width': 140,
         'preset_button_height': 35,
+        'preset_widget_width': 150,
+        'preset_button_margin_left': 5,
+        'preset_button_margin_top': 5,
+        'preset_button_margin_right': 5,
+        'preset_button_margin_bottom': 5,
         'preset_button_font_size': 14,
         'preset_button_padding': 5,
         'preset_button_radius': 4,
@@ -203,66 +208,66 @@ class LayoutSizes:
 
     MEDIUM = {
         # POS view configs
-        'pos_top_bar_height': 60,
+        'pos_top_bar_height': 50,
         'pos_order_panel_width': 350,
-        'pos_bottom_bar_height': 80,
+        'pos_bottom_bar_height': 50,
         'pos_center_panel_width': 120,
-        'pos_order_type_container_height': 60,
-        'pos_category_container_height': 60,
-        'pos_intermediate_container_height': 350,
+        'pos_order_type_container_height': 50,
+        'pos_category_container_height': 50,
+        'pos_intermediate_container_height': 400,
         'pos_splitter_handle_width': 1,
-        'pos_order_type_button_spacing': 8,
-        'pos_category_button_spacing': 8,
+        'pos_order_type_button_spacing': 5,
+        'pos_category_button_spacing': 5,
 
         # search input
         'pos_search_input_width': 300,
-        'pos_search_input_height': 40,
+        'pos_search_input_height': 30,
 
         # Transaction button configurations
-        'transaction_button_width': 100,
-        'transaction_button_height': 40,
-        'transaction_button_font_size': 13,
-        'transaction_button_padding': 5,
-        'transaction_button_radius': 6,
+        'transaction_button_width': 80,
+        'transaction_button_height': 35,
+        'transaction_button_font_size': 12,
+        'transaction_button_padding': 2,
+        'transaction_button_radius': 15,
 
         # transaction button related configs
-        'transaction_container_margin_left': 10,
-        'transaction_container_margin_top': 10,
-        'transaction_container_margin_right': 10,
-        'transaction_container_margin_bottom': 10,
-        'transaction_buttons_spacing': 8,
+        'transaction_container_margin_left': 5,
+        'transaction_container_margin_top': 5,
+        'transaction_container_margin_right': 5,
+        'transaction_container_margin_bottom': 5,
+        'transaction_buttons_spacing': 5,
 
         # Horizontal button configurations
-        'horizontal_button_width': 90,
-        'horizontal_button_height': 35,
-        'horizontal_button_font_size': 13,
-        'horizontal_button_padding': 4,
+        # 'horizontal_button_width': 90,
+        # 'horizontal_button_height': 35,
+        # 'horizontal_button_font_size': 13,
+        # 'horizontal_button_padding': 4,
 
         # Order type button configurations
-        'order_type_button_width': 100,
-        'order_type_button_height': 36,
-        'order_type_button_font_size': 13,
-        'order_type_button_padding': 8,
+        'order_type_button_width': 80,
+        'order_type_button_height': 35,
+        'order_type_button_font_size': 12,
+        'order_type_button_padding': 5,
 
         # Product Grid Related
-        'pos_product_button_width': 140,
+        'pos_product_button_width': 120,
         'pos_product_button_height': 60,
         'pos_category_button_width': 120,
         'pos_category_button_height': 40,
-        'pos_action_button_width': 140,
-        'pos_action_button_height': 50,
+        # 'pos_action_button_width': 120,
+        # 'pos_action_button_height': 50,
 
         # Product button styling
         'product_button_font_size': 14,
         'product_button_padding': 5,
-        'product_button_radius': 4,
+        'product_button_radius': 15,
 
         # product grid configs
         'product_grid_main_margin_left': 0,
         'product_grid_main_margin_top': 5,
         'product_grid_main_margin_right': 0,
         'product_grid_main_margin_bottom': 0,
-        'product_grid_main_spacing': 8,
+        'product_grid_main_spacing': 5,
         'product_grid_category_margin_left': 5,
         'product_grid_category_margin_top': 0,
         'product_grid_category_margin_right': 5,
@@ -272,7 +277,7 @@ class LayoutSizes:
         'product_grid_items_margin_top': 5,
         'product_grid_items_margin_right': 5,
         'product_grid_items_margin_bottom': 5,
-        'product_grid_items_spacing': 10,
+        'product_grid_items_spacing': 5,
 
         # Category button styling
         'category_button_font_size': 13,
@@ -351,7 +356,7 @@ class LayoutSizes:
         'numpad_display_height': 45,
         'numpad_spacing': 5,
         'numpad_font_size': 16,
-        'numpad_width': 350,
+        'numpad_width': 200,
         'numpad_main_margin_left': 10,
         'numpad_main_margin_top': 10,
         'numpad_main_margin_right': 10,
@@ -362,8 +367,13 @@ class LayoutSizes:
         'numpad_grid_margin_bottom': 5,
 
         # Preset button configurations
-        'preset_button_width': 140,
+        'preset_button_width': 90,
         'preset_button_height': 35,
+        'preset_widget_width': 100,
+        'preset_button_margin_left': 5,
+        'preset_button_margin_top': 5,
+        'preset_button_margin_right': 5,
+        'preset_button_margin_bottom': 5,
         'preset_button_font_size': 14,
         'preset_button_padding': 5,
         'preset_button_radius': 4,
@@ -384,13 +394,13 @@ class LayoutSizes:
         'totals_section_spacing': 15,
 
         # order list widget configs
-        'order_header_margin_left': 10,
+        'order_header_margin_left': 5,
         'order_header_margin_top': 5,
-        'order_header_margin_right': 0,
+        'order_header_margin_right': 5,
         'order_header_margin_bottom': 5,
-        'order_item_margin_left': 5,
+        'order_item_margin_left': 2,
         'order_item_margin_top': 2,
-        'order_item_margin_right': 5,
+        'order_item_margin_right': 2,
         'order_item_margin_bottom': 2,
         'order_quantity_label_width': 30,
         'order_total_label_width': 60,
