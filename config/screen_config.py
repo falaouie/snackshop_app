@@ -1,10 +1,12 @@
 from PyQt5.QtWidgets import QApplication
+from config.size_categories import SizeCategory
 
 class ScreenConfig:
     """Handles screen detection and provides appropriate sizes for UI elements"""
 
     def __init__(self):
         self._current_config = None
+        self._size_category = None
         self._width = None
         self._height = None
         self._initialized = False
@@ -29,6 +31,7 @@ class ScreenConfig:
                 # Import here to avoid circular import
                 from styles.layouts import LayoutSizes
                 self._current_config = LayoutSizes.MEDIUM
+                self._size_category = SizeCategory.MEDIUM
                 self._width = 1280  # Default medium width
                 self._height = 768  # Default medium height
         else:
@@ -36,6 +39,7 @@ class ScreenConfig:
             # Import here to avoid circular import
             from styles.layouts import LayoutSizes
             self._current_config = LayoutSizes.MEDIUM
+            self._size_category = SizeCategory.MEDIUM
             self._width = 1280  # Default medium width
             self._height = 768  # Default medium height
         
@@ -48,14 +52,21 @@ class ScreenConfig:
         
         if self._width >= 1920 and self._height >= 1080:
             self._current_config = LayoutSizes.LARGE
+            self._size_category = SizeCategory.LARGE
             print("Using LARGE screen configuration")
         elif self._width >= 1024 and self._height >= 768:
             self._current_config = LayoutSizes.MEDIUM
+            self._size_category = SizeCategory.MEDIUM
             print("Using MEDIUM screen configuration")
         else:
             self._current_config = LayoutSizes.SMALL
+            self._size_category = SizeCategory.SMALL
             print("Using SMALL screen configuration")
 
+    def get_size_category(self):
+        """Get the current size category (SMALL, MEDIUM, LARGE)"""
+        self._ensure_initialized()
+        return self._size_category
 
     def get_size(self, element_name):
         """Get the size for a specific element based on current screen configuration"""

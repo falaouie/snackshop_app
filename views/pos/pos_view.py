@@ -538,20 +538,6 @@ class POSView(QWidget):
         #     self.totals_widget.update_status("On Hold")
         pass
 
-    def _on_horizontal_action(self, action_type):
-        """Hook for horizontal button coordination.
-        
-        Future use cases:
-        - Order state changes
-        - UI updates across widgets
-        - Event logging
-        """
-        # Example future coordination:
-        # if action_type == 'VOID':
-        #     self._clear_current_order()
-        #     self._update_transaction_log()
-        pass
-
     def _on_payment_action(self, action_type):
         """Handle payment button clicks"""
         try:

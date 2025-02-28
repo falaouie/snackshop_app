@@ -88,62 +88,6 @@ class KeyboardStyles:
         }
     """
     
-    # Control buttons style
-    # CONTROL_BUTTONS = """
-    #     QPushButton {
-    #         background: transparent;
-    #         border: none;
-    #         border-radius: 3px;
-    #         color: #666;
-    #         font-weight: bold;
-    #     }
-    #     QPushButton:hover {
-    #         background: #E0E0E0;
-    #     }
-    # """
-    
-    # Standard key buttons style
-    # KEY_BUTTONS = """
-    #     QPushButton {
-    #         background: red;
-    #         border: 1px solid #DEDEDE;
-    #         border-radius: px;
-    #         color: #333;
-    #     }
-    #     QPushButton:hover {
-    #         background: #F5F5F5;
-    #         border-color: #2196F3;
-    #     }
-    # """
-    
-    # Space key style
-    # SPACE_KEY = """
-    #     QPushButton {
-    #         background: white;
-    #         border: 1px solid #DEDEDE;
-    #         border-radius: 4px;
-    #         color: #333;
-    #     }
-    #     QPushButton:hover {
-    #         background: #F5F5F5;
-    #         border-color: #2196F3;
-    #     }
-    # """
-    
-    # Enter key style
-    # ENTER_KEY = """
-    #     QPushButton {
-    #         background: #2196F3;
-    #         border: none;
-    #         border-radius: 4px;
-    #         color: white;
-    #         font-weight: bold;
-    #     }
-    #     QPushButton:hover {
-    #         background: #1976D2;
-    #     }
-    # """
-    
     @staticmethod
     def get_key_style(config):
         """Get key button style with configurable font size

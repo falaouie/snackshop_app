@@ -19,12 +19,6 @@ class LayoutSizes:
         'pos_search_input_width': 250,
         'pos_search_input_height': 35,
 
-        # Horizontal button configurations
-        'horizontal_button_width': 90,
-        'horizontal_button_height': 35,
-        'horizontal_button_font_size': 13,
-        'horizontal_button_padding': 4,
-
         # Transaction button configurations
         'transaction_button_width': 100,
         'transaction_button_height': 40,
@@ -237,12 +231,6 @@ class LayoutSizes:
         'transaction_container_margin_bottom': 5,
         'transaction_buttons_spacing': 5,
 
-        # Horizontal button configurations
-        # 'horizontal_button_width': 90,
-        # 'horizontal_button_height': 35,
-        # 'horizontal_button_font_size': 13,
-        # 'horizontal_button_padding': 4,
-
         # Order type button configurations
         'order_type_button_width': 80,
         'order_type_button_height': 35,
@@ -441,12 +429,6 @@ class LayoutSizes:
         'transaction_container_margin_bottom': 10,
         'transaction_buttons_spacing': 28,
 
-        # Horizontal button configurations
-        'horizontal_button_width': 90,
-        'horizontal_button_height': 35,
-        'horizontal_button_font_size': 13,
-        'horizontal_button_padding': 4,
-
         # Order type button configurations
         'order_type_button_width': 100,
         'order_type_button_height': 50,
@@ -554,21 +536,6 @@ class LayoutSizes:
         'keyboard_handle_margin_right': 5,
         'keyboard_handle_margin_bottom': 0,
         'keyboard_handle_spacing': 8,
-
-        # Numpad specific settings
-        'numpad_button_size': 60,
-        'numpad_display_height': 50,
-        'numpad_spacing': 8,
-        'numpad_font_size': 16,
-        'numpad_width': 300,
-        'numpad_main_margin_left': 10,
-        'numpad_main_margin_top': 10,
-        'numpad_main_margin_right': 10,
-        'numpad_main_margin_bottom': 10,
-        'numpad_grid_margin_left': 5,
-        'numpad_grid_margin_top': 5,
-        'numpad_grid_margin_right': 5,
-        'numpad_grid_margin_bottom': 5,
 
         # Preset button configurations
         'preset_button_width': 140,
@@ -715,13 +682,6 @@ class LayoutConfig:
                 'height': self.screen_config.get_size('transaction_button_height'),
                 'font_size': self.screen_config.get_size('transaction_button_font_size'),
                 'padding': self.screen_config.get_size('transaction_button_padding'),
-                'border_radius': self.screen_config.get_size('button_border_radius'), 
-            },
-            'horizontal': {
-                'width': self.screen_config.get_size('horizontal_button_width'),
-                'height': self.screen_config.get_size('horizontal_button_height'),
-                'font_size': self.screen_config.get_size('horizontal_button_font_size'),
-                'padding': self.screen_config.get_size('horizontal_button_padding'),
                 'border_radius': self.screen_config.get_size('button_border_radius'), 
             },
             'order_type': {

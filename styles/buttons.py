@@ -1,7 +1,6 @@
 from button_definitions import (
     PaymentButtonConfig,
     TransactionButtonConfig,
-    # HorizontalButtonConfig,
     OrderTypeButtonConfig,
     CategoryButtonConfig,
     ProductButtonConfig
@@ -9,7 +8,6 @@ from button_definitions import (
 from button_definitions.types import (
     PaymentButtonType,
     TransactionButtonType,
-    # HorizontalButtonType
 )
 
 class ButtonStyles:
@@ -81,33 +79,6 @@ class ButtonStyles:
                 background-color: {config['colors']['hover']};
             }}
         """
-
-    # @classmethod
-    # def get_horizontal_button_style(cls, button_type):
-    #     """Generate horizontal button style based on configuration"""
-    #     if not cls._check_config():
-    #         return ""
-                
-    #     config = HorizontalButtonConfig.get_config(HorizontalButtonType(button_type))
-    #     if not config:
-    #         return ""
-                
-    #     button_config = cls.layout_config.get_button_config('horizontal')
-        
-    #     return f"""
-    #         QPushButton {{
-    #             background-color: {config['colors']['primary']};
-    #             color: {config['colors']['text']};
-    #             border: none;
-    #             border-radius: {button_config['border_radius']}px;
-    #             padding: {button_config['padding']}px;
-    #             font-size: {button_config['font_size']}px;
-    #             font-weight: 500;
-    #         }}
-    #         QPushButton:hover {{
-    #             background-color: {config['colors']['hover']};
-    #         }}
-    #     """
 
     @classmethod
     def get_order_button_style(cls, is_selected=False):

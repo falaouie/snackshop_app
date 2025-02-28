@@ -2,7 +2,8 @@ from PyQt5.QtWidgets import QVBoxLayout, QFrame, QPushButton, QGridLayout, QLine
 from PyQt5.QtCore import Qt, pyqtSignal
 from .types import NumpadMode, NumpadState
 from .manager import NumpadManager
-from styles.numpad import NumpadStyles, NumpadConfig
+from styles.numpad import NumpadStyles
+from config.layouts.numpad_layout import numpad_layout_config
 
 class NumpadWidget(QFrame):
     """
@@ -23,10 +24,9 @@ class NumpadWidget(QFrame):
         self._mode = NumpadMode.DEFAULT
         self._bound_input = None
 
-        # Get the configuration
-        self.config = NumpadConfig.get_instance()
-        self.dimensions = self.config.get_dimensions()
-        self.layout_config = self.config.get_layout()
+        self.layout_config_instance = numpad_layout_config
+        self.dimensions = self.layout_config_instance.get_dimensions()
+        self.layout_config = self.layout_config_instance.get_layout()
 
         self._setup_ui()
         
@@ -85,14 +85,14 @@ class NumpadWidget(QFrame):
         display.setText("0")
         
         # Use the centralized style
-        display.setStyleSheet(NumpadStyles.get_display_style(self.config))
+        display.setStyleSheet(NumpadStyles.get_display_style(self.layout_config_instance))
         
         return display
 
     def _create_number_grid(self):
         """Create the number button grid"""
         # Use the centralized style
-        button_style = NumpadStyles.get_number_button_style(self.config)
+        button_style = NumpadStyles.get_number_button_style(self.layout_config_instance)
         
         # Create number buttons (1-9)
         numbers = [

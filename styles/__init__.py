@@ -3,14 +3,14 @@ from .pos import POSStyles
 from .app import AppStyles
 from .layouts import LayoutConfig, LayoutSizes, layout_config, init_layout_config
 from .keyboard import KeyboardStyles, KeyboardConfig, KeyboardEnabledInputStyles
-from .numpad import NumpadStyles, NumpadConfig
+from .numpad import NumpadStyles
 
 # Make sure init_styles is included here
 __all__ = [
     'ButtonStyles', 'POSStyles', 'AppStyles', 
     'LayoutConfig', 'LayoutSizes', 'layout_config', 'init_layout_config',
     'KeyboardStyles', 'KeyboardConfig', 'KeyboardEnabledInputStyles',
-    'NumpadStyles', 'NumpadConfig', 'init_styles'
+    'NumpadStyles', 'init_styles'
 ]
 
 def init_styles(screen_config):
