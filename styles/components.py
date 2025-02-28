@@ -1,53 +1,27 @@
 # styles/components.py
+from config.layouts.search_layout import search_layout_config
 
 class SearchStyles:
-    """Styles for search components"""
-    
     @staticmethod
     def get_input_style(width, height):
-        """Get search input style with specific dimensions
-        
-        Args:
-            width: Width in pixels
-            height: Height in pixels
-        """
+        config = search_layout_config._get_current_config()
+        font_size = config['font_size']
+        padding = config['padding']
+        border_radius = config['border_radius']
+            
         return f"""
             QLineEdit {{
-                border: 1px solid #DEDEDE;
-                border-radius: 20px;
-                padding: 8px 40px;
-                font-size: 14px;
-                color: #333;
-                background: white;
                 width: {width}px;
                 height: {height}px;
+                background-color: white;
+                border: 1px solid #DEDEDE;
+                border-radius: {border_radius}px;
+                padding-left: {padding + 30}px;
+                padding-right: {padding}px;
+                font-size: {font_size}px;
+                color: #333333;
             }}
             QLineEdit:focus {{
-                border-color: #2196F3;
-                outline: none;
+                border: 1px solid #2196F3;
             }}
         """
-    
-# class NumpadComponentStyles:
-#     """Component-specific styles for numpad"""
-    
-#     @staticmethod
-#     def get_container_style():
-#         """Get style for the numpad container"""
-#         return """
-#             QFrame {
-#                 background: white;
-#                 border: 1px solid #DEDEDE;
-#                 border-radius: 5px;
-#             }
-#         """
-    
-#     @staticmethod
-#     def get_button_grid_style():
-#         """Get style for the button grid container"""
-#         return """
-#             QFrame {
-#                 background: transparent;
-#                 border: none;
-#             }
-#         """

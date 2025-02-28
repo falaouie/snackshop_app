@@ -5,8 +5,9 @@ from PyQt5.QtGui import QPixmap, QPainter, QDoubleValidator
 from PyQt5.QtSvg import QSvgRenderer
 from typing import Optional
 from .manager import KeyboardManager
-from styles.keyboard import KeyboardStyles, KeyboardConfig, KeyboardEnabledInputStyles
 from .types import KeyboardType
+from config.layouts.keyboard_layout import keyboard_layout_config
+from styles.keyboard_styles import KeyboardStyles
 
 class KeyboardEnabledInput(QLineEdit):
     """Input field that works with the virtual keyboard system"""
@@ -31,24 +32,23 @@ class KeyboardEnabledInput(QLineEdit):
         
         # Store configuration
         self.keyboard_type = keyboard_type
-        self._style_type = style_type
         
         # Initialize keyboard manager
         self.keyboard_manager = keyboard_manager or KeyboardManager()
         self.keyboard_manager.register_input(self)
         
-        # Apply styling based on type
-        self._apply_style()
-        
         # Set input properties based on keyboard type
         self._configure_input_mode()
 
-    def _apply_style(self) -> None:
-        """Apply the appropriate visual style"""
-        if self._style_type == 'search':
-            self.setStyleSheet(KeyboardEnabledInputStyles.SEARCH_INPUT)
-        else:
-            self.setStyleSheet(KeyboardEnabledInputStyles.BASE_INPUT)
+        # Apply base styling - components can override this
+        self.setStyleSheet(KeyboardStyles.INPUT_BASE)
+
+    # def _apply_style(self) -> None:
+    #     """Apply the appropriate visual style"""
+    #     if self._style_type == 'search':
+    #         self.setStyleSheet(KeyboardEnabledInputStyles.SEARCH_INPUT)
+    #     else:
+    #         self.setStyleSheet(KeyboardEnabledInputStyles.BASE_INPUT)
     
     def _configure_input_mode(self) -> None:
         """Configure input mode and validation based on keyboard type"""
@@ -98,7 +98,7 @@ class VirtualKeyboard(QWidget):
         self.is_minimized = False
         self.is_filtering = False
         # Load configuration
-        self.config = KeyboardConfig.get_instance() 
+        self.config = keyboard_layout_config  
         self.dimensions = self.config.get_dimensions()
         self.layout_config = self.config.get_layout()
         
@@ -168,7 +168,7 @@ class VirtualKeyboard(QWidget):
         self.close_btn.setFixedSize(self.dimensions['control_button_size'], 
                                     self.dimensions['control_button_size'])
         
-        control_style = KeyboardStyles.get_control_button_style(self.config)
+        control_style = KeyboardStyles.get_control_button_style()
         self.minimize_btn.setStyleSheet(control_style)
         self.restore_btn.setStyleSheet(control_style)
         self.close_btn.setStyleSheet(control_style)
@@ -338,7 +338,7 @@ class VirtualKeyboard(QWidget):
             btn.setFixedSize(self.dimensions['key_width'], 
                         self.dimensions['key_height'])
         # Use enhanced key style from KeyboardStyles
-        btn.setStyleSheet(KeyboardStyles.get_key_style(self.config))
+        btn.setStyleSheet(KeyboardStyles.get_key_style())
         return btn
 
     def _create_space_button(self):
@@ -347,7 +347,7 @@ class VirtualKeyboard(QWidget):
         btn.setFixedSize(self.dimensions['space_width'], 
                         self.dimensions['space_height'])
         # Use enhanced space key style
-        btn.setStyleSheet(KeyboardStyles.get_space_key_style(self.config))
+        btn.setStyleSheet(KeyboardStyles.get_space_key_style())
         return btn
 
     def _create_enter_button(self):
@@ -356,7 +356,7 @@ class VirtualKeyboard(QWidget):
         btn.setFixedSize(self.dimensions['enter_width'], 
                         self.dimensions['enter_height'])
         # Use enhanced enter key style
-        btn.setStyleSheet(KeyboardStyles.get_enter_key_style(self.config))
+        btn.setStyleSheet(KeyboardStyles.get_enter_key_style())
         btn.clicked.connect(self._on_enter)
         return btn
 

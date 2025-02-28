@@ -10,7 +10,7 @@ from styles.layouts import layout_config
 from components.pos.order_list_widget import OrderListWidget
 from components.pos.product_grid_widget import ProductGridWidget
 from components.pos.totals_widget import TotalsWidget
-from components.pos.search_widget import SearchWidget
+from components.pos.search_widget import KeyboardEnabledSearchWidget as SearchWidget
 
 from components.pos.order_type_widget import OrderTypeWidget
 from components.pos.transaction_buttons_widget import TransactionButtonsWidget
