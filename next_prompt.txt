@@ -1,0 +1,49 @@
+I need a detailed implementation plan for refactoring my Qt POS application to use a hybrid design system that combines discrete size categories (SMALL/MEDIUM/LARGE) with responsive min/max constraints for better adaptability.
+
+My goals are:
+1. Better organization of layout and style configurations
+2. Component-based grouping of styles and layouts
+3. Predictable sizing for critical UI elements
+4. Some responsive behavior where appropriate (e.g., product grids, containers)
+5. Easier maintenance and modification
+
+I need a step-by-step refactoring plan that:
+- Reorganizes my current configuration system
+- Implements the hybrid approach
+- Can be applied incrementally 
+- Provides better component-level organization
+- Makes styles and layouts easier to find and modify
+
+I've attached key files from my current implementation to give you context. Please analyze these and provide a detailed refactoring strategy.
+
+Here are the essential files to provide context:
+
+Core Configuration Files:
+
+layouts.py - Your current layout configuration system
+structure.txt - App structure for context
+
+
+Component Examples:
+
+numpad_widget.py - Example input component
+numpad.py - Style/config for numpad
+preset_payment_widget.py - Parent class example
+usd_preset_widget.py - Child implementation
+lbp_preset_widget.py - Child implementation
+payment_widgets.py - Style system example
+
+
+Implementation Example:
+
+pos_view.py - Shows how components are used together
+
+
+Styling Files:
+
+Any additional core styling files that demonstrate your current approach
+
+
+Any Screen Size Configuration:
+
+Files that handle screen size determination and switching

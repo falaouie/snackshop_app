@@ -23,7 +23,6 @@ from components.pos.card_payment_widget import CardPaymentWidget
 from components.pos.other_payment_widget import OtherPaymentWidget
 from components.pos.cash_usd_payment_widget import CashUSDPaymentWidget
 from components.pos.cash_lbp_payment_widget import CashLBPPaymentWidget 
-from models.product_catalog import PRODUCT_PRICES
 
 from controllers.pos_controller import POSController
 
@@ -45,7 +44,6 @@ class POSView(QWidget):
         # Get exchange rate from controller
         self.exchange_rate = self.controller.get_exchange_rate()
 
-        self.prices = PRODUCT_PRICES 
         self.keyboard = VirtualKeyboard(self)
         self.pending_quantity = None  # Track pending quantity from numpad
         self.pending_value = None  # Track pending value from numpad
@@ -718,8 +716,6 @@ class POSView(QWidget):
 
     def _add_product_with_quantity(self, item_name: str, quantity: int):
         """Add new product with specified quantity"""
-        # Get price from controller instead of direct lookup
-        price = self.controller.get_product_price(item_name)
         
         # Use controller to add product
         success = self.controller.add_product_to_order(item_name, quantity)

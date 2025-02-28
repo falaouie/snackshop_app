@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QFrame, 
-                             QPushButton, QGridLayout, QLineEdit)
+from PyQt5.QtWidgets import QVBoxLayout, QFrame, QPushButton, QGridLayout, QLineEdit
 from PyQt5.QtCore import Qt, pyqtSignal
 from .types import NumpadMode, NumpadState
 from .manager import NumpadManager
@@ -32,24 +31,13 @@ class NumpadWidget(QFrame):
         self._setup_ui()
         
     def _setup_ui(self):
-        """Initialize the numpad UI"""
-        # Get the configuration
-        # self.config = NumpadConfig.get_instance()
-        # self.dimensions = self.config.get_dimensions()
-        # self.layout_config = self.config.get_layout()
-        
+        """Initialize the numpad UI"""        
         # Apply container style
         self.setStyleSheet(NumpadStyles.CONTAINER)
         
         # Set fixed width for entire numpad if specified
         if 'width' in self.dimensions:
             self.setFixedWidth(self.dimensions['width'])
-
-        # Main layout
-        # layout = QVBoxLayout(self)
-        # margins = self.layout_config['main_margins']
-        # layout.setContentsMargins(*margins)
-        # layout.setSpacing(self.layout_config['grid_spacing'])
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(*self.layout_config['main_margins'])
