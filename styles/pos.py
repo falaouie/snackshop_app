@@ -193,52 +193,6 @@ class POSStyles:
             }}
         """
     
-    SCROLL_AREA = """
-        QScrollArea {
-            border: none;
-            background: transparent;
-        }
-        QScrollBar:vertical {
-            border: none;
-            background: #F8F9FA;
-            width: 8px;
-            margin: 0;
-        }
-        QScrollBar::handle:vertical {
-            background: #DEDEDE;
-            border-radius: 4px;
-            min-height: 20px;
-        }
-        QScrollBar::add-line:vertical, 
-        QScrollBar::sub-line:vertical {
-            border: none;
-            background: none;
-        }
-    """
-    
-    MENU = """
-        QMenu {
-            background-color: white;
-            border: 1px solid #DEDEDE;
-            border-radius: 4px;
-            padding: 5px;
-        }
-        QMenu::item {
-            padding: 8px 20px;
-            border-radius: 4px;
-            color: #333;
-        }
-        QMenu::item:selected {
-            background-color: #F0F0F0;
-            color: #2196F3;
-        }
-        QMenu::separator {
-            height: 1px;
-            background: #DEDEDE;
-            margin: 5px 0px;
-        }
-    """
-    
     LOCK_BUTTON = """
         QPushButton {
             background: transparent;
