@@ -141,55 +141,6 @@ class POSStyles:
                 padding: 10px;
             }
         """
-    
-    # Order panel styles
-    @classmethod
-    def ORDER_PANEL(cls, width):
-        return f"""
-            QFrame {{
-                background: white;
-                border: 1px solid #DEDEDE;
-                width: {width}px;
-            }}
-        """
-    
-    # ORDER_HEADER = """
-    #     QFrame {
-    #         background: #F8F9FA;
-    #         border: none;
-    #     }
-    #     QLabel {
-    #         color: #2196F3;
-    #         font-size: 16px;
-    #         font-weight: 500;
-    #     }
-    # """
-    
-    # ORDER_ITEM = """
-    #     QFrame {
-    #         background: white;
-    #         border-bottom: 1px solid #EEEEEE;
-    #         padding: 2px;
-    #     }
-    # """
-    
-    # ORDER_ITEM_SELECTED = """
-    #     QFrame {
-    #         background: #E3F2FD;
-    #         border: 1px solid #2196F3;
-    #         border-radius: 4px;
-    #     }
-    # """
-
-    # ORDER_LIST_WIDGET = """
-    #     QWidget {
-    #         background: red;
-    #     }
-    #     QFrame {
-    #         background: white;
-    #         border: none;
-    #     }
-    # """
 
     SPLITTER = """
         QSplitter {

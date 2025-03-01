@@ -14,41 +14,42 @@ snackshop_app/
   ├── config/                        # Application configuration system
   │   ├── __init__.py                # Configuration exports and initialization
   │   ├── screen_config.py           # Screen detection with SizeCategory support
-  │   ├── size_categories.py         # NEW! Centralized SizeCategory enum (SMALL/MEDIUM/LARGE)
+  │   ├── size_categories.py         # Centralized SizeCategory enum (SMALL/MEDIUM/LARGE)
   │   ├── style_constants.py         # Global style constants (colors, spacing, etc.)
-  │   └── layouts/                   # Component-specific layout configurations (new pattern)
+  │   └── layouts/                   # Component-specific layout configurations
   │       ├── __init__.py            # Exports layout configurations
-  │       ├── numpad_layout.py       # NEW! Responsive Numpad layout configuration
-  │       ├── search_layout.py       # NEW! Responsive Search input layout configuration
-  │       └── keyboard_layout.py     # NEW! Responsive Keyboard layout configuration
+  │       ├── numpad_layout.py       # Responsive Numpad layout configuration
+  │       ├── search_layout.py       # Responsive Search input layout configuration 
+  │       ├── keyboard_layout.py     # Responsive Keyboard layout configuration
+  │       └── order_list_layout.py   # Responsive Order list layout configuration
   │
-  ├── styles/                        # UI styling system (being refactored)
+  ├── styles/                        # UI styling system
   │   ├── __init__.py                # Style exports and initialization
   │   ├── buttons.py                 # Button-specific styles
   │   ├── layouts.py                 # Legacy layout configs (being migrated to config/layouts)
   │   ├── components.py              # Generic component styles
-  │   ├── keyboard_styles.py         # NEW! Dedicated keyboard styling using new config
+  │   ├── keyboard_styles.py         # Dedicated keyboard styling using config
   │   ├── app.py                     # Application-wide styles
   │   ├── auth.py                    # Authentication screen styles
-  │   ├── pos.py                     # POS screen styles (TOP_BAR, ORDER_PANEL, etc.)
-  │   ├── keyboard.py                # DEPRECATED! Old keyboard styling (in transition)
-  │   ├── numpad.py                  # Numpad component styles (now uses numpad_layout.py)
+  │   ├── pos.py                     # POS screen styles (UPDATED to use OrderWidgetStyles)
+  │   ├── keyboard.py                # DEPRECATED! Old keyboard styling
+  │   ├── numpad.py                  # Numpad component styles
   │   ├── payment_widgets.py         # Styles for payment widgets
   │   ├── grid_widgets.py            # Styles for product grid and category widgets
-  │   ├── order_widgets.py           # Styles for order list and related components
+  │   ├── order_widgets.py           # UPDATED! Now uses config-based method approach
   │   └── transaction_widgets.py     # Styles for transaction-related widgets
   │
   ├── components/                    # Reusable UI components
   │   ├── __init__.py                # Component exports
-  │   ├── keyboard/                  # Virtual keyboard component (refactored)
+  │   ├── keyboard/                  # Virtual keyboard component
   │   │   ├── __init__.py            # Keyboard exports
-  │   │   ├── keyboard.py            # UPDATED! Uses new keyboard_layout_config
+  │   │   ├── keyboard.py            # Uses keyboard_layout_config
   │   │   ├── manager.py             # Keyboard manager for input coordination
   │   │   └── types.py               # Keyboard type definitions
   │   │
-  │   ├── numpad/                    # Numpad component (refactored)
+  │   ├── numpad/                    # Numpad component
   │   │   ├── __init__.py            # Numpad exports
-  │   │   ├── numpad_widget.py       # UPDATED! Uses numpad_layout_config
+  │   │   ├── numpad_widget.py       # Uses numpad_layout_config
   │   │   ├── manager.py             # Numpad manager
   │   │   └── types.py               # Numpad modes and validation rules
   │   │
@@ -59,8 +60,8 @@ snackshop_app/
   │   │
   │   └── pos/                       # POS-specific components
   │       ├── __init__.py            # POS component exports
-  │       ├── search_widget.py       # UPDATED! Uses search_layout_config
-  │       ├── order_list_widget.py   # Order list management component
+  │       ├── search_widget.py       # Uses search_layout_config
+  │       ├── order_list_widget.py   # UPDATED! Uses order_layout_config
   │       ├── product_grid_widget.py # Product display grid component
   │       ├── totals_widget.py       # Totals widget showing USD and LBP amounts
   │       ├── order_type_widget.py   # Order type selection component
@@ -85,7 +86,7 @@ snackshop_app/
   │   │
   │   └── pos/                       # POS related views
   │       ├── __init__.py            # Exports POSView
-  │       ├── pos_view.py            # Main POS view (uses refactored components)
+  │       ├── pos_view.py            # UPDATED! Main POS view with fixed panel widths
   │       └── view_manager.py        # Manages view transitions
   │   ├── main_window.py             # Main application window
   │

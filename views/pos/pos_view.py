@@ -5,7 +5,9 @@ from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtSvg import QSvgRenderer
 
 from styles import POSStyles
+from styles.order_widgets import OrderWidgetStyles
 from styles.layouts import layout_config
+from config.layouts.order_list_layout import order_layout_config
 
 from components.pos.order_list_widget import OrderListWidget
 from components.pos.product_grid_widget import ProductGridWidget
@@ -14,7 +16,6 @@ from components.pos.search_widget import KeyboardEnabledSearchWidget as SearchWi
 
 from components.pos.order_type_widget import OrderTypeWidget
 from components.pos.transaction_buttons_widget import TransactionButtonsWidget
-# from components.pos.payment_buttons_widget import PaymentButtonsWidget
 from components.keyboard import VirtualKeyboard
 from components.numpad import NumpadWidget
 from components.pos.usd_preset_widget import USDPresetWidget
@@ -96,14 +97,19 @@ class POSView(QWidget):
         
         # Left Side - Order Details
         self.order_widget = self._create_order_widget()
-        self.order_widget.setStyleSheet(POSStyles.ORDER_PANEL(
-            self.layout_config.get_pos_layout()['order_panel_width']
-        ))
         inner_splitter.addWidget(self.order_widget)
         
         # Center Panel
         self.center_panel = self._create_center_panel()
         inner_splitter.addWidget(self.center_panel)
+
+        # Set stretch factors for inner splitter (after adding widgets)
+        inner_splitter.setStretchFactor(0, 0)  # Order panel - fixed size
+        inner_splitter.setStretchFactor(1, 0)  # Center panel - fixed size
+        
+        # Make inner splitter non-resizable
+        inner_splitter.setChildrenCollapsible(False)
+        inner_splitter.handle(0).setAttribute(Qt.WA_TransparentForMouseEvents, True)
 
         # Add inner splitter to left container first
         left_layout.addWidget(inner_splitter)
@@ -133,6 +139,10 @@ class POSView(QWidget):
         self.products_widget = self._create_products_widget()
         content_splitter.addWidget(self.products_widget)
         
+        # Set properties for main content splitter (after adding widgets)
+        content_splitter.setChildrenCollapsible(False)
+        content_splitter.handle(0).setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        
         # Add content splitter to main layout
         main_layout.addWidget(content_splitter, 1)
 
@@ -143,7 +153,10 @@ class POSView(QWidget):
     def _create_center_panel(self):
         """Create center panel with transaction buttons"""
         center_panel = QFrame()
-        center_panel.setFixedWidth(self.layout_config.get_pos_layout()['center_panel_width'])
+        # Get width from layout config
+        center_width = self.layout_config.get_pos_layout()['center_panel_width']
+        # Set explicit size constraints to make it fixed width
+        center_panel.setFixedWidth(center_width) 
         center_panel.setStyleSheet(POSStyles.CENTER_PANEL())
         
         center_layout = QVBoxLayout(center_panel)
@@ -272,6 +285,21 @@ class POSView(QWidget):
     def _create_order_widget(self):
         """Create order panel"""
         order_frame = QFrame()
+
+        # Get width from our new config
+        order_list_panel_width = order_layout_config.get_size('order_list_panel_width')
+        
+        # Set explicit size policies to ensure QSplitter respects our width
+        order_frame.setMinimumWidth(order_list_panel_width)
+        order_frame.setMaximumWidth(order_list_panel_width)
+
+        # Apply styling but remove width from the style (will be controlled by size policies)
+        # order_frame.setStyleSheet("""
+        #     QFrame {
+        #         background: white;
+        #         border: 1px solid #DEDEDE;
+        #     }
+        # """)
         
         layout = QVBoxLayout(order_frame)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -672,28 +700,7 @@ class POSView(QWidget):
         msg_box.setWindowTitle('Input Validation')
         msg_box.setText(message)
         msg_box.setStandardButtons(QMessageBox.Ok)
-        msg_box.setStyleSheet("""
-            QMessageBox {
-                background-color: white;
-            }
-            QLabel {
-                font-size: 14px;
-                padding: 10px;
-            }
-            QPushButton {
-                padding: 8px 15px;
-                font-size: 13px;
-                min-width: 80px;
-                margin: 5px;
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-                background: white;
-            }
-            QPushButton:hover {
-                background: #F5F5F5;
-                border-color: #2196F3;
-            }
-        """)
+        msg_box.setStyleSheet(OrderWidgetStyles.get_message_box_style())
         msg_box.exec_()
         
         # Clear numpad after validation message

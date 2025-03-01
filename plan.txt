@@ -1,43 +1,51 @@
-Phase 1: Clean Separation of Preset Widgets from Payment Functionality
-Step 1.1: Update PresetPaymentWidget Base Class
+1. Create New Configuration File
 
-Remove all payment button related properties and parameters
-Focus solely on preset amount functionality
-Test: Temporary implementation in a copy file to verify structure
+Create config/layouts/order_layout.py with basic structure
+Move relevant configuration values from layouts.py
+Test: App should run without errors (no actual changes yet)
 
-Step 1.2: Update USDPresetWidget
+2. Initial Integration
 
-Remove all payment button related parameters
-Pass only preset values, format function, and currency type
-Test: Implement and verify preset functionality works
+Import the new config in order_widgets.py
+Modify one minor style (like margin) to use the new config
+Test: Verify the minor style change works correctly
 
-Step 1.3: Update LBPPresetWidget
+3. Fix Order Panel Width Issue
 
-Same updates as USDPresetWidget
-Test: Implement and verify preset functionality works
+Identify primary width control point (container level)
+Remove width setting from child components
+Add explicit sizing policy in pos_view.py
+Test: Changing width in config should now affect panel size
 
-Phase 2: Enhance Payment Widget Consistency
-Step 2.1: Update PaymentWidgetStyles
+4. Enhance QSplitter Behavior
 
-Ensure consistent styling for all payment buttons
-Test: Visual inspection of styles applied
+Modify splitter setup to respect fixed widths
+Test: Splitter should maintain configured width when dragged
 
-Step 2.2: Improve Cash Payment Widgets
+5. Migrate Styling for Header Components
 
-Update USD and LBP payment widgets to follow CardPaymentWidget pattern
-Ensure proper styling and configuration
-Test: Visual consistency and functional testing
+Update order header styling to use new config
+Test: Header should maintain appearance but be responsive
 
-Phase 3: Update POSView to Use New Components
-Step 3.1: Update _create_intermediate_container Method
+6. Migrate Styling for List Items
 
-Remove all code that manipulates or extracts buttons from preset widgets
-Use dedicated payment widgets
-Organize layout logically
-Test: Full application testing of payment flow
+Update order item styling to use new config
+Test: Items should maintain appearance but be responsive
 
-Step 3.2: Final Cleanup
+7. Migrate Styling for Summary Section
 
-Remove any remaining commented code
-Add documentation as needed
-Test: Final verification of all functionality
+Update quantity summary styling to use new config
+Test: Summary section should maintain appearance but be responsive
+
+8. Remove Duplicate Styling
+
+Identify and eliminate redundant style definitions
+Have POSStyles reference OrderWidgetStyles where needed
+Test: Appearance should remain unchanged
+
+9. Final Documentation & Cleanup
+
+Add comments and documentation
+Remove any unused code
+Update project structure documentation
+Test: Full validation with different screen sizes
