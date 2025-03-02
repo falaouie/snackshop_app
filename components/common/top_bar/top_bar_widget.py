@@ -10,65 +10,45 @@ from components.pos.search_widget import KeyboardEnabledSearchWidget
 
 class TopBarWidget(QFrame):
     """
-    Reusable top bar widget component that can be configured to show/hide various elements.
+    Standard top bar widget component used across different views.
     
     Signals:
-        search_changed: Emitted when the search text changes (if search is enabled)
-        lock_clicked: Emitted when the lock button is clicked (if lock button is enabled)
+        search_changed: Emitted when the search text changes
+        lock_clicked: Emitted when the lock button is clicked
     """
     
     # Define signals
     search_changed = pyqtSignal(str)
     lock_clicked = pyqtSignal()
     
-    def __init__(self, 
-                 user_id=None,
-                 show_employee_info=True,
-                 show_datetime=True,
-                 show_search=True,
-                 show_lock=True,
-                 custom_center_widget=None,
-                 parent=None):
+    def __init__(self, user_id=None, parent=None):
         """
         Initialize the top bar widget.
         
         Args:
-            user_id (str, optional): Employee ID to display if employee info is shown
-            show_employee_info (bool): Whether to show employee info section
-            show_datetime (bool): Whether to show date and time section
-            show_search (bool): Whether to show search input
-            show_lock (bool): Whether to show lock button
-            custom_center_widget (QWidget, optional): Custom widget to place in center section instead of search
+            user_id (str, optional): Employee ID to display
             parent (QWidget, optional): Parent widget
         """
         super().__init__(parent)
         
         self.user_id = user_id
-        self.show_employee_info = show_employee_info
-        self.show_datetime = show_datetime
-        self.show_search = show_search
-        self.show_lock = show_lock
-        self.custom_center_widget = custom_center_widget
         
         # Set style
         self.setStyleSheet(TopBarStyles.get_container_style())
         
-        # Explicitly set fixed height - this ensures the height takes effect
-        # even when the widget is managed by layouts
+        # Explicitly set fixed height from config
         height = top_bar_layout_config.get_size('height')
         self.setFixedHeight(height)
         
-        # Initialize timer for datetime updates if needed
-        if show_datetime:
-            self.timer = QTimer(self)
-            self.timer.timeout.connect(self._update_time)
-            self.timer.start(1000)  # Update every second
+        # Initialize timer for datetime updates
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self._update_time)
+        self.timer.start(1000)  # Update every second
         
         self._setup_ui()
         
-        # Initial time update if datetime is shown
-        if show_datetime:
-            self._update_time()
+        # Initial time update
+        self._update_time()
     
     def _setup_ui(self):
         """Initialize the main UI structure"""
@@ -85,22 +65,20 @@ class TopBarWidget(QFrame):
         )
         layout.setSpacing(container_dims['section_spacing'])
         
-        # Create sections based on configuration
-        if self.show_employee_info:
-            emp_zone = self._create_employee_zone()
-            layout.addWidget(emp_zone)
+        # Create all sections
+        emp_zone = self._create_employee_zone()
+        layout.addWidget(emp_zone)
         
-        # Center section - either search or custom widget
+        # Center section with search
         center_section = self._create_center_section()
         layout.addWidget(center_section, 1)  # Stretch to fill available space
         
         # Lock button section
-        if self.show_lock:
-            controls_zone = self._create_controls_zone()
-            layout.addWidget(controls_zone)
+        controls_zone = self._create_controls_zone()
+        layout.addWidget(controls_zone)
     
     def _create_employee_zone(self):
-        """Create employee info section with datetime if enabled"""
+        """Create employee info section with datetime"""
         emp_config = top_bar_layout_config.get_employee_section_config()
         
         # Container
@@ -115,7 +93,7 @@ class TopBarWidget(QFrame):
         # Employee icon
         emp_icon = QLabel()
         
-        # Load SVG icon if employee info is shown
+        # Load SVG icon
         icon_size = emp_config['icon_size']
         renderer = QSvgRenderer("assets/images/employee_icon.svg")
         pixmap = QPixmap(icon_size, icon_size)
@@ -139,10 +117,9 @@ class TopBarWidget(QFrame):
         emp_layout.addWidget(emp_icon)
         emp_layout.addWidget(emp_id)
         
-        # DateTime Zone if enabled
-        if self.show_datetime:
-            time_zone = self._create_datetime_zone()
-            emp_layout.addWidget(time_zone)
+        # DateTime Zone
+        time_zone = self._create_datetime_zone()
+        emp_layout.addWidget(time_zone)
         
         return emp_zone
     
@@ -183,7 +160,7 @@ class TopBarWidget(QFrame):
         return time_zone
     
     def _create_center_section(self):
-        """Create center section with search or custom widget"""
+        """Create center section with search"""
         center_config = top_bar_layout_config.get_center_section_config()
         
         # Container
@@ -199,19 +176,10 @@ class TopBarWidget(QFrame):
         # Add stretches for centering
         center_layout.addStretch(1)
         
-        # Add either search widget or custom widget
-        if self.custom_center_widget:
-            # Use provided custom widget
-            center_layout.addWidget(self.custom_center_widget)
-            # Store reference to search widget if it is one
-            if isinstance(self.custom_center_widget, KeyboardEnabledSearchWidget):
-                self.search_input = self.custom_center_widget
-                self.search_input.search_changed.connect(self._on_search_changed)
-        elif self.show_search:
-            # Create and connect search widget
-            self.search_input = KeyboardEnabledSearchWidget(self)
-            self.search_input.search_changed.connect(self._on_search_changed)
-            center_layout.addWidget(self.search_input)
+        # Create and connect search widget
+        self.search_input = KeyboardEnabledSearchWidget(self)
+        self.search_input.search_changed.connect(self._on_search_changed)
+        center_layout.addWidget(self.search_input)
         
         center_layout.addStretch(1)
         
@@ -249,10 +217,7 @@ class TopBarWidget(QFrame):
         return controls_zone
     
     def _update_time(self):
-        """Update the time display if datetime is shown"""
-        if not self.show_datetime:
-            return
-            
+        """Update the time display"""
         current = QDateTime.currentDateTime()
         self.date_label.setText(current.toString("dd-MM-yyyy"))
         self.time_label.setText(current.toString("h:mm AP"))
@@ -266,19 +231,9 @@ class TopBarWidget(QFrame):
         self.lock_clicked.emit()
     
     def get_search_widget(self):
-        """Get the search widget if available"""
-        return self.search_input if hasattr(self, 'search_input') else None
+        """Get the search widget"""
+        return self.search_input
     
     def clear_search(self):
-        """Clear the search input if available"""
-        if hasattr(self, 'search_input'):
-            self.search_input.clear()
-    
-    def set_center_widget(self, widget):
-        """Set a custom widget in the center section"""
-        if hasattr(self, 'custom_center_widget') and self.custom_center_widget:
-            # Remove old widget first
-            self.layout().removeWidget(self.custom_center_widget)
-            
-        self.custom_center_widget = widget
-        self._setup_ui()  # Rebuild UI with new widget
+        """Clear the search input"""
+        self.search_input.clear()

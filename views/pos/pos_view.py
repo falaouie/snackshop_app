@@ -69,16 +69,8 @@ class POSView(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 10)
         main_layout.setSpacing(0)
 
-        # Add top bar
-        # Create and configure top bar directly
-        self.top_bar = TopBarWidget(
-            user_id=self.user_id,
-            show_employee_info=True,
-            show_datetime=True,
-            show_search=True,
-            show_lock=True,
-            parent=self
-        )
+        # Add top bar with simplified initialization
+        self.top_bar = TopBarWidget(user_id=self.user_id, parent=self)
         
         # Connect signals immediately after creation
         self.top_bar.search_changed.connect(self._filter_products)
