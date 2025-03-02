@@ -45,9 +45,7 @@ snackshop_app/
   │   ├── __init__.py                # Component exports
   │   ├── common/                    # NEW! Common reusable widgets across views
   │   │   ├── __init__.py            # Common components exports
-  │   │   └── top_bar/               # NEW! TopBar component package
-  │   │       ├── __init__.py        # TopBar exports 
-  │   │       └── top_bar_widget.py  # NEW! Reusable TopBar widget implementation
+  │   │   └── top_bar_widget.py     # Reusable TopBar widget implementation
   │   │
   │   ├── keyboard/                  # Virtual keyboard component
   │   │   ├── __init__.py            # Keyboard exports
@@ -117,33 +115,3 @@ snackshop_app/
   └── utilities/                     # Helper utilities
       ├── __init__.py                # Utility exports
       └── utils.py                   # General utility functions
-
-
-# New Files Descriptions:
-
-## 1. config/layouts/top_bar_layout.py
-- Defines responsive size configurations for the TopBar component
-- Contains configurations for all TopBar subcomponents (employee info, datetime, etc.)
-- Provides accessor methods for dimensions based on screen size
-- Creates a singleton instance for global access
-
-## 2. styles/top_bar.py
-- Provides styles for the TopBar component and its sub-elements
-- Follows clean separation where stylesheets handle only visual appearance
-- Leaves sizing and font properties to be handled by widget methods
-- Contains methods returning style strings for different TopBar parts
-
-## 3. components/common/__init__.py
-- Creates a new namespace for common reusable components
-- Used for widgets that can be shared across different views
-
-## 4. components/common/top_bar/__init__.py
-- Exports the TopBarWidget for easy imports
-- Defines the TopBar component package
-
-## 5. components/common/top_bar/top_bar_widget.py
-- Implements a flexible, configurable TopBar widget
-- Allows showing/hiding components (employee info, datetime, search, lock)
-- Uses Qt methods for sizing and fonts instead of stylesheets
-- Can accept a custom center widget or create a search widget
-- Emits signals for search changes and lock button clicks

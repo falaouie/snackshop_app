@@ -6,7 +6,7 @@ from PyQt5.QtSvg import QSvgRenderer
 
 from config.layouts.top_bar_layout import top_bar_layout_config
 from styles.top_bar import TopBarStyles
-from components.pos.search_widget import KeyboardEnabledSearchWidget
+from components.common.search_widget import KeyboardEnabledSearchWidget
 
 class TopBarWidget(QFrame):
     """
