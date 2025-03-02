@@ -70,8 +70,25 @@ class POSView(QWidget):
         main_layout.setSpacing(0)
 
         # Add top bar
-        top_bar_container = self._create_top_bar()
-        main_layout.addWidget(top_bar_container)
+        # Create and configure top bar directly
+        self.top_bar = TopBarWidget(
+            user_id=self.user_id,
+            show_employee_info=True,
+            show_datetime=True,
+            show_search=True,
+            show_lock=True,
+            parent=self
+        )
+        
+        # Connect signals immediately after creation
+        self.top_bar.search_changed.connect(self._filter_products)
+        self.top_bar.lock_clicked.connect(self._handle_lock)
+        
+        # Store reference to search widget for later use
+        self.search_input = self.top_bar.get_search_widget()
+        
+        # Add to layout
+        main_layout.addWidget(self.top_bar)
 
         # Create main content area with splitter
         content_splitter = QSplitter(Qt.Horizontal)
@@ -187,28 +204,6 @@ class POSView(QWidget):
         center_layout.addStretch(1)
 
         return center_panel
-
-    def _create_top_bar(self):
-        """Create top bar with employee info, search, and lock button"""
-        self.top_bar = TopBarWidget(
-            user_id=self.user_id,
-            show_employee_info=True,
-            show_datetime=True,
-            show_search=True,
-            show_lock=True,
-            parent=self
-        )
-        
-        # Connect search signal to filter products
-        self.top_bar.search_changed.connect(self._filter_products)
-        
-        # Connect lock button signal
-        self.top_bar.lock_clicked.connect(self._handle_lock)
-        
-        # Store reference to the search widget for later use
-        self.search_input = self.top_bar.get_search_widget()
-        
-        return self.top_bar
 
     def _create_order_widget(self):
         """Create order panel"""
