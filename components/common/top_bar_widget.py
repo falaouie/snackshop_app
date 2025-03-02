@@ -34,7 +34,7 @@ class TopBarWidget(QFrame):
         self.user_id = user_id
         
         # Set style
-        self.setStyleSheet(TopBarStyles.get_container_style())
+        self.setStyleSheet(TopBarStyles.get_top_bar_container_style())
         
         # Explicitly set fixed height from config
         height = top_bar_layout_config.get_size('height')

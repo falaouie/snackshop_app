@@ -15,7 +15,7 @@ class TopBarStyles:
     """Styles for top bar and related components"""
     
     @staticmethod
-    def get_container_style():
+    def get_top_bar_container_style():
         """Get the main container style"""
         return """
             QFrame {

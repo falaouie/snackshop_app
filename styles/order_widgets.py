@@ -13,18 +13,6 @@ from config.layouts.order_list_layout import order_layout_config
 class OrderWidgetStyles:
     """Styles for order list and related components"""
     
-    # Main container style
-    @staticmethod
-    def get_container_style(width):
-        """Get container style with width from layout config"""
-        return f"""
-            QFrame {{
-                background: white;
-                border: 1px solid #DEDEDE;
-                width: {width}px;
-            }}
-        """
-    
     # Order header style
     @staticmethod
     def get_order_header_style():

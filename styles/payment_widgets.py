@@ -5,7 +5,7 @@ class PaymentWidgetStyles:
     """Styles for payment widgets including base, preset, and specific payment types"""
     
     @staticmethod
-    def get_container_style(style_override=None):
+    def get_payment_container_style(style_override=None):
         """Get style for all payment widget containers with optional overrides
         
         Args:

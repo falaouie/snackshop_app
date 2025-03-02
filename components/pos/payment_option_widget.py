@@ -18,7 +18,7 @@ class PaymentOptionWidget(QFrame):
         self.button_color = button_color
         self.hover_color = hover_color
         # Use the centralized container style
-        self.setStyleSheet(PaymentWidgetStyles.get_container_style())
+        self.setStyleSheet(PaymentWidgetStyles.get_payment_container_style())
         # Initialize UI at the end to ensure derived classes have set their attributes
         self._init_ui()
 

@@ -19,7 +19,7 @@ class PresetPaymentWidget(QFrame):
         self.preset_format = preset_format or (lambda x: str(x))
         
         # Use the centralized container style
-        self.setStyleSheet(PaymentWidgetStyles.get_container_style())
+        self.setStyleSheet(PaymentWidgetStyles.get_payment_container_style())
         
         # Apply widget level sizing constraints
         preset_config = self.layout_config.get_preset_button_config()
