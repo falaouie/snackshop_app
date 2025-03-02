@@ -9,7 +9,7 @@ from styles.order_widgets import OrderWidgetStyles
 from styles.layouts import layout_config
 from config.layouts.order_list_layout import order_layout_config
 
-from components.common.top_bar import TopBarWidget
+from components.common import TopBarWidget
 from components.pos.order_list_widget import OrderListWidget
 from components.pos.product_grid_widget import ProductGridWidget
 from components.pos.totals_widget import TotalsWidget
