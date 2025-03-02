@@ -21,7 +21,8 @@ snackshop_app/
   │       ├── numpad_layout.py       # Responsive Numpad layout configuration
   │       ├── search_layout.py       # Responsive Search input layout configuration 
   │       ├── keyboard_layout.py     # Responsive Keyboard layout configuration
-  │       └── order_list_layout.py   # Responsive Order list layout configuration
+  │       ├── order_list_layout.py   # Responsive Order list layout configuration
+  │       └── top_bar_layout.py      # NEW! Responsive TopBar layout configuration
   │
   ├── styles/                        # UI styling system
   │   ├── __init__.py                # Style exports and initialization
@@ -37,10 +38,17 @@ snackshop_app/
   │   ├── payment_widgets.py         # Styles for payment widgets
   │   ├── grid_widgets.py            # Styles for product grid and category widgets
   │   ├── order_widgets.py           # UPDATED! Now uses config-based method approach
+  │   ├── top_bar.py                 # NEW! Styles for the TopBar component
   │   └── transaction_widgets.py     # Styles for transaction-related widgets
   │
   ├── components/                    # Reusable UI components
   │   ├── __init__.py                # Component exports
+  │   ├── common/                    # NEW! Common reusable widgets across views
+  │   │   ├── __init__.py            # Common components exports
+  │   │   └── top_bar/               # NEW! TopBar component package
+  │   │       ├── __init__.py        # TopBar exports 
+  │   │       └── top_bar_widget.py  # NEW! Reusable TopBar widget implementation
+  │   │
   │   ├── keyboard/                  # Virtual keyboard component
   │   │   ├── __init__.py            # Keyboard exports
   │   │   ├── keyboard.py            # Uses keyboard_layout_config
@@ -86,7 +94,7 @@ snackshop_app/
   │   │
   │   └── pos/                       # POS related views
   │       ├── __init__.py            # Exports POSView
-  │       ├── pos_view.py            # UPDATED! Main POS view with fixed panel widths
+  │       ├── pos_view.py            # UPDATED! Main POS view with new TopBarWidget
   │       └── view_manager.py        # Manages view transitions
   │   ├── main_window.py             # Main application window
   │
@@ -109,3 +117,33 @@ snackshop_app/
   └── utilities/                     # Helper utilities
       ├── __init__.py                # Utility exports
       └── utils.py                   # General utility functions
+
+
+# New Files Descriptions:
+
+## 1. config/layouts/top_bar_layout.py
+- Defines responsive size configurations for the TopBar component
+- Contains configurations for all TopBar subcomponents (employee info, datetime, etc.)
+- Provides accessor methods for dimensions based on screen size
+- Creates a singleton instance for global access
+
+## 2. styles/top_bar.py
+- Provides styles for the TopBar component and its sub-elements
+- Follows clean separation where stylesheets handle only visual appearance
+- Leaves sizing and font properties to be handled by widget methods
+- Contains methods returning style strings for different TopBar parts
+
+## 3. components/common/__init__.py
+- Creates a new namespace for common reusable components
+- Used for widgets that can be shared across different views
+
+## 4. components/common/top_bar/__init__.py
+- Exports the TopBarWidget for easy imports
+- Defines the TopBar component package
+
+## 5. components/common/top_bar/top_bar_widget.py
+- Implements a flexible, configurable TopBar widget
+- Allows showing/hiding components (employee info, datetime, search, lock)
+- Uses Qt methods for sizing and fonts instead of stylesheets
+- Can accept a custom center widget or create a search widget
+- Emits signals for search changes and lock button clicks

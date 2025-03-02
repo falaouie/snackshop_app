@@ -9,6 +9,7 @@ from styles.order_widgets import OrderWidgetStyles
 from styles.layouts import layout_config
 from config.layouts.order_list_layout import order_layout_config
 
+from components.common.top_bar import TopBarWidget
 from components.pos.order_list_widget import OrderListWidget
 from components.pos.product_grid_widget import ProductGridWidget
 from components.pos.totals_widget import TotalsWidget
@@ -49,9 +50,9 @@ class POSView(QWidget):
         self.pending_quantity = None  # Track pending quantity from numpad
         self.pending_value = None  # Track pending value from numpad
 
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self._update_time)
-        self.timer.start(1000)
+        # self.timer = QTimer(self)
+        # self.timer.timeout.connect(self._update_time)
+        # self.timer.start(1000)
 
         # Track last clicked product and timer
         self.last_numpad_product = None
@@ -60,7 +61,7 @@ class POSView(QWidget):
         self.button_protection_timer.timeout.connect(self._reset_button_protection)
 
         self._setup_ui()
-        self._update_time()
+        # self._update_time()
 
     def _setup_ui(self):
         """Initialize the main UI structure"""
@@ -189,96 +190,23 @@ class POSView(QWidget):
 
     def _create_top_bar(self):
         """Create top bar with employee info, search, and lock button"""
-        pos_layout = self.layout_config.get_pos_layout()
-        self.top_bar = QFrame()
-        self.top_bar.setStyleSheet(POSStyles.TOP_BAR(
-            pos_layout['top_bar_height']
-        ))
+        self.top_bar = TopBarWidget(
+            user_id=self.user_id,
+            show_employee_info=True,
+            show_datetime=True,
+            show_search=True,
+            show_lock=True,
+            parent=self
+        )
         
-        # Main layout
-        layout = QHBoxLayout(self.top_bar)
-        layout.setContentsMargins(15, 0, 15, 0)
+        # Connect search signal to filter products
+        self.top_bar.search_changed.connect(self._filter_products)
         
-        # Employee Zone with DateTime
-        emp_zone = QFrame()
-        emp_zone.setStyleSheet(POSStyles.EMPLOYEE_ZONE)
-        emp_layout = QHBoxLayout(emp_zone)
-        emp_layout.setSpacing(8)
-        emp_layout.setContentsMargins(0, 0, 0, 0) 
+        # Connect lock button signal
+        self.top_bar.lock_clicked.connect(self._handle_lock)
         
-        # Employee icon
-        emp_icon = QLabel()
-        renderer = QSvgRenderer("assets/images/employee_icon.svg")
-        pixmap = QPixmap(40, 40)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-        emp_icon.setPixmap(pixmap)
-        emp_id = QLabel(f"Emp ID: {self.user_id}")
-        emp_id.setStyleSheet(POSStyles.EMPLOYEE_ID)
-        
-        # DateTime Zone
-        time_zone = QFrame()
-        time_zone.setStyleSheet(POSStyles.DATE_TIME_ZONE)
-        time_layout = QVBoxLayout(time_zone)
-        time_layout.setContentsMargins(10, 5, 10, 5)
-        time_layout.setSpacing(2)
-
-        self.date_label = QLabel()
-        self.date_label.setStyleSheet(POSStyles.DATE_LABEL)
-
-        self.time_label = QLabel()
-        self.time_label.setStyleSheet(POSStyles.TIME_LABEL)
-
-        time_layout.addWidget(self.date_label)
-        time_layout.addWidget(self.time_label)
-
-        # Add widgets to employee zone
-        emp_layout.addWidget(emp_icon)
-        emp_layout.addWidget(emp_id)
-        emp_layout.addWidget(time_zone)
-
-        # Search Section (Centered)
-        search_container = QFrame()
-        search_container.setStyleSheet("background: transparent;")
-        search_layout = QHBoxLayout(search_container)
-        search_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Create and connect search widget
-        self.search_input = SearchWidget(self)
-        self.search_input.search_changed.connect(self._filter_products)
-        
-        # Add search elements to search layout
-        search_layout.addStretch(1)
-        search_layout.addWidget(self.search_input)
-        search_layout.addStretch(1)
-
-        # Controls Zone (Lock Button)
-        controls_zone = QFrame()
-        controls_layout = QHBoxLayout(controls_zone)
-        controls_layout.setSpacing(8)
-        controls_layout.setContentsMargins(0, 0, 0, 0)
-
-        # Lock button
-        lock_btn = QPushButton()
-        renderer = QSvgRenderer("assets/images/lock_screen.svg")
-        pixmap = QPixmap(55, 55)
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-        renderer.render(painter)
-        painter.end()
-        lock_btn.setIcon(QIcon(pixmap))
-        lock_btn.setIconSize(QSize(55, 55))
-        lock_btn.setStyleSheet(POSStyles.LOCK_BUTTON)
-        lock_btn.clicked.connect(self._handle_lock)
-        
-        controls_layout.addWidget(lock_btn)
-        
-        # Add all zones to main layout
-        layout.addWidget(emp_zone)
-        layout.addWidget(search_container, 1)
-        layout.addWidget(controls_zone)
+        # Store reference to the search widget for later use
+        self.search_input = self.top_bar.get_search_widget()
         
         return self.top_bar
 
@@ -601,9 +529,11 @@ class POSView(QWidget):
             self.pending_value = None
             self.numpad_widget.clear()
 
-    def _filter_products(self):
+    def _filter_products(self, search_text=None):
         """Filter products based on search input"""
-        search_text = self.search_input.text()
+        if search_text is None:
+            search_text = self.search_input.text()
+        
         filtered_products = self.controller.get_filtered_products(search_text)
         self.product_grid.set_search_text(search_text)
 
@@ -829,11 +759,11 @@ class POSView(QWidget):
         total_usd = self.controller.get_order_total()
         self.totals_widget.update_totals(total_usd)
 
-    def _update_time(self):
-        """Update the time display"""
-        current = QDateTime.currentDateTime()
-        self.date_label.setText(current.toString("dd-MM-yyyy"))
-        self.time_label.setText(current.toString("h:mm AP"))
+    # def _update_time(self):
+    #     """Update the time display"""
+    #     current = QDateTime.currentDateTime()
+    #     self.date_label.setText(current.toString("dd-MM-yyyy"))
+    #     self.time_label.setText(current.toString("h:mm AP"))
 
     def _handle_lock(self):
         """Handle lock button click"""
