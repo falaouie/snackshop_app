@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                                 QPushButton, QFrame, QSplitter, QMessageBox)
 from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime
-from PyQt5.QtGui import QPixmap, QIcon, QPainter
+from PyQt5.QtGui import QFont
 from PyQt5.QtSvg import QSvgRenderer
 
 from styles import POSStyles
@@ -50,10 +50,6 @@ class POSView(QWidget):
         self.pending_quantity = None  # Track pending quantity from numpad
         self.pending_value = None  # Track pending value from numpad
 
-        # self.timer = QTimer(self)
-        # self.timer.timeout.connect(self._update_time)
-        # self.timer.start(1000)
-
         # Track last clicked product and timer
         self.last_numpad_product = None
         self.button_protection_timer = QTimer(self)
@@ -61,7 +57,6 @@ class POSView(QWidget):
         self.button_protection_timer.timeout.connect(self._reset_button_protection)
 
         self._setup_ui()
-        # self._update_time()
 
     def _setup_ui(self):
         """Initialize the main UI structure"""
@@ -199,26 +194,12 @@ class POSView(QWidget):
 
     def _create_order_widget(self):
         """Create order panel"""
-        order_frame = QFrame()
-
-        # Get width from our new config
-        # order_list_panel_width = order_layout_config.get_size('order_list_panel_width')
-        
-        # # Set explicit size policies to ensure QSplitter respects our width
-        # order_frame.setMinimumWidth(order_list_panel_width)
-        # order_frame.setMaximumWidth(order_list_panel_width)
-
-        layout = QVBoxLayout(order_frame)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        
         # Create and connect order list widget
         self.order_list = OrderListWidget()
         self.order_list.order_cleared.connect(self._on_order_cleared)
         self.order_list.item_removed.connect(self._on_item_removed)
-        layout.addWidget(self.order_list)
-
-        return order_frame
+        
+        return self.order_list
 
 
     def _create_products_widget(self):
@@ -648,30 +629,20 @@ class POSView(QWidget):
         replace_button = msg_box.addButton(f"Set to {new_qty}", QMessageBox.ActionRole)
         cancel_button = msg_box.addButton("Cancel", QMessageBox.RejectRole)
         
-        # Style the message box
-        msg_box.setStyleSheet("""
-            QMessageBox {
-                background-color: white;
-            }
-            QLabel {
-                font-size: 14px;
-                padding: 10px;
-                min-width: 300px;
-            }
-            QPushButton {
-                padding: 8px 15px;
-                font-size: 13px;
-                min-width: 150px;
-                margin: 5px;
-                border: 1px solid #DEDEDE;
-                border-radius: 4px;
-                background: white;
-            }
-            QPushButton:hover {
-                background: #F5F5F5;
-                border-color: #2196F3;
-            }
-        """)
+        # Get message box config
+        msgbox_config = order_layout_config.get_message_box_config()
+        
+        # Apply font size from config
+        font = QFont()
+        font.setPointSize(msgbox_config['font_size'])
+        msg_box.setFont(font)
+        
+        # Apply button dimensions from config
+        for button in [add_button, replace_button, cancel_button]:
+            button.setMinimumWidth(msgbox_config['button_min_width'])
+        
+        # Apply visual styling
+        msg_box.setStyleSheet(OrderWidgetStyles.get_quantity_dialog_style())
         
         # Show dialog and handle response
         msg_box.exec_()

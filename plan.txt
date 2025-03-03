@@ -1,51 +1,34 @@
-1. Create New Configuration File
+Incremental Refactoring Plan
+Step 1: Audit Current Implementation
 
-Create config/layouts/order_layout.py with basic structure
-Move relevant configuration values from layouts.py
-Test: App should run without errors (no actual changes yet)
+Review all current styles in OrderWidgetStyles and identify any missing methods
+Identify any inline styles or hardcoded values in OrderListWidget
+Map all layout values used to corresponding config values
 
-2. Initial Integration
+Step 2: Complete the Method-Based Styling in OrderWidgetStyles
 
-Import the new config in order_widgets.py
-Modify one minor style (like margin) to use the new config
-Test: Verify the minor style change works correctly
+Ensure all styles are accessed through methods
+Add any missing style methods
+Make sure all methods use config values from order_layout_config
 
-3. Fix Order Panel Width Issue
+Step 3: Update Widget Creation Methods
 
-Identify primary width control point (container level)
-Remove width setting from child components
-Add explicit sizing policy in pos_view.py
-Test: Changing width in config should now affect panel size
+Refactor _create_header method to fully use config values
+Refactor _create_quantity_summary method to fully use config values
+Ensure consistent use of margins and spacing from config
 
-4. Enhance QSplitter Behavior
+Step 4: Refactor Item Display Methods
 
-Modify splitter setup to respect fixed widths
-Test: Splitter should maintain configured width when dragged
+Update _add_item_to_display to use consistent styling and config
+Refactor item selection logic to follow the pattern
 
-5. Migrate Styling for Header Components
+Step 5: Refactor Menu and Dialog Methods
 
-Update order header styling to use new config
-Test: Header should maintain appearance but be responsive
+Update the menu creation and styling to follow the pattern
+Refactor message box styling to ensure consistency
 
-6. Migrate Styling for List Items
+Step 6: Final Cleanup
 
-Update order item styling to use new config
-Test: Items should maintain appearance but be responsive
-
-7. Migrate Styling for Summary Section
-
-Update quantity summary styling to use new config
-Test: Summary section should maintain appearance but be responsive
-
-8. Remove Duplicate Styling
-
-Identify and eliminate redundant style definitions
-Have POSStyles reference OrderWidgetStyles where needed
-Test: Appearance should remain unchanged
-
-9. Final Documentation & Cleanup
-
-Add comments and documentation
-Remove any unused code
-Update project structure documentation
-Test: Full validation with different screen sizes
+Remove any remaining hardcoded values
+Ensure naming consistency across methods
+Add or improve documentation where needed

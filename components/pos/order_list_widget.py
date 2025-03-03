@@ -2,6 +2,7 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                             QFrame, QScrollArea, QToolButton, QMenu, QMessageBox)
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QFont
 from models.order_item import OrderItem
 from styles.order_widgets import OrderWidgetStyles
 from config.layouts.order_list_layout import order_layout_config
@@ -18,6 +19,13 @@ class OrderListWidget(QFrame):
         super().__init__(parent)
         self.order_items = []
         self.selected_item = None
+
+        # Apply styling
+        self.setStyleSheet(OrderWidgetStyles.get_order_container_style())
+        
+        # Set panel dimensions from config
+        panel_dimensions = order_layout_config.get_panel_dimensions() 
+        self.setFixedWidth(panel_dimensions['width'])
 
         self._setup_ui()
     
@@ -41,12 +49,15 @@ class OrderListWidget(QFrame):
         # Order Items Area
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        # Use centralized scroll area style
-        self.scroll_area.setStyleSheet(OrderWidgetStyles.get_scroll_area_style())
+        
+        # Set scroll area dimensions from config
+        scroll_config = order_layout_config.get_scrollbar_config()
+        scroll_style = OrderWidgetStyles.get_scroll_area_style()
+        self.scroll_area.setStyleSheet(scroll_style)
         
         self.order_list_widget = QWidget()
-        # Use centralized order list widget style
-        self.order_list_widget.setStyleSheet(OrderWidgetStyles.get_order_list_widget_style())
+        list_style = OrderWidgetStyles.get_order_list_widget_style()
+        self.order_list_widget.setStyleSheet(list_style)
         
         self.order_list_layout = QVBoxLayout(self.order_list_widget)
         
@@ -68,10 +79,10 @@ class OrderListWidget(QFrame):
     def _create_header(self):
         """Create order header with menu button"""
         header_frame = QFrame()
-        # Use the new header style method instead of the static property
         header_frame.setStyleSheet(OrderWidgetStyles.get_order_header_style())
 
         header_layout = QHBoxLayout(header_frame)
+        
         # Get margins from order_layout_config
         margins = order_layout_config.get_header_margins()
         header_layout.setContentsMargins(
@@ -82,9 +93,31 @@ class OrderListWidget(QFrame):
         )
         
         order_label = QLabel("ORDER # 1234")
+        # Apply font size from config
+        font = QFont()
+        font_size = order_layout_config.get_styling()['font_size']
+        font.setPointSize(font_size)
+        order_label.setFont(font)
+        
         menu_btn = QToolButton()
         menu_btn.setText("⋮")
-        # Use the new menu button style method
+        
+        # Apply font size from config
+        menu_font = QFont()
+        menu_font_size = font_size + 4  # Slightly larger
+        menu_font.setPointSize(menu_font_size)
+        menu_btn.setFont(menu_font)
+        
+        # Get padding from config
+        menu_padding = order_layout_config.get_header_menu_button_padding()
+        menu_btn.setContentsMargins(
+            menu_padding['padding_left'],
+            0,
+            menu_padding['padding_right'],
+            0
+        )
+        
+        # Apply style
         menu_btn.setStyleSheet(OrderWidgetStyles.get_header_menu_button_style())
         menu_btn.clicked.connect(self._show_menu)
         
@@ -94,14 +127,13 @@ class OrderListWidget(QFrame):
         
         return header_frame
 
-    # components/pos/order_list_widget.py
     def _create_quantity_summary(self):
         """Create frame showing total quantity and unique items"""
         summary_frame = QFrame()
-        # Use new method for summary style
         summary_frame.setStyleSheet(OrderWidgetStyles.get_quantity_summary_style())
         
         summary_layout = QHBoxLayout(summary_frame)
+        
         # Get margins from order_layout_config
         margins = order_layout_config.get_summary_margins()
         summary_layout.setContentsMargins(
@@ -112,6 +144,13 @@ class OrderListWidget(QFrame):
         )
         
         self.qty_summary_label = QLabel("Qty: 0 | Items: 0")
+        
+        # Apply font size from config
+        font = QFont()
+        font_size = order_layout_config.get_styling()['font_size'] - 1  # Slightly smaller
+        font.setPointSize(font_size)
+        self.qty_summary_label.setFont(font)
+        
         summary_layout.addWidget(self.qty_summary_label)
         summary_layout.addStretch()
         
@@ -138,19 +177,31 @@ class OrderListWidget(QFrame):
             margins[3]   # bottom margin
         )
         
+        # Get item padding from config and apply it
+        item_padding = order_layout_config.get_item_padding()
+        item_widget.setContentsMargins(item_padding, item_padding, item_padding, item_padding)
+        
         # Quantity
         label_widths = order_layout_config.get_label_widths()
         qty_label = QLabel(str(item.quantity))
-        # Use width from layout config
+        
+        # Apply font from config
+        font_size = order_layout_config.get_styling()['font_size']
+        font = QFont()
+        font.setPointSize(font_size)
+        qty_label.setFont(font)
+        
         # Use width from config
         qty_label.setFixedWidth(label_widths['quantity'])
         qty_label.setAlignment(Qt.AlignCenter)
         
         # Name
         name_label = QLabel(item.name)
+        name_label.setFont(font)  # Use same font
         
         # Total
         total_label = QLabel(f"{item.get_total():.2f}")
+        total_label.setFont(font)  # Use same font
         total_label.setAlignment(Qt.AlignRight)
         # Use width from config
         total_label.setFixedWidth(label_widths['total'])
@@ -171,9 +222,19 @@ class OrderListWidget(QFrame):
     def _show_menu(self):
         """Show the order actions menu"""
         menu = QMenu(self)
-        # Use centralized menu style
+        
+        # Get menu configuration
+        menu_config = order_layout_config.get_menu_config()
+        
+        # Apply font size from config
+        font = QFont()
+        font.setPointSize(menu_config['font_size'])
+        menu.setFont(font)
+        
+        # Apply visual styling
         menu.setStyleSheet(OrderWidgetStyles.get_menu_style())
-
+        
+        # Create menu actions
         clear_action = menu.addAction("Cancel Order")
         clear_item = menu.addAction("Remove Selected Item")
         
@@ -216,7 +277,15 @@ class OrderListWidget(QFrame):
         msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg_box.setDefaultButton(QMessageBox.No)
         
-        # Apply centralized message box style
+        # Get message box config
+        msgbox_config = order_layout_config.get_message_box_config()
+        
+        # Apply font size from config
+        font = QFont()
+        font.setPointSize(msgbox_config['font_size'])
+        msg_box.setFont(font)
+        
+        # Apply visual styling
         msg_box.setStyleSheet(OrderWidgetStyles.get_message_box_style())
         
         reply = msg_box.exec_()

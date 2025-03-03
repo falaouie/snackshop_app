@@ -46,6 +46,9 @@ class OrderLayoutConfig:
             'menu_font_size': 13,
             'menu_separator_height': 1,
             'menu_separator_margin': 5,
+            'header_menu_button_padding_left': 5,
+            'header_menu_button_padding_right': 5,
+            'item_padding': 2,
             
             # Message box configs
             'msgbox_button_min_width': 80,
@@ -92,6 +95,9 @@ class OrderLayoutConfig:
             'menu_font_size': 14,
             'menu_separator_height': 1,
             'menu_separator_margin': 5,
+            'header_menu_button_padding_left': 6,
+            'header_menu_button_padding_right': 6,
+            'item_padding': 3,
             
             # Message box configs
             'msgbox_button_min_width': 80,
@@ -104,7 +110,7 @@ class OrderLayoutConfig:
         },
         
         SizeCategory.LARGE: {
-            'order_list_panel_width': 400,
+            'order_list_panel_width': 600,
             'header_margin_left': 5,
             'header_margin_top': 5,
             'header_margin_right': 0,
@@ -131,22 +137,25 @@ class OrderLayoutConfig:
             'list_spacing': 6,
             
             # Menu configs
-            'menu_padding': 6,
-            'menu_item_padding_h': 25,
-            'menu_item_padding_v': 10,
+            'menu_padding': 5,
+            'menu_item_padding_h': 5,
+            'menu_item_padding_v': 5,
             'menu_border_radius': 5,
             'menu_font_size': 16,
-            'menu_separator_height': 1,
+            'menu_separator_height': 3,
             'menu_separator_margin': 6,
+            'header_menu_button_padding_left': 8,
+            'header_menu_button_padding_right': 8,
+            'item_padding': 4,
             
             # Message box configs
-            'msgbox_button_min_width': 100,
-            'msgbox_button_padding_h': 15,
-            'msgbox_button_padding_v': 8,
+            'msgbox_button_min_width': 120,
+            'msgbox_button_padding_h': 5,
+            'msgbox_button_padding_v': 5,
             'msgbox_button_margin': 5,
             'msgbox_button_border_radius': 5,
             'msgbox_font_size': 16,
-            'msgbox_padding': 12,
+            'msgbox_padding': 5,
         }
     }
     
@@ -253,6 +262,19 @@ class OrderLayoutConfig:
             'separator_height': config['menu_separator_height'],
             'separator_margin': config['menu_separator_margin']
         }
+    
+    def get_header_menu_button_padding(self):
+        """Get header menu button paddings"""
+        config = self._get_current_config()
+        return {
+            'padding_left': config['header_menu_button_padding_left'],
+            'padding_right': config['header_menu_button_padding_right']
+        }
+
+    def get_item_padding(self):
+        """Get order item padding"""
+        config = self._get_current_config()
+        return config['item_padding']
     
     # accessor methods for message box
     def get_message_box_config(self):
