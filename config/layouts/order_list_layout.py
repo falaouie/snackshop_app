@@ -105,7 +105,7 @@ class OrderLayoutConfig:
         
         SizeCategory.LARGE: {
             'order_list_panel_width': 400,
-            'header_margin_left': 30,
+            'header_margin_left': 5,
             'header_margin_top': 5,
             'header_margin_right': 0,
             'header_margin_bottom': 5,

@@ -202,20 +202,12 @@ class POSView(QWidget):
         order_frame = QFrame()
 
         # Get width from our new config
-        order_list_panel_width = order_layout_config.get_size('order_list_panel_width')
+        # order_list_panel_width = order_layout_config.get_size('order_list_panel_width')
         
-        # Set explicit size policies to ensure QSplitter respects our width
-        order_frame.setMinimumWidth(order_list_panel_width)
-        order_frame.setMaximumWidth(order_list_panel_width)
+        # # Set explicit size policies to ensure QSplitter respects our width
+        # order_frame.setMinimumWidth(order_list_panel_width)
+        # order_frame.setMaximumWidth(order_list_panel_width)
 
-        # Apply styling but remove width from the style (will be controlled by size policies)
-        # order_frame.setStyleSheet("""
-        #     QFrame {
-        #         background: white;
-        #         border: 1px solid #DEDEDE;
-        #     }
-        # """)
-        
         layout = QVBoxLayout(order_frame)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)

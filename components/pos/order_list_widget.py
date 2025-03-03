@@ -18,15 +18,7 @@ class OrderListWidget(QFrame):
         super().__init__(parent)
         self.order_items = []
         self.selected_item = None
-        # self.layout_config = layout_config.get_instance()
 
-        # self.setStyleSheet("""
-        #     QFrame {
-        #         background: red;
-        #         border: 1px solid #DEDEDE;
-        #     }
-        # """)
-        
         self._setup_ui()
     
     def _setup_ui(self):
@@ -78,7 +70,7 @@ class OrderListWidget(QFrame):
         header_frame = QFrame()
         # Use the new header style method instead of the static property
         header_frame.setStyleSheet(OrderWidgetStyles.get_order_header_style())
-        
+
         header_layout = QHBoxLayout(header_frame)
         # Get margins from order_layout_config
         margins = order_layout_config.get_header_margins()
