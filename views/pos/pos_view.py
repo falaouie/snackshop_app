@@ -67,10 +67,6 @@ class POSView(QWidget):
         # Add top bar with simplified initialization
         self.top_bar = TopBarWidget(user_id=self.user_id, parent=self)
         
-        # Connect signals immediately after creation
-        self.top_bar.search_changed.connect(self._filter_products)
-        self.top_bar.lock_clicked.connect(self._handle_lock)
-        
         # Store reference to search widget for later use
         self.search_input = self.top_bar.get_search_widget()
         
@@ -101,7 +97,8 @@ class POSView(QWidget):
         )
         
         # Left Side - Order Details
-        self.order_widget = self._create_order_widget()
+        self.order_list = OrderListWidget()
+        self.order_widget = self.order_list
         inner_splitter.addWidget(self.order_widget)
         
         # Center Panel
@@ -131,7 +128,6 @@ class POSView(QWidget):
 
         # Create and add order type widget 
         self.order_type_widget = OrderTypeWidget()
-        self.order_type_widget.order_type_changed.connect(self._on_order_type_changed)
         order_type_layout.addWidget(self.order_type_widget)
 
         # Add order type container to left layout after the splitter
@@ -155,6 +151,8 @@ class POSView(QWidget):
         self.bottom_bar = self._create_bottom_bar()
         main_layout.addWidget(self.bottom_bar)
 
+        self._connect_signals()
+
     def _create_center_panel(self):
         """Create center panel with transaction buttons"""
         center_panel = QFrame()
@@ -173,8 +171,7 @@ class POSView(QWidget):
 
         # Create and add transaction buttons widget
         self.transaction_buttons = TransactionButtonsWidget()
-        self.transaction_buttons.action_triggered.connect(self._on_transaction_action)
-        
+     
         # Create container for horizontal centering
         button_container = QWidget()
         button_container_layout = QHBoxLayout(button_container)
@@ -192,16 +189,6 @@ class POSView(QWidget):
 
         return center_panel
 
-    def _create_order_widget(self):
-        """Create order panel"""
-        # Create and connect order list widget
-        self.order_list = OrderListWidget()
-        self.order_list.order_cleared.connect(self._on_order_cleared)
-        self.order_list.item_removed.connect(self._on_item_removed)
-        
-        return self.order_list
-
-
     def _create_products_widget(self):
         """Create products panel with grid and intermediate section"""
         products_frame = QFrame()
@@ -213,7 +200,6 @@ class POSView(QWidget):
 
         # Create product grid FIRST
         self.product_grid = ProductGridWidget()
-        self.product_grid.product_selected.connect(self._handle_product_click)
 
         # Then create the category container using the existing product grid
         category_container = self._create_category_container()
@@ -261,25 +247,14 @@ class POSView(QWidget):
 
         # Add numpad
         self.numpad_widget = NumpadWidget(self)
-        self.numpad_widget.value_changed.connect(self._handle_numpad_value_change)
-        if hasattr(self.numpad_widget, 'clear'):
-            old_clear = self.numpad_widget.clear
-            def new_clear():
-                old_clear()
-                self._on_numpad_cleared()
-            self.numpad_widget.clear = new_clear
         layout.addWidget(self.numpad_widget)
         
         # Create USD Preset Widget 
         self.usd_preset_widget = USDPresetWidget()
-        self.usd_preset_widget.preset_selected.connect(self._handle_preset_selected)
-
         layout.addWidget(self.usd_preset_widget)
 
         # Create LBP Preset Widget
         self.lbp_preset_widget = LBPPresetWidget()
-        self.lbp_preset_widget.preset_selected.connect(self._handle_preset_selected)
-
         layout.addWidget(self.lbp_preset_widget)
 
         # Create payment options container
@@ -291,34 +266,18 @@ class POSView(QWidget):
         
         # ADD USD widget
         self.cash_usd_widget = CashUSDPaymentWidget()
-        # Connect signal from USD widget
-        self.cash_usd_widget.payment_requested.connect(
-            lambda payment_type: self._on_payment_action(payment_type)
-        )
         payment_layout.addWidget(self.cash_usd_widget)
         
         # Add LBP widget
         self.cash_lbp_widget = CashLBPPaymentWidget()
-        # Connect signal from LBP widget
-        self.cash_lbp_widget.payment_requested.connect(
-            lambda payment_type: self._on_payment_action(payment_type)
-        )
         payment_layout.addWidget(self.cash_lbp_widget)
 
         # Create and add card payment widget
         self.card_payment_widget = CardPaymentWidget()
-        # Connect signal from card payment widget
-        self.card_payment_widget.payment_requested.connect(
-            lambda payment_type: self._on_payment_action(payment_type)
-        )
         payment_layout.addWidget(self.card_payment_widget)
         
         # Create and add other payment widget
         self.other_payment_widget = OtherPaymentWidget()
-        # Connect signal from other payment widget
-        self.other_payment_widget.payment_requested.connect(
-            lambda payment_type: self._on_payment_action(payment_type)
-        )
         payment_layout.addWidget(self.other_payment_widget)
         
         # Add payment container to main layout
@@ -330,7 +289,7 @@ class POSView(QWidget):
 
         return container
     
-    def _handle_preset_selected(self, amount):
+    def _on_preset_selected(self, amount):
         """Handle preset amount selection with additive behavior and currency locking"""
         # Determine currency type based on amount
         is_lbp = amount >= 1000  # Simple heuristic to identify LBP
@@ -489,7 +448,7 @@ class POSView(QWidget):
             self.pending_value = None
             self.numpad_widget.clear()
 
-    def _filter_products(self, search_text=None):
+    def _on_search_changed(self, search_text=None):
         """Filter products based on search input"""
         if search_text is None:
             search_text = self.search_input.text()
@@ -497,7 +456,7 @@ class POSView(QWidget):
         filtered_products = self.controller.get_filtered_products(search_text)
         self.product_grid.set_search_text(search_text)
 
-    def _handle_product_click(self, item_name):
+    def _on_product_selected(self, item_name):
         """Handle product button click"""
         # If this product is in protection period, ignore the click
         if self.last_numpad_product == item_name and self.button_protection_timer.isActive():
@@ -542,6 +501,9 @@ class POSView(QWidget):
             print(f"Error in product click: {e}")
             self.pending_value = None
             self.numpad_widget.clear()
+
+        # After successful processing, apply protection
+        # self._protect_button(item_name) # think about rapid clicks or not? protection was meant to be only after a numpad number selectton
 
     def refresh_order_display(self):
         """Refresh the order list display from the controller data"""
@@ -599,7 +561,6 @@ class POSView(QWidget):
 
     def _add_product_with_quantity(self, item_name: str, quantity: int):
         """Add new product with specified quantity"""
-        
         # Use controller to add product
         success = self.controller.add_product_to_order(item_name, quantity)
         if success:
@@ -607,12 +568,6 @@ class POSView(QWidget):
             
         self.search_input.clear_search()
         self.numpad_widget.clear()
-
-    def _reset_numpad(self):
-        """Reset numpad state"""
-        self.numpad_widget._current_value = "0"
-        self.numpad_widget._update_display()
-        self.pending_quantity = None
 
     def _find_existing_item(self, item_name):
         """Find an existing item in the order list"""
@@ -667,7 +622,6 @@ class POSView(QWidget):
             
             # Refresh the display
             self.refresh_order_display()
-            
             self.search_input.clear_search()
             self.numpad_widget.clear()
             
@@ -676,7 +630,7 @@ class POSView(QWidget):
             self.numpad_widget.clear()
             self.pending_value = None
 
-    def _handle_numpad_value_change(self, value: str):
+    def _on_numpad_value_changed(self, value: str):
         """Handle numpad value changes"""
         try:
             clean_value = value.strip()
@@ -684,6 +638,50 @@ class POSView(QWidget):
             self.pending_value = clean_value if clean_value != '0' else None
         except ValueError:
             self.pending_value = None
+
+    def _connect_signals(self):
+        """
+        Central method to connect all widget signals to their handler methods.
+        All signal connections should be located here for consistency.
+        """
+        # TopBar connections
+        self.top_bar.search_changed.connect(self._on_search_changed)
+        self.top_bar.lock_clicked.connect(self._on_lock_clicked)
+
+        # OrderList connections
+        self.order_list.order_cleared.connect(self._on_order_cleared)
+        self.order_list.item_removed.connect(self._on_item_removed)
+
+        # Product Grid connections
+        self.product_grid.product_selected.connect(self._on_product_selected)
+
+        # Transaction buttons connections
+        self.transaction_buttons.action_triggered.connect(self._on_transaction_action)
+
+        # Numpad connections
+        self.numpad_widget.value_changed.connect(self._on_numpad_value_changed)
+
+        # Order type connections
+        self.order_type_widget.order_type_changed.connect(self._on_order_type_changed)
+
+        # Payment widget connections
+        self.cash_usd_widget.payment_requested.connect(self._on_payment_action)
+        self.cash_lbp_widget.payment_requested.connect(self._on_payment_action)
+        self.card_payment_widget.payment_requested.connect(self._on_payment_action)
+        self.other_payment_widget.payment_requested.connect(self._on_payment_action)
+
+        # Preset widget connections
+        self.usd_preset_widget.preset_selected.connect(self._on_preset_selected)
+        self.lbp_preset_widget.preset_selected.connect(self._on_preset_selected)
+
+        # Connect numpad clear method
+        original_clear = self.numpad_widget.clear
+        
+        def wrapped_clear():
+            original_clear()
+            self._on_numpad_cleared()
+            
+        self.numpad_widget.clear = wrapped_clear
 
     # Event Handlers
     def _on_order_cleared(self):
@@ -709,13 +707,7 @@ class POSView(QWidget):
         total_usd = self.controller.get_order_total()
         self.totals_widget.update_totals(total_usd)
 
-    # def _update_time(self):
-    #     """Update the time display"""
-    #     current = QDateTime.currentDateTime()
-    #     self.date_label.setText(current.toString("dd-MM-yyyy"))
-    #     self.time_label.setText(current.toString("h:mm AP"))
-
-    def _handle_lock(self):
+    def _on_lock_clicked(self):
         """Handle lock button click"""
         from ..view_manager import ViewManager
         ViewManager.get_instance().switch_back_to_pin_view_from_pos(self.user_id)

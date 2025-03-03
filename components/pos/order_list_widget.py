@@ -1,7 +1,7 @@
 # components/pos/order_list_widget.py
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                             QFrame, QScrollArea, QToolButton, QMenu, QMessageBox)
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QEvent
 from PyQt5.QtGui import QFont
 from models.order_item import OrderItem
 from styles.order_widgets import OrderWidgetStyles
@@ -19,6 +19,7 @@ class OrderListWidget(QFrame):
         super().__init__(parent)
         self.order_items = []
         self.selected_item = None
+        self.item_widgets = {} 
 
         # Apply styling
         self.setStyleSheet(OrderWidgetStyles.get_order_container_style())
@@ -76,6 +77,8 @@ class OrderListWidget(QFrame):
         self.qty_summary = self._create_quantity_summary()
         layout.addWidget(self.qty_summary)
 
+        self._connect_signals()
+
     def _create_header(self):
         """Create order header with menu button"""
         header_frame = QFrame()
@@ -99,18 +102,18 @@ class OrderListWidget(QFrame):
         font.setPointSize(font_size)
         order_label.setFont(font)
         
-        menu_btn = QToolButton()
-        menu_btn.setText("⋮")
+        self.menu_btn = QToolButton()
+        self.menu_btn.setText("⋮")
         
         # Apply font size from config
         menu_font = QFont()
         menu_font_size = font_size + 4  # Slightly larger
         menu_font.setPointSize(menu_font_size)
-        menu_btn.setFont(menu_font)
+        self.menu_btn.setFont(menu_font)
         
         # Get padding from config
         menu_padding = order_layout_config.get_header_menu_button_padding()
-        menu_btn.setContentsMargins(
+        self.menu_btn.setContentsMargins(
             menu_padding['padding_left'],
             0,
             menu_padding['padding_right'],
@@ -118,12 +121,11 @@ class OrderListWidget(QFrame):
         )
         
         # Apply style
-        menu_btn.setStyleSheet(OrderWidgetStyles.get_header_menu_button_style())
-        menu_btn.clicked.connect(self._show_menu)
-        
+        self.menu_btn.setStyleSheet(OrderWidgetStyles.get_header_menu_button_style())
+
         header_layout.addWidget(order_label)
         header_layout.addStretch()
-        header_layout.addWidget(menu_btn)
+        header_layout.addWidget(self.menu_btn)
         
         return header_frame
 
@@ -212,14 +214,19 @@ class OrderListWidget(QFrame):
         
         # Store reference to the order item
         item_widget.order_item = item
-        
-        # Add click handling
+
+        # This critical line in _add_item_to_display() was removed:
         item_widget.mousePressEvent = lambda event, widget=item_widget: self._on_item_clicked(widget, event)
+        
+        # Store widget in our dictionary with a unique key
+        item_key = f"{item.name}_{len(self.item_widgets)}"
+        self.item_widgets[item_key] = item_widget
+        item_widget.item_key = item_key
         
         self.order_list_layout.addWidget(item_widget)
         self.order_list_layout.addStretch()
 
-    def _show_menu(self):
+    def _on_menu_clicked(self):
         """Show the order actions menu"""
         menu = QMenu(self)
         
@@ -351,6 +358,33 @@ class OrderListWidget(QFrame):
         self._update_quantity_summary()
         # Emit order cleared signal
         self.order_cleared.emit()
+
+    # Add this method
+    def _on_widget_mouse_press(self, event):
+        """Global mouse press event handler"""
+        widget = self.sender()
+        if hasattr(widget, 'order_item') and event.button() == Qt.LeftButton:
+            self._select_item(widget)
+            self.item_selected.emit(widget.order_item)
+
+    def eventFilter(self, obj, event):
+        """Filter events for child widgets"""
+        if event.type() == QEvent.MouseButtonPress and hasattr(obj, 'order_item'):
+            if event.button() == Qt.LeftButton:
+                self._on_item_clicked(obj, event)
+                return True
+        return super().eventFilter(obj, event)
+    
+    def _connect_item_widget(self, widget):
+        """Connect signals for a newly created item widget"""
+        widget.mousePressEvent = widget.default_mouse_press_event
+        widget.installEventFilter(self)
+
+    def _connect_signals(self):
+        """Connect all widget signals to their handlers"""
+        # Menu button connection
+        self.menu_btn.clicked.connect(self._on_menu_clicked)
+
 
     @property
     def total_amount(self):
