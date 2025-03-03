@@ -214,9 +214,7 @@ class OrderListWidget(QFrame):
         
         # Store reference to the order item
         item_widget.order_item = item
-
-        # This critical line in _add_item_to_display() was removed:
-        item_widget.mousePressEvent = lambda event, widget=item_widget: self._on_item_clicked(widget, event)
+        self._setup_item_click_handling(item_widget)
         
         # Store widget in our dictionary with a unique key
         item_key = f"{item.name}_{len(self.item_widgets)}"
@@ -358,6 +356,16 @@ class OrderListWidget(QFrame):
         self._update_quantity_summary()
         # Emit order cleared signal
         self.order_cleared.emit()
+
+    def _setup_item_click_handling(self, item_widget):
+        """Set up click handling for an item widget"""
+        item_widget.mousePressEvent = lambda event: self._on_item_click_event(item_widget, event)
+
+    def _on_item_click_event(self, widget, event):
+        """Handle mouse press events for item widgets"""
+        if event.button() == Qt.LeftButton:
+            self._select_item(widget)
+            self.item_selected.emit(widget.order_item)
 
     # Add this method
     def _on_widget_mouse_press(self, event):
