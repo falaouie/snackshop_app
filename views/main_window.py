@@ -5,11 +5,15 @@ from .auth.top_bar import TopBar
 from .view_manager import ViewManager
 from styles.app import AppStyles 
 from config.screen_config import screen_config
+# from services.data_service import DataService
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Snack Shop POS - Silver System")
+
+        # self.data_service = DataService()  # Single instance
+        
         self.setStyleSheet(AppStyles.WINDOW_MAIN)
         
         # Get screen dimensions from config
