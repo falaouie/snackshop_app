@@ -1,13 +1,57 @@
-Recommended Refactoring Approach
+Pending Inconsistencies for Future Refactoring
+Based on our improvements to OrderListWidget and POSView, here are the remaining inconsistencies to address in future refactoring:
+1. Signal Naming Conventions
+Different widgets use different naming patterns for signals:
 
-1. Standardize widget creation pattern: Use a consistent factory approach for widget creation
-2. Consistent signal connection: Connect all signals at creation time or in a dedicated connection method
-3. Unified naming convention: Standardize on either _on_* or _handle_* for event handlers
-4. Clear state management boundaries: Define clear responsibilities between view and controller
-5. Consistent error handling: Standardize error handling approach with a unified method
-6. Unified styling approach: Extract all inline styles to style files
-7. Consistent UI refresh pattern: Implement a standard observer pattern for UI updates
+ProductGridWidget: product_selected, category_changed (past tense)
+TopBarWidget: search_changed, lock_clicked (mixed tense)
+TransactionButtonsWidget: action_triggered (past tense)
+NumpadWidget: value_changed, value_committed (past tense)
+PaymentOptionWidget: payment_requested (past tense)
 
-This refactoring would significantly improve code maintainability, 
-make it easier to extend with new features, 
-and reduce the likelihood of bugs when modifying existing functionality.
+Goal: Standardize all signals to use past tense verbs (e.g., clicked, selected, changed).
+2. Lambda Function Usage
+Several widgets still use lambdas:
+
+ProductGridWidget: Uses lambdas for button click handling
+TransactionButtonsWidget: Uses lambdas to pass button types
+PresetWidgets: May use lambdas for button connections
+
+Goal: Replace with helper methods similar to our OrderListWidget approach.
+3. Widget Signal Connection Patterns
+Not all widgets have a dedicated signal connection method:
+
+ProductGridWidget: Connects signals during widget creation
+NumpadWidget: Mixes UI creation with signal connections
+Various payment and transaction widgets
+
+Goal: Add _connect_signals() methods to all widget classes.
+4. Handler Method Naming
+There's inconsistency in handler method naming:
+
+Some use _handle_*
+Some use _on_*
+Some have no prefix
+
+Goal: Standardize on _on_* prefix across all widgets.
+5. Widget Creation Hierarchy
+Currently POSView has a mix of:
+
+Direct instantiation: self.order_list = OrderListWidget()
+Complex creation methods: self._create_products_widget()
+
+Goal: Consider standardizing the widget creation pattern.
+6. Event Handling Mechanisms
+Different approaches to event handling:
+
+Mouse events via lambda overrides
+Signal/slot connections
+Direct handling within widget classes
+
+Goal: Move toward standard Qt signal/slot pattern for all events.
+Widgets to Target First
+
+ProductGridWidget: Has similar mouse event handling to OrderListWidget
+Payment widgets: Standardize signal/slot usage
+NumpadWidget: Clean up signal handling and button connections
+TopBarWidget: Improve signal naming

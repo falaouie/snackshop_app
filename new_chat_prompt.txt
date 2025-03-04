@@ -1,0 +1,30 @@
+I'm learning PyQt5 and working on refactoring my application to improve code consistency. I recently standardized my OrderListWidget by:
+
+1. Adding a central `_connect_signals()` method
+2. Moving signal connections to this method
+3. Improving mouse event handling with a helper method
+
+Now I'd like to apply similar improvements to my ProductGridWidget, which also uses lambda functions for button handling and connects signals during widget creation instead of in a dedicated method.
+
+I'm looking for an incremental, step-by-step refactoring plan suitable for a PyQt5 beginner to:
+
+1. Add a `_connect_signals()` method to ProductGridWidget
+2. Move existing signal connections to this method
+3. Replace lambda functions with cleaner approaches
+4. Standardize naming conventions for handlers
+5. Preserve all existing functionality
+
+Please provide a careful, incremental approach with small testable steps.
+
+Files provided:
+1. product_grid_widget.py (current implementation)
+2. order_list_widget.py (already refactored, for reference)
+
+Files to Share
+
+product_grid_widget.py - The widget we're refactoring
+order_list_widget.py - The already refactored widget as reference
+If needed: Button definition files mentioned in imports like:
+
+button_definitions/types.py
+button_definitions/category.py

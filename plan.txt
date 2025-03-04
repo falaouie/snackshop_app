@@ -1,34 +1,40 @@
-Incremental Refactoring Plan
-Step 1: Audit Current Implementation
+Step 1: First Assessment
 
-Review all current styles in OrderWidgetStyles and identify any missing methods
-Identify any inline styles or hardcoded values in OrderListWidget
-Map all layout values used to corresponding config values
+Identify all signal connections in the current implementation
+Identify lambda functions that need to be replaced
+Note current naming patterns and inconsistencies
 
-Step 2: Complete the Method-Based Styling in OrderWidgetStyles
+Step 2: Implement Basic _connect_signals() Method
 
-Ensure all styles are accessed through methods
-Add any missing style methods
-Make sure all methods use config values from order_layout_config
+Create a minimal implementation of _connect_signals()
+Call it from __init__ like you did in OrderListWidget
 
-Step 3: Update Widget Creation Methods
+Step 3: Extract Category Button Handler
 
-Refactor _create_header method to fully use config values
-Refactor _create_quantity_summary method to fully use config values
-Ensure consistent use of margins and spacing from config
+Create a dedicated handler method for category button clicks
+Replace lambda function with this method in _create_category_bar()
 
-Step 4: Refactor Item Display Methods
+Step 4: Centralize Category Button Connections
 
-Update _add_item_to_display to use consistent styling and config
-Refactor item selection logic to follow the pattern
+Move category button signal connections to _connect_signals()
+Store category buttons in a way that allows connecting in _connect_signals()
 
-Step 5: Refactor Menu and Dialog Methods
+Step 5: Extract Product Button Handler
 
-Update the menu creation and styling to follow the pattern
-Refactor message box styling to ensure consistency
+Create a dedicated handler method for product button clicks
+Replace lambda function with this method in _populate_grid()
 
-Step 6: Final Cleanup
+Step 6: Centralize Product Button Connections
 
-Remove any remaining hardcoded values
-Ensure naming consistency across methods
-Add or improve documentation where needed
+Move product button signal connections to _connect_signals()
+Implement a method to get all product buttons for connecting in _connect_signals()
+
+Step 7: Standardize Method Naming
+
+Rename handler methods to follow the _on_xxx_yyy convention
+Ensure consistency with your OrderListWidget naming patterns
+
+Step 8: Final Tests and Documentation
+
+Test all functionality works as before
+Document the new methods and approach
