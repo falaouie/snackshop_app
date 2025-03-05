@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
         # Get screen dimensions from config
         screen_width, screen_height = screen_config.get_screen_dimensions()
         
-        # Set window size to 80% of screen dimensions
+        # Set window size to screen dimensions
         self.window_width = int(screen_width)
         self.window_height = int(screen_height)
         self.setFixedSize(self.window_width, self.window_height)
