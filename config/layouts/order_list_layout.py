@@ -76,7 +76,7 @@ class OrderLayoutConfig:
             'summary_margin_top': 8,
             'summary_margin_right': 15,
             'summary_margin_bottom': 8,
-            'font_size': 14,
+            'font_size': 9,
 
             # scroll area configs
             'scrollbar_width': 8,

@@ -375,11 +375,11 @@ class LayoutSizes:
         'payment_action_button_radius': 5,
 
         # Totals widget configurations
-        'totals_label_font_size': 16,
-        'totals_amount_font_size': 20,
-        'totals_header_font_size': 16,
-        'totals_widget_padding': 10,
-        'totals_section_spacing': 15,
+        'totals_label_font_size': 14,
+        'totals_amount_font_size': 12,
+        'totals_header_font_size': 14,
+        'totals_widget_padding': 5,
+        'totals_section_spacing': 10,
 
         # order list widget configs
         'order_header_margin_left': 5,
