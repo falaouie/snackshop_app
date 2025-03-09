@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel,
                             QPushButton, QGridLayout, QHBoxLayout)
 from PyQt5.QtCore import Qt
 from components.input import UserInput
-from styles.auth import AuthStyles
+from styles.auth_styles import AuthStyles
 from styles.layouts import layout_config
 
 class UserIDView(QWidget):

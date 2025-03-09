@@ -1,7 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout
-from PyQt5.QtCore import Qt
-from .auth.auth_container import AuthenticationContainer
-from components.common import AuthTopBar
+from components.auth import AuthTopBar, AuthenticationContainer
 from .view_manager import ViewManager
 from styles.app import AppStyles 
 from config.screen_config import screen_config

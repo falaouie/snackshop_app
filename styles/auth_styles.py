@@ -44,6 +44,15 @@ class AuthStyles:
         """
     
     """Authentication view styles"""
+
+    @staticmethod
+    def get_auth_container_style():
+        return f"""
+            QFrame {{
+                background: red;
+                border: 1px solid #ddd;
+            }}
+        """
     
     @staticmethod
     def CONTAINER(margin):

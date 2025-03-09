@@ -12,13 +12,12 @@ class AuthTopBarLayoutConfig:
     # Define size configurations for different screen sizes
     CONFIGS = {
         SizeCategory.SMALL: {
-            # Main container
-            'height': 100,
-            'padding_left': 5,
-            'padding_right': 5,
-            'padding_top': 0,
-            'padding_bottom': 0,
-            # 'section_spacing': 10,  # Added section spacing
+            # Auth Top Bar container
+            'auth_top_bar_height': 100,
+            'auth_top_bar_padding_left': 5,
+            'auth_top_bar_padding_right': 5,
+            'auth_top_bar_padding_top': 0,
+            'auth_top_bar_padding_bottom': 0,
             
             # Exit button
             'exit_button_icon_size': 100,
@@ -30,13 +29,12 @@ class AuthTopBarLayoutConfig:
         },
         
         SizeCategory.MEDIUM: {
-            # Main container
-            'height': 150,
-            'padding_left': 5,
-            'padding_right': 5,
-            'padding_top': 0,
-            'padding_bottom': 0,
-            # 'section_spacing': 15,  # Added section spacing
+            # Auth Top Bar container
+            'auth_top_bar_height': 150,
+            'auth_top_bar_padding_left': 5,
+            'auth_top_bar_padding_right': 5,
+            'auth_top_bar_padding_top': 0,
+            'auth_top_bar_padding_bottom': 0,
             
             # Exit button
             'exit_button_icon_size': 125,
@@ -48,13 +46,12 @@ class AuthTopBarLayoutConfig:
         },
         
         SizeCategory.LARGE: {
-            # Main container
-            'height': 200,
-            'padding_left': 5,
-            'padding_right': 5,
-            'padding_top': 0,
-            'padding_bottom': 0,
-            # 'section_spacing': 20,  # Added section spacing
+            # Auth Top Bar container
+            'auth_top_bar_height': 200,
+            'auth_top_bar_padding_left': 5,
+            'auth_top_bar_padding_right': 5,
+            'auth_top_bar_padding_top': 0,
+            'auth_top_bar_padding_bottom': 0,
             
             # Exit button
             'exit_button_icon_size': 150,
@@ -90,11 +87,11 @@ class AuthTopBarLayoutConfig:
         """Get container dimensions and spacing"""
         config = self._get_current_config()
         return {
-            'height': config['height'],
-            'padding_left': config['padding_left'],
-            'padding_right': config['padding_right'],
-            'padding_top': config['padding_top'],
-            'padding_bottom': config['padding_bottom'],
+            'height': config['auth_top_bar_height'],
+            'padding_left': config['auth_top_bar_padding_left'],
+            'padding_right': config['auth_top_bar_padding_right'],
+            'padding_top': config['auth_top_bar_padding_top'],
+            'padding_bottom': config['auth_top_bar_padding_bottom'],
             # 'section_spacing': config['section_spacing']  # Added section spacing
         }
     

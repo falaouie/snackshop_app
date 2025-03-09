@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QFrame, QVBoxLayout
 from PyQt5.QtCore import Qt
-from .user_id_view import UserIDView
-from .pin_view import PinView
+from views.auth.user_id_view import UserIDView
+from views.auth.pin_view import PinView
 from styles.auth_styles import AuthStyles
 from styles.layouts import layout_config
 # from config.layouts import AuthTopBarLayoutConfig

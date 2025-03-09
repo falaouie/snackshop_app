@@ -59,7 +59,7 @@ class ViewManager:
             main_layout.setContentsMargins(20, 20, 20, 20)
             
             # Add top bar
-            from components.common import AuthTopBar
+            from components.auth import AuthTopBar
             auth_top_bar = AuthTopBar(central_widget)
             main_layout.addWidget(auth_top_bar)
             
@@ -70,7 +70,7 @@ class ViewManager:
             center_layout.addStretch()
             
             # Import here to avoid circular import
-            from .auth.auth_container import AuthenticationContainer
+            from components.auth import AuthenticationContainer
             
             self.auth_container = AuthenticationContainer()
             self.auth_container.setFocusPolicy(Qt.StrongFocus)

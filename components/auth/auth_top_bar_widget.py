@@ -4,7 +4,7 @@ from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtSvg import QSvgRenderer
 from styles import AuthStyles
 from utilities.utils import ApplicationUtils
-from config.layouts.auth_top_bar_layout import AuthTopBarLayoutConfig
+from config.layouts.auth_layout import AuthTopBarLayoutConfig
 
 class AuthTopBar(QFrame):
     """
@@ -31,10 +31,6 @@ class AuthTopBar(QFrame):
 
         # Get config instance
         self.config = AuthTopBarLayoutConfig.get_instance()
-        
-        # Explicitly set fixed height from config
-        height = self.config.get_size('height')
-        self.setFixedHeight(height)
 
         # App utils for handling application operations
         self.app_utils = ApplicationUtils()
@@ -45,6 +41,10 @@ class AuthTopBar(QFrame):
         """Initialize the main UI structure"""
         # Get container dimensions
         container_dims = self.config.get_auth_top_bar_container_dimensions()
+
+      # Explicitly set fixed height from config
+        height = container_dims['height']
+        self.setFixedHeight(height)
         
         # Main layout
         layout = QHBoxLayout(self)
@@ -54,7 +54,6 @@ class AuthTopBar(QFrame):
             container_dims['padding_right'],
             container_dims['padding_bottom']
         )
-        # layout.setSpacing(container_dims.get('section_spacing', 0))
 
         # Create logo section
         logo_label = self._create_logo()

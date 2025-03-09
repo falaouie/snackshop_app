@@ -1,5 +1,5 @@
 # components/common/top_bar/top_bar_widget.py
-from PyQt5.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QWidget
+from PyQt5.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QLabel, QPushButton
 from PyQt5.QtCore import Qt, QSize, QTimer, QDateTime, pyqtSignal
 from PyQt5.QtGui import QPixmap, QIcon, QPainter, QFont
 from PyQt5.QtSvg import QSvgRenderer
