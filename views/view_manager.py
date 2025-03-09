@@ -34,7 +34,7 @@ class ViewManager:
             self.auth_container.show()
             self.auth_container.switch_to_user_id_view()
     
-    def switch_to_pos_view(self, user_id: str):
+    def switch_to_pos_view(self, user_id: str, user_name : str):
         """Switch to POS view"""
         if self.main_window:
             # Hide the auth container
@@ -45,7 +45,7 @@ class ViewManager:
             from .pos.pos_view import POSView
             
             # Create and show POS view
-            pos_view = POSView(user_id, self.main_window)
+            pos_view = POSView(user_id, user_name, self.main_window)
             self.main_window.setCentralWidget(pos_view)
             pos_view.show()
     

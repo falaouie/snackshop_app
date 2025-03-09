@@ -33,9 +33,10 @@ class POSView(QWidget):
     # Define constants
     BUTTON_PROTECTION_TIMEOUT_MS = 500
 
-    def __init__(self, user_id, parent=None):
+    def __init__(self, user_id, user_name, parent=None):
         super().__init__(parent)
         self.user_id = user_id
+        self.user_name = user_name
         self.layout_config = layout_config.get_instance()
 
         self.current_currency_mode = None  # Tracks which currency type is active
@@ -65,7 +66,7 @@ class POSView(QWidget):
         main_layout.setSpacing(0)
 
         # Add top bar with simplified initialization
-        self.top_bar = TopBarWidget(user_id=self.user_id, parent=self)
+        self.top_bar = TopBarWidget(user_id=self.user_id, user_name=self.user_name, parent=self)
         
         # Store reference to search widget for later use
         self.search_input = self.top_bar.get_search_widget()

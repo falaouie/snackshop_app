@@ -21,7 +21,7 @@ class TopBarWidget(QFrame):
     search_changed = pyqtSignal(str)
     lock_clicked = pyqtSignal()
     
-    def __init__(self, user_id=None, parent=None):
+    def __init__(self, user_id=None, user_name=None, parent=None):
         """
         Initialize the top bar widget.
         
@@ -32,6 +32,7 @@ class TopBarWidget(QFrame):
         super().__init__(parent)
         
         self.user_id = user_id
+        self.user_name = user_name
         
         # Set style
         self.setStyleSheet(TopBarStyles.get_top_bar_container_style())
@@ -105,7 +106,7 @@ class TopBarWidget(QFrame):
         emp_icon.setPixmap(pixmap)
         
         # Employee ID
-        emp_id = QLabel(f"Emp ID: {self.user_id}" if self.user_id else "")
+        emp_id = QLabel(f"{self.user_name}" if self.user_name else "")
         emp_id.setStyleSheet(TopBarStyles.get_employee_id_style())
         
         # Set font size from config

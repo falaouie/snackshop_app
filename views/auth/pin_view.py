@@ -12,7 +12,7 @@ class PinView(QWidget):
         self.user_id = user_id
         self.auth_container = auth_container
         self.valid_pin = "9856"  # Hardcoded valid PIN
-        
+        self.user_name = "Fadi"
         # Get container size from layout config
         auth_layout = layout_config.get_instance().get_auth_layout()
         self.setFixedSize(auth_layout['container_width'], 
@@ -210,7 +210,7 @@ class PinView(QWidget):
             if entered_pin == self.valid_pin:
                 # Import here to avoid circular import
                 from ..view_manager import ViewManager
-                ViewManager.get_instance().switch_to_pos_view(self.user_id)
+                ViewManager.get_instance().switch_to_pos_view(self.user_id, self.user_name)
             else:
                 self._show_invalid_pin()
 
