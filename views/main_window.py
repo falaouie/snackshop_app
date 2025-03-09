@@ -1,13 +1,16 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout
 from PyQt5.QtCore import Qt
 from .auth.auth_container import AuthenticationContainer
-from .auth.top_bar import TopBar
+from components.common import AuthTopBar
 from .view_manager import ViewManager
 from styles.app import AppStyles 
 from config.screen_config import screen_config
 # from services.data_service import DataService
 
 class MainWindow(QMainWindow):
+    """
+    Main application window.
+    """
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Snack Shop POS - Silver System")
@@ -42,9 +45,9 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(20, 20, 20, 20)
         
-        # Add top bar
-        top_bar = TopBar(central_widget)
-        main_layout.addLayout(top_bar.layout())
+        # Add auth top bar
+        auth_top_bar = AuthTopBar(central_widget)
+        main_layout.addWidget(auth_top_bar)
         
         # Add vertical spacer to push content down
         main_layout.addStretch()

@@ -3,5 +3,6 @@
 
 from .top_bar_widget import TopBarWidget
 from .search_widget import SearchWidget, KeyboardEnabledSearchWidget
+from .auth_top_bar_widget import AuthTopBar
 
-__all__ = ['TopBarWidget', 'SearchWidget' , 'KeyboardEnabledSearchWidget']
+__all__ = ['TopBarWidget', 'AuthTopBar', 'SearchWidget' , 'KeyboardEnabledSearchWidget']

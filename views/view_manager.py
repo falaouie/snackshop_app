@@ -59,9 +59,9 @@ class ViewManager:
             main_layout.setContentsMargins(20, 20, 20, 20)
             
             # Add top bar
-            from .auth.top_bar import TopBar
-            top_bar = TopBar(central_widget)
-            main_layout.addLayout(top_bar.layout())
+            from components.common import AuthTopBar
+            auth_top_bar = AuthTopBar(central_widget)
+            main_layout.addWidget(auth_top_bar)
             
             main_layout.addStretch()
             
