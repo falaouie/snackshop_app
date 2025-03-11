@@ -2,9 +2,9 @@ from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton
 from PyQt5.QtGui import QPixmap, QIcon, QPainter
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtSvg import QSvgRenderer
-from styles import AuthStyles
 from utilities.utils import ApplicationUtils
-from config.layouts.auth_layout import AuthTopBarLayoutConfig
+from styles import AuthStyles
+from config.layouts.auth_layout import AuthLayoutConfig
 
 class AuthTopBar(QFrame):
     """
@@ -30,7 +30,7 @@ class AuthTopBar(QFrame):
         self.setStyleSheet(AuthStyles.get_auth_top_bar_container_style())
 
         # Get config instance
-        self.config = AuthTopBarLayoutConfig.get_instance()
+        self.config = AuthLayoutConfig.get_instance()
 
         # App utils for handling application operations
         self.app_utils = ApplicationUtils()
@@ -42,7 +42,7 @@ class AuthTopBar(QFrame):
         # Get container dimensions
         container_dims = self.config.get_auth_top_bar_container_dimensions()
 
-      # Explicitly set fixed height from config
+        # Explicitly set fixed height from config
         height = container_dims['height']
         self.setFixedHeight(height)
         

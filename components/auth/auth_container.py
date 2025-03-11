@@ -3,28 +3,39 @@ from PyQt5.QtCore import Qt
 from views.auth.user_id_view import UserIDView
 from views.auth.pin_view import PinView
 from styles.auth_styles import AuthStyles
-from styles.layouts import layout_config
-# from config.layouts import AuthTopBarLayoutConfig
+from config.layouts import AuthLayoutConfig
 
 class AuthenticationContainer(QFrame):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.valid_user_id = "1001"  # Hardcoded valid user ID
         
-        # Get container size from layout config
-        auth_layout = layout_config.get_instance().get_auth_layout()
-        self.setFixedSize(auth_layout['container_width'], 
-                         auth_layout['container_height'])
-        
-        self.setStyleSheet(AuthStyles.CONTAINER(
-            layout_config.get_instance().get_container_margin()
-        ))
+        # Set style
+        self.setStyleSheet(AuthStyles.get_auth_container_style())
+
+        # Get config instance
+        self.config = AuthLayoutConfig.get_instance()
+
         self._setup_ui()
         self.setFocusPolicy(Qt.StrongFocus)  # Enable keyboard focus
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
+        # Get container dimensions
+        container_dims = self.config.get_auth_layout()
+
+        # Explicitly set fixed width and height from config
+        width =  container_dims['container_width']
+        height = container_dims['container_height']
+        self.setFixedSize(width, height)
+
+        # layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(
+            container_dims['container_margin'],
+            container_dims['container_margin'],
+            container_dims['container_margin'],
+            container_dims['container_margin']
+        )
         
         # User ID View
         self.user_id_view = UserIDView(self)

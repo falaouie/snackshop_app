@@ -503,39 +503,11 @@ class LayoutSizes:
         # General button properties
         'button_border_radius': 8,
         'button_padding': 12,
-        
-        # Logo dimensions
-        'logo_width': 300,
-        'logo_height': 150,
 
         # Global spacing and margins
         'container_margin': 15,
         'section_spacing': 10,
         'label_padding': 5,
-
-        # Keyboard specific settings
-        # 'keyboard_key_width': 60,
-        # 'keyboard_key_height': 60,
-        # 'keyboard_space_width': 600,
-        # 'keyboard_space_height': 55,
-        # 'keyboard_enter_width': 180,
-        # 'keyboard_enter_height': 55,
-        # 'keyboard_handle_height': 45,
-        # 'keyboard_control_button_size': 45,
-        # 'keyboard_font_size': 22,
-        # 'keyboard_padding': 10,
-        # 'keyboard_spacing': 8,
-
-        # # keyboard related configs
-        # 'keyboard_main_margin_left': 10,
-        # 'keyboard_main_margin_top': 5,
-        # 'keyboard_main_margin_right': 10,
-        # 'keyboard_main_margin_bottom': 10,
-        # 'keyboard_handle_margin_left': 5,
-        # 'keyboard_handle_margin_top': 0,
-        # 'keyboard_handle_margin_right': 5,
-        # 'keyboard_handle_margin_bottom': 0,
-        # 'keyboard_handle_spacing': 8,
 
         # Preset button configurations
         'preset_button_width': 140,
@@ -615,16 +587,16 @@ class LayoutConfig:
             }
         }
     
-    def get_auth_layout(self):
-        """Get authentication view layout configuration"""
-        return {
-            'container_width': self.screen_config.get_size('auth_container_width'),
-            'container_height': self.screen_config.get_size('auth_container_height'),
-            'label_width': self.screen_config.get_size('auth_label_width'),
-            'label_height': self.screen_config.get_size('auth_label_height'),
-            'logo_width': self.screen_config.get_size('logo_width'),
-            'logo_height': self.screen_config.get_size('logo_height')
-        }
+    # def get_auth_layout(self):
+    #     """Get authentication view layout configuration"""
+    #     return {
+    #         'container_width': self.screen_config.get_size('auth_container_width'),
+    #         'container_height': self.screen_config.get_size('auth_container_height'),
+    #         'label_width': self.screen_config.get_size('auth_label_width'),
+    #         'label_height': self.screen_config.get_size('auth_label_height'),
+    #         'logo_width': self.screen_config.get_size('logo_width'),
+    #         'logo_height': self.screen_config.get_size('logo_height')
+    #     }
 
     def get_spacing_config(self):
         """Get global spacing and margin configurations"""

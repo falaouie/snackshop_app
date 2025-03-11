@@ -5,7 +5,7 @@ Provides dimensions and styling specific to the Authentication TopBar UI.
 from config.screen_config import screen_config
 from config.size_categories import SizeCategory
 
-class AuthTopBarLayoutConfig:
+class AuthLayoutConfig:
     """Layout configuration for authentication top bar dimensions and styling"""
     _instance = None
     
@@ -25,7 +25,14 @@ class AuthTopBarLayoutConfig:
             
             # Logo
             'logo_width': 200,
-            'logo_height': 100
+            'logo_height': 100,
+
+            # Auth container sizes
+            'auth_container_width': 350,
+            'auth_container_height': 400,
+            'auth_label_width': 250,
+            'auth_label_height': 60,
+            'auth_container_margin' : 5,
         },
         
         SizeCategory.MEDIUM: {
@@ -42,7 +49,14 @@ class AuthTopBarLayoutConfig:
             
             # Logo
             'logo_width': 300,
-            'logo_height': 150
+            'logo_height': 150,
+
+            # Auth container sizes
+            'auth_container_width': 350,
+            'auth_container_height': 400,
+            'auth_label_width': 250,
+            'auth_label_height': 60,
+            'auth_container_margin' : 5,
         },
         
         SizeCategory.LARGE: {
@@ -59,7 +73,14 @@ class AuthTopBarLayoutConfig:
             
             # Logo
             'logo_width': 400,
-            'logo_height': 200
+            'logo_height': 200,
+
+            # Auth container sizes
+            'auth_container_width': 500,
+            'auth_container_height': 650,
+            'auth_label_width': 250,
+            'auth_label_height': 60,
+            'auth_container_margin' : 25,
         }
     }
     
@@ -92,7 +113,6 @@ class AuthTopBarLayoutConfig:
             'padding_right': config['auth_top_bar_padding_right'],
             'padding_top': config['auth_top_bar_padding_top'],
             'padding_bottom': config['auth_top_bar_padding_bottom'],
-            # 'section_spacing': config['section_spacing']  # Added section spacing
         }
     
     def get_exit_button_config(self):
@@ -110,6 +130,19 @@ class AuthTopBarLayoutConfig:
             'logo_width': config['logo_width'],
             'logo_height': config['logo_height']
         }
+    
+    def get_auth_layout(self):
+        """Get authentication view layout configuration"""
+        config = self._get_current_config()
+        return {
+            'container_width': config['auth_container_width'],
+            'container_height': config['auth_container_height'],
+            'label_width': config['auth_label_width'],
+            'label_height': config['auth_label_height'],
+            'logo_width': config['logo_width'],
+            'logo_height': config['logo_height'],
+            'container_margin': config['auth_container_margin']
+        }
 
 # Create singleton instance
-auth_top_bar_layout_config = AuthTopBarLayoutConfig()
+# auth_layout_config = AuthLayoutConfig()

@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from components.input import UserInput
 from styles.auth_styles import AuthStyles
 from styles.layouts import layout_config
+from config.layouts import AuthLayoutConfig
 from views.pos.pos_view import POSView
 
 class PinView(QWidget):
@@ -13,23 +14,38 @@ class PinView(QWidget):
         self.auth_container = auth_container
         self.valid_pin = "9856"  # Hardcoded valid PIN
         self.user_name = "Fadi"
-        # Get container size from layout config
-        auth_layout = layout_config.get_instance().get_auth_layout()
-        self.setFixedSize(auth_layout['container_width'], 
-                         auth_layout['container_height'])
+
+        # Set style
+        self.setStyleSheet(AuthStyles.get_auth_container_style())
+
+        # Get config instance
+        self.config = AuthLayoutConfig.get_instance()
+
+        # # Get container size from layout config
+        # auth_layout = AuthLayoutConfig.get_instance().get_auth_layout()
+        # self.setFixedSize(auth_layout['container_width'], 
+        #                  auth_layout['container_height'])
         
-        self.setStyleSheet(AuthStyles.CONTAINER(
-            layout_config.get_instance().get_container_margin()
-        ))
         self._setup_ui()
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        spacing_config = layout_config.get_instance().get_spacing_config()
-        margin = spacing_config['container_margin']
-        spacing = spacing_config['section_spacing']
-        layout.setContentsMargins(margin, margin, margin, margin)
-        layout.setSpacing(spacing)
+
+        # Get container dimensions
+        container_dims = self.config.get_auth_layout()
+
+        # Explicitly set fixed width and height from config
+        width =  container_dims['container_width']
+        height = container_dims['container_height']
+        self.setFixedSize(width, height)
+
+        # layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(
+            container_dims['container_margin'],
+            container_dims['container_margin'],
+            container_dims['container_margin'],
+            container_dims['container_margin']
+        )
 
         # PIN Label
         label_container = QHBoxLayout()

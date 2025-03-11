@@ -49,19 +49,8 @@ class AuthStyles:
     def get_auth_container_style():
         return f"""
             QFrame {{
-                background: red;
-                border: 1px solid #ddd;
-            }}
-        """
-    
-    @staticmethod
-    def CONTAINER(margin):
-        return f"""
-            QFrame {{
                 background: white;
                 border: 1px solid #ddd;
-                border-radius: 15px;
-                padding: {margin}px;
             }}
         """
     
