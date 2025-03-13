@@ -1,42 +1,55 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, 
                             QPushButton, QGridLayout, QHBoxLayout)
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 from components.input import UserInput
 from styles.auth_styles import AuthStyles
-from styles.layouts import layout_config
+from config.layouts import AuthLayoutConfig
 
 class UserIDView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        # Get config instance
+        self.config = AuthLayoutConfig.get_instance()
         self.parent_container = parent
         self.number_buttons = []
         self._setup_ui()
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
+
+        keypad_config = self.config.get_keypad_config()
+        action_config = self.config.get_action_buttons_config()
         
-        # Get configurations
-        spacing_config = layout_config.get_instance().get_spacing_config()
-        label_config = layout_config.get_instance().get_label_config()
-        keypad_config = layout_config.get_instance().get_keypad_config()
-        action_config = layout_config.get_instance().get_action_buttons_config()
+        container_specs = self.config.get_auth_layout()
+
+        layout.setContentsMargins(
+            container_specs['container_margin'],
+            container_specs['container_margin'],
+            container_specs['container_margin'],
+            container_specs['container_margin']
+        )
         
-        # Apply spacing
-        layout.setContentsMargins(spacing_config['container_margin'], 
-                                spacing_config['container_margin'],
-                                spacing_config['container_margin'], 
-                                spacing_config['container_margin'])
-        layout.setSpacing(spacing_config['section_spacing'])
+        layout.setSpacing(container_specs['container_margin'])
         
         # User ID Label
         label_container = QHBoxLayout()
         self.lbl_user_id = QLabel("User ID", alignment=Qt.AlignCenter)
-        self.lbl_user_id.setFixedSize(label_config['width'], label_config['height'])
-        self.lbl_user_id.setStyleSheet(AuthStyles.LABEL_TEXT(
-            spacing_config['label_padding'],
-            label_config['font_size']
-        ))
-        
+
+        # Explicitly set fixed width and height
+        label_width =  container_specs['label_width']
+        label_height = container_specs['label_height']
+        self.lbl_user_id.setFixedSize(label_width, label_height)
+
+        # set style
+        self.lbl_user_id.setStyleSheet(AuthStyles.get_auth_label_text_style())
+
+        # Apply font size
+        font = QFont()
+        font_size = container_specs['font_size']
+        font.setPointSize(font_size)
+        self.lbl_user_id.setFont(font)
+
         label_container.addStretch()
         label_container.addWidget(self.lbl_user_id)
         label_container.addStretch()
@@ -49,7 +62,12 @@ class UserIDView(QWidget):
 
         # Keypad
         grid = QGridLayout()
-        grid.setSpacing(keypad_config['spacing'])
+        spacing = container_specs['section_spacing']
+        grid.setSpacing(spacing)
+
+        pad_font = QFont()
+        pad_font_size = keypad_config['font_size']
+        pad_font.setPointSize(pad_font_size)
 
         # Number buttons 1-9
         positions = [(i//3, i%3) for i in range(9)]
@@ -58,17 +76,17 @@ class UserIDView(QWidget):
             btn = QPushButton(str(idx+1))
             btn.setFixedSize(keypad_config['button_width'], 
                            keypad_config['button_height'])
-            btn.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
-                keypad_config['font_size'],
-                keypad_config['padding']
-            ))
+            # set style
+            btn.setStyleSheet(AuthStyles.get_keypad_button_style())
+            btn.setFont(pad_font)
+
             btn.clicked.connect(lambda _, num=idx+1: self._on_number_click(num))
             self.number_buttons.append(btn)
             grid.addWidget(btn, row, col)
 
         # Action buttons
         action_row = QHBoxLayout()
-        action_row.setSpacing(keypad_config['spacing'])
+        action_row.setSpacing(spacing)
 
         self.btn_clear = QPushButton("Clear")
         btn_0 = QPushButton("0")
@@ -77,19 +95,17 @@ class UserIDView(QWidget):
         # Style the '0' button like other keypad buttons
         btn_0.setFixedSize(keypad_config['button_width'], 
                           keypad_config['button_height'])
-        btn_0.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
-            keypad_config['font_size'],
-            keypad_config['padding']
-        ))
+        # set style
+        btn_0.setStyleSheet(AuthStyles.get_keypad_button_style())
+        btn_0.setFont(pad_font)
 
         # Style action buttons
         for btn in [self.btn_clear, self.btn_next]:
             btn.setFixedSize(action_config['action_width'], 
                            action_config['action_height'])
-            btn.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
-                keypad_config['font_size'],
-                keypad_config['padding']
-            ))
+            # set style
+            btn.setStyleSheet(AuthStyles.get_keypad_button_style())
+            btn.setFont(pad_font)
         
         # Initialize action button states
         self.btn_clear.setEnabled(False)
@@ -119,21 +135,15 @@ class UserIDView(QWidget):
         # Update Clear button
         self.btn_clear.setEnabled(has_digits)
         
-        # Get configurations for styling
-        keypad_config = layout_config.get_instance().get_keypad_config()
-        
         # Update Next button
         self.btn_next.setEnabled(is_complete)
+
+        # set style
         self.btn_next.setStyleSheet(
-            AuthStyles.NEXT_BUTTON_ACTIVE(
-                keypad_config['font_size'],
-                keypad_config['padding']
-            ) if is_complete
-            else AuthStyles.KEYPAD_BUTTON(
-                keypad_config['font_size'],
-                keypad_config['padding']
+            AuthStyles.get_next_btn_active_style()
+            if is_complete
+            else AuthStyles.get_keypad_button_style()
             )
-        )
         
         # Update number buttons (0-9)
         for btn in self.number_buttons:
@@ -141,23 +151,38 @@ class UserIDView(QWidget):
 
     def _show_invalid_user_id(self):
         self.lbl_user_id.setText("Invalid User ID")
-        spacing_config = layout_config.get_instance().get_spacing_config()
-        label_config = layout_config.get_instance().get_label_config()
-        self.lbl_user_id.setStyleSheet(AuthStyles.LABEL_TEXT_INVALID(
-            spacing_config['label_padding'],
-            label_config['font_size']
-        ))
+        container_specs = self.config.get_auth_layout()
+        # Explicitly set fixed width and height
+        label_width =  container_specs['label_width']
+        label_height = container_specs['label_height']
+        self.lbl_user_id.setFixedSize(label_width, label_height)
+
+        # set style
+        self.lbl_user_id.setStyleSheet(AuthStyles.get_auth_label_invalid_style())
+
+        # Apply font size
+        font = QFont()
+        font_size = container_specs['font_size']
+        font.setPointSize(font_size)
+        self.lbl_user_id.setFont(font)
 
     def _reset_user_id_label(self):
         self.lbl_user_id.setText("User ID")
-        spacing_config = layout_config.get_instance().get_spacing_config()
-        label_config = layout_config.get_instance().get_label_config()
-        self.lbl_user_id.setStyleSheet(AuthStyles.LABEL_TEXT(
-            spacing_config['label_padding'],
-            label_config['font_size']
-        ))
+        container_specs = self.config.get_auth_layout()
+        # Explicitly set fixed width and height
+        label_width =  container_specs['label_width']
+        label_height = container_specs['label_height']
+        self.lbl_user_id.setFixedSize(label_width, label_height)
 
-    # Other methods remain unchanged as they don't use configuration
+        # set style
+        self.lbl_user_id.setStyleSheet(AuthStyles.get_auth_label_text_style())
+
+        # Apply font size
+        font = QFont()
+        font_size = container_specs['font_size']
+        font.setPointSize(font_size)
+        self.lbl_user_id.setFont(font)
+
     def _on_number_click(self, number):
         self.user_input.add_digit(str(number))
         self._reset_user_id_label()

@@ -136,32 +136,6 @@ class AuthStyles:
         """
     
     @staticmethod
-    def get_keypad_button_style():
-        return f"""
-            QPushButton {{
-                border: 1px solid #ddd;
-            }}
-            QPushButton:hover {{
-                background-color: #f8f8f8;
-            }}
-        """
-
-    @staticmethod
-    def NEXT_BUTTON_ACTIVE(font_size, padding):
-        return f"""
-            QPushButton {{
-                background-color: #3498db;
-                color: white;
-                border-radius: 15px;
-                font-size: {font_size}px;
-                padding: {padding}px;
-            }}
-            QPushButton:hover {{
-                background-color: #2980b9;
-            }}
-        """
-    
-    @staticmethod
     def get_next_btn_active_style():
         return f"""
             QPushButton {{

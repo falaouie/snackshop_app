@@ -505,8 +505,8 @@ class LayoutSizes:
         'button_padding': 12,
 
         # Global spacing and margins
-        'container_margin': 15,
-        'section_spacing': 10,
+        'container_margin': 5,
+        'section_spacing': 5,
         'label_padding': 5,
 
         # Preset button configurations

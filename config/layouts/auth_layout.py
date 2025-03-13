@@ -27,12 +27,28 @@ class AuthLayoutConfig:
             'logo_width': 200,
             'logo_height': 100,
 
-            # Auth container sizes
+            # Auth container
             'auth_container_width': 350,
             'auth_container_height': 400,
-            'auth_label_width': 250,
-            'auth_label_height': 60,
             'auth_container_margin' : 5,
+            'auth_section_spacing': 5,
+            'auth_label_width': 300,
+            'auth_label_height': 50,
+            'auth_label_padding': 5,
+            'auth_font_size': 18,
+
+            # Keypad
+            'keypad_spacing': 10,
+            'keypad_button_width': 100,
+            'keypad_button_height': 60,
+            'keypad_font_size': 24,
+            'keypad_padding': 5,
+
+            # Action Buttons
+            'action_button_width': 150,
+            'action_button_height': 60,
+            'signin_button_width': 200,
+            'signin_button_height': 60,
         },
         
         SizeCategory.MEDIUM: {
@@ -51,12 +67,28 @@ class AuthLayoutConfig:
             'logo_width': 300,
             'logo_height': 150,
 
-            # Auth container sizes
+            # Auth container
             'auth_container_width': 350,
             'auth_container_height': 400,
-            'auth_label_width': 250,
-            'auth_label_height': 60,
             'auth_container_margin' : 5,
+            'auth_section_spacing': 5,
+            'auth_label_width': 300,
+            'auth_label_height': 60,
+            'auth_label_padding': 5,
+            'auth_font_size': 16,
+
+            # Keypad
+            'keypad_spacing': 10,
+            'keypad_button_width': 100,
+            'keypad_button_height': 60,
+            'keypad_font_size': 24,
+            'keypad_padding': 5,
+
+            # Action Buttons
+            'action_button_width': 150,
+            'action_button_height': 60,
+            'signin_button_width': 200,
+            'signin_button_height': 60,
         },
         
         SizeCategory.LARGE: {
@@ -75,12 +107,28 @@ class AuthLayoutConfig:
             'logo_width': 400,
             'logo_height': 200,
 
-            # Auth container sizes
+            # Auth container
             'auth_container_width': 500,
             'auth_container_height': 650,
-            'auth_label_width': 250,
-            'auth_label_height': 60,
-            'auth_container_margin' : 25,
+            'auth_container_margin' : 5,
+            'auth_section_spacing': 15,
+            'auth_label_width': 300,
+            'auth_label_height': 50,
+            'auth_label_padding': 5,
+            'auth_font_size': 24,
+
+            # Keypad
+            'keypad_spacing': 10,
+            'keypad_button_width': 100,
+            'keypad_button_height': 60,
+            'keypad_font_size': 24,
+            'keypad_padding': 5,
+
+            # Action Buttons
+            'action_button_width': 150,
+            'action_button_height': 60,
+            'signin_button_width': 200,
+            'signin_button_height': 60,
         }
     }
     
@@ -141,8 +189,29 @@ class AuthLayoutConfig:
             'label_height': config['auth_label_height'],
             'logo_width': config['logo_width'],
             'logo_height': config['logo_height'],
-            'container_margin': config['auth_container_margin']
+            'container_margin': config['auth_container_margin'],
+            'section_spacing': config['auth_section_spacing'],
+            'label_padding': config['auth_label_padding'],
+            'font_size': config['auth_font_size']
         }
-
-# Create singleton instance
-# auth_layout_config = AuthLayoutConfig()
+    
+    def get_keypad_config(self):
+        """Get keypad basic configurations"""
+        config = self._get_current_config()
+        return {
+            'spacing': config['keypad_spacing'],
+            'button_width': config['keypad_button_width'],
+            'button_height': config['keypad_button_height'],
+            'font_size': config['keypad_font_size'],
+            'padding': config['keypad_padding']
+        }
+    
+    def get_action_buttons_config(self):
+        """Get action and signin button configurations"""
+        config = self._get_current_config()
+        return {
+            'action_width': config['action_button_width'],
+            'action_height': config['action_button_height'],
+            'signin_width': config['signin_button_width'],
+            'signin_height': config['signin_button_height']
+        }
