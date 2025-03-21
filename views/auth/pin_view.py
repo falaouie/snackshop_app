@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, 
                            QGridLayout, QHBoxLayout, QMainWindow)
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont
 from components.input import UserInput
-from styles.auth_styles import AuthStyles
-from styles.layouts import layout_config
-from config.layouts import AuthLayoutConfig
 from views.pos.pos_view import POSView
+from styles.auth_styles import AuthStyles
+from config.layouts import AuthLayoutConfig
 
 class PinView(QWidget):
     def __init__(self, user_id, auth_container, parent=None):
@@ -15,16 +15,9 @@ class PinView(QWidget):
         self.valid_pin = "9856"  # Hardcoded valid PIN
         self.user_name = "Fadi"
 
-        # Set style
-        self.setStyleSheet(AuthStyles.get_auth_container_style())
-
         # Get config instance
         self.config = AuthLayoutConfig.get_instance()
-
-        # # Get container size from layout config
-        # auth_layout = AuthLayoutConfig.get_instance().get_auth_layout()
-        # self.setFixedSize(auth_layout['container_width'], 
-        #                  auth_layout['container_height'])
+        self.number_buttons = []
         
         self._setup_ui()
 
@@ -32,33 +25,41 @@ class PinView(QWidget):
         layout = QVBoxLayout(self)
 
         # Get container dimensions
-        container_dims = self.config.get_auth_layout()
+        container_specs = self.config.get_auth_layout()
+        keypad_config = self.config.get_keypad_config()
+        action_config = self.config.get_action_buttons_config()
 
         # Explicitly set fixed width and height from config
-        width =  container_dims['container_width']
-        height = container_dims['container_height']
+        width = container_specs['container_width']
+        height = container_specs['container_height']
         self.setFixedSize(width, height)
 
-        # layout.setContentsMargins(0, 0, 0, 0)
         layout.setContentsMargins(
-            container_dims['container_margin'],
-            container_dims['container_margin'],
-            container_dims['container_margin'],
-            container_dims['container_margin']
+            container_specs['container_margin'],
+            container_specs['container_margin'],
+            container_specs['container_margin'],
+            container_specs['container_margin']
         )
+        
+        layout.setSpacing(container_specs['container_margin'])
 
         # PIN Label
         label_container = QHBoxLayout()
         self.lbl_pin = QLabel(f"PIN for User ID {self.user_id}", alignment=Qt.AlignCenter)
-        # Get configurations
-        spacing_config = layout_config.get_instance().get_spacing_config()
-        label_config = layout_config.get_instance().get_label_config()
         
-        self.lbl_pin.setStyleSheet(AuthStyles.LABEL_TEXT(
-            spacing_config['label_padding'],
-            label_config['font_size']
-        ))
-        self.lbl_pin.setFixedSize(label_config['width'], label_config['height'])
+        # Explicitly set fixed width and height
+        label_width = container_specs['label_width']
+        label_height = container_specs['label_height']
+        self.lbl_pin.setFixedSize(label_width, label_height)
+
+        # set style
+        self.lbl_pin.setStyleSheet(AuthStyles.get_auth_label_text_style())
+
+        # Apply font size
+        font = QFont()
+        font_size = container_specs['font_size']
+        font.setPointSize(font_size)
+        self.lbl_pin.setFont(font)
         
         # Add stretch before and after the label to center it
         label_container.addStretch()
@@ -71,63 +72,53 @@ class PinView(QWidget):
         self.pin_input = UserInput(is_pin=True)
         layout.addWidget(self.pin_input)
 
-        # Keypad container
-        keypad_container = QVBoxLayout()
-        keypad_config = layout_config.get_instance().get_keypad_config()
-        keypad_container.setSpacing(keypad_config['spacing'])
-        
         # Number pad grid
         grid = QGridLayout()
-        grid.setHorizontalSpacing(keypad_config['spacing'])
-        grid.setVerticalSpacing(keypad_config['spacing'])
+        spacing = container_specs['section_spacing']
+        grid.setSpacing(spacing)
+
+        pad_font = QFont()
+        pad_font_size = keypad_config['font_size']
+        pad_font.setPointSize(pad_font_size)
         
         # Number buttons 1-9
         positions = [(i//3, i%3) for i in range(9)]
-        # button_width = screen_config.get_size('keypad_button_width')
-        # button_height = screen_config.get_size('keypad_button_height')
         
         for idx, (row, col) in enumerate(positions):
             btn = QPushButton(str(idx+1))
             btn.setFixedSize(keypad_config['button_width'], 
                             keypad_config['button_height'])
-            btn.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
-                keypad_config['font_size'],
-                keypad_config['padding']
-            ))
+            # set style
+            btn.setStyleSheet(AuthStyles.get_keypad_button_style())
+            btn.setFont(pad_font)
+            
             btn.clicked.connect(lambda _, num=idx+1: self._on_number_click(num))
+            self.number_buttons.append(btn)
             grid.addWidget(btn, row, col)
-
-        keypad_container.addLayout(grid)
 
         # Action buttons
         action_row = QHBoxLayout()
-        action_row.setSpacing(keypad_config['spacing'])
+        action_row.setSpacing(spacing)
         
-        # Get action button sizes
-        action_config = layout_config.get_instance().get_action_buttons_config()
-        # action_width = screen_config.get_size('action_button_width')
-        # action_height = screen_config.get_size('action_button_height')
-
         self.btn_clear = QPushButton("Clear")
         btn_0 = QPushButton("0")
         self.btn_cancel = QPushButton("Cancel")
         
         # Style the '0' button like other keypad buttons
         btn_0.setFixedSize(keypad_config['button_width'], 
-                        keypad_config['button_height'])
-        btn_0.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
-            keypad_config['font_size'],
-            keypad_config['padding']
-        ))
+                          keypad_config['button_height'])
+        # set style
+        btn_0.setStyleSheet(AuthStyles.get_keypad_button_style())
+        btn_0.setFont(pad_font)
+        self.number_buttons.append(btn_0)
 
         # Style action buttons
         for btn in [self.btn_clear, self.btn_cancel]:
             btn.setFixedSize(action_config['action_width'], 
                             action_config['action_height'])
-            btn.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
-                keypad_config['font_size'],
-                keypad_config['padding']
-            ))
+            # set style
+            btn.setStyleSheet(AuthStyles.get_keypad_button_style())
+            btn.setFont(pad_font)
         
         self.btn_clear.setEnabled(False)
         btn_0.clicked.connect(lambda: self._on_number_click(0))
@@ -138,21 +129,20 @@ class PinView(QWidget):
         action_row.addWidget(btn_0)
         action_row.addWidget(self.btn_cancel)
 
-        keypad_container.addLayout(action_row)
-        layout.addLayout(keypad_container)
+        layout.addLayout(grid)
+        layout.addLayout(action_row)
 
         # Sign In container
         signin_container = QHBoxLayout()
-        signin_container.setSpacing(0)
+        signin_container.setSpacing(spacing)
 
         self.btn_sign_in = QPushButton("Sign In")
         self.btn_sign_in.setFixedSize(action_config['signin_width'], 
-                                    action_config['signin_height'])
+                                     action_config['signin_height'])
         self.btn_sign_in.setEnabled(False)
-        self.btn_sign_in.setStyleSheet(AuthStyles.KEYPAD_BUTTON(
-            keypad_config['font_size'],
-            keypad_config['padding']
-        ))
+        # set style
+        self.btn_sign_in.setStyleSheet(AuthStyles.get_keypad_button_style())
+        self.btn_sign_in.setFont(pad_font)
 
         # Add button to container with stretches for centering
         signin_container.addStretch()
@@ -174,13 +164,21 @@ class PinView(QWidget):
     def _reset_pin_label(self):
         """Restore PIN label to original state"""
         self.lbl_pin.setText(f"PIN for User ID {self.user_id}")
-        spacing_config = layout_config.get_instance().get_spacing_config()
-        label_config = layout_config.get_instance().get_label_config()
+        
+        container_specs = self.config.get_auth_layout()
+        # Explicitly set fixed width and height
+        label_width = container_specs['label_width']
+        label_height = container_specs['label_height']
+        self.lbl_pin.setFixedSize(label_width, label_height)
 
-        self.lbl_pin.setStyleSheet(AuthStyles.LABEL_TEXT(
-            spacing_config['label_padding'],
-            label_config['font_size']
-        ))
+        # set style
+        self.lbl_pin.setStyleSheet(AuthStyles.get_auth_label_text_style())
+
+        # Apply font size
+        font = QFont()
+        font_size = container_specs['font_size']
+        font.setPointSize(font_size)
+        self.lbl_pin.setFont(font)
 
     def _update_button_states(self, digits):
         """Update button states based on input"""
@@ -192,22 +190,17 @@ class PinView(QWidget):
         
         # Update Sign In button
         self.btn_sign_in.setEnabled(is_complete)
-        keypad_config = layout_config.get_instance().get_keypad_config()
+        
+        # set style
         self.btn_sign_in.setStyleSheet(
-            AuthStyles.NEXT_BUTTON_ACTIVE(
-                keypad_config['font_size'],
-                keypad_config['padding']
-            ) if is_complete
-            else AuthStyles.KEYPAD_BUTTON(
-                keypad_config['font_size'],
-                keypad_config['padding']
-            )
+            AuthStyles.get_next_btn_active_style()
+            if is_complete
+            else AuthStyles.get_keypad_button_style()
         )
         
         # Update number buttons (0-9)
-        for btn in self.findChildren(QPushButton):
-            if btn.text().isdigit():
-                btn.setEnabled(not is_complete)
+        for btn in self.number_buttons:
+            btn.setEnabled(not is_complete)
 
     def _handle_cancel(self):
         """Handle Cancel button click"""
@@ -233,14 +226,22 @@ class PinView(QWidget):
     def _show_invalid_pin(self):
         """Show invalid PIN message and clear input"""
         self.lbl_pin.setText(f"Invalid PIN for User ID {self.user_id}")
+        
+        container_specs = self.config.get_auth_layout()
+        # Explicitly set fixed width and height
+        label_width = container_specs['label_width']
+        label_height = container_specs['label_height']
+        self.lbl_pin.setFixedSize(label_width, label_height)
 
-        spacing_config = layout_config.get_instance().get_spacing_config()
-        label_config = layout_config.get_instance().get_label_config()
+        # set style
+        self.lbl_pin.setStyleSheet(AuthStyles.get_auth_label_invalid_style())
 
-        self.lbl_pin.setStyleSheet(AuthStyles.LABEL_TEXT_INVALID(
-            spacing_config['label_padding'],
-            label_config['font_size']
-        ))
+        # Apply font size
+        font = QFont()
+        font_size = container_specs['font_size']
+        font.setPointSize(font_size)
+        self.lbl_pin.setFont(font)
+        
         self.pin_input.clear_all()
         self._update_button_states([])  # Reset button states
 
