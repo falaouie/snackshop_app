@@ -30,15 +30,21 @@ class AuthLayoutConfig:
             # Auth container
             'auth_container_width': 350,
             'auth_container_height': 400,
-            'auth_container_margin' : 5,
-            'auth_section_spacing': 5,
+            'auth_container_margin': 5,
+            
+            # Specific spacing controls
+            'label_to_input_spacing': 5,        # Space between label and input field
+            'input_to_keypad_spacing': 10,      # Space between input field and keypad
+            'keypad_buttons_spacing': 5,        # Space between keypad buttons
+            'keypad_to_action_spacing': 10,     # Space between keypad and action buttons
+            
+            # Auth label
             'auth_label_width': 300,
             'auth_label_height': 50,
             'auth_label_padding': 5,
             'auth_font_size': 18,
 
             # Keypad
-            'keypad_spacing': 10,
             'keypad_button_width': 100,
             'keypad_button_height': 60,
             'keypad_font_size': 24,
@@ -49,6 +55,7 @@ class AuthLayoutConfig:
             'action_button_height': 60,
             'signin_button_width': 200,
             'signin_button_height': 60,
+            'action_buttons_spacing': 5,        # Space between action buttons
         },
         
         SizeCategory.MEDIUM: {
@@ -70,15 +77,21 @@ class AuthLayoutConfig:
             # Auth container
             'auth_container_width': 350,
             'auth_container_height': 400,
-            'auth_container_margin' : 5,
-            'auth_section_spacing': 5,
+            'auth_container_margin': 5,
+            
+            # Specific spacing controls
+            'label_to_input_spacing': 5,
+            'input_to_keypad_spacing': 10,
+            'keypad_buttons_spacing': 5,
+            'keypad_to_action_spacing': 10,
+            
+            # Auth label
             'auth_label_width': 300,
             'auth_label_height': 60,
             'auth_label_padding': 5,
             'auth_font_size': 16,
 
             # Keypad
-            'keypad_spacing': 10,
             'keypad_button_width': 100,
             'keypad_button_height': 60,
             'keypad_font_size': 24,
@@ -89,6 +102,7 @@ class AuthLayoutConfig:
             'action_button_height': 60,
             'signin_button_width': 200,
             'signin_button_height': 60,
+            'action_buttons_spacing': 5,
         },
         
         SizeCategory.LARGE: {
@@ -109,16 +123,22 @@ class AuthLayoutConfig:
 
             # Auth container
             'auth_container_width': 500,
-            'auth_container_height': 650,
-            'auth_container_margin' : 5,
-            'auth_section_spacing': 15,
+            'auth_container_height': 600,  # Reduced height to match content
+            'auth_container_margin': 5,
+            
+            # Specific spacing controls
+            'label_to_input_spacing': 25,
+            'input_to_keypad_spacing': 25,
+            'keypad_buttons_spacing': 35,
+            'keypad_to_action_spacing': 25,
+            
+            # Auth label
             'auth_label_width': 300,
-            'auth_label_height': 50,
+            'auth_label_height': 40,  # Reduced height
             'auth_label_padding': 5,
             'auth_font_size': 24,
 
             # Keypad
-            'keypad_spacing': 10,
             'keypad_button_width': 100,
             'keypad_button_height': 60,
             'keypad_font_size': 24,
@@ -129,6 +149,7 @@ class AuthLayoutConfig:
             'action_button_height': 60,
             'signin_button_width': 200,
             'signin_button_height': 60,
+            'action_buttons_spacing': 8,
         }
     }
     
@@ -190,7 +211,9 @@ class AuthLayoutConfig:
             'logo_width': config['logo_width'],
             'logo_height': config['logo_height'],
             'container_margin': config['auth_container_margin'],
-            'section_spacing': config['auth_section_spacing'],
+            'label_to_input_spacing': config['label_to_input_spacing'],
+            'input_to_keypad_spacing': config['input_to_keypad_spacing'],
+            'keypad_to_action_spacing': config['keypad_to_action_spacing'],
             'label_padding': config['auth_label_padding'],
             'font_size': config['auth_font_size']
         }
@@ -199,11 +222,11 @@ class AuthLayoutConfig:
         """Get keypad basic configurations"""
         config = self._get_current_config()
         return {
-            'spacing': config['keypad_spacing'],
             'button_width': config['keypad_button_width'],
             'button_height': config['keypad_button_height'],
             'font_size': config['keypad_font_size'],
-            'padding': config['keypad_padding']
+            'padding': config['keypad_padding'],
+            'buttons_spacing': config['keypad_buttons_spacing']
         }
     
     def get_action_buttons_config(self):
@@ -213,5 +236,6 @@ class AuthLayoutConfig:
             'action_width': config['action_button_width'],
             'action_height': config['action_button_height'],
             'signin_width': config['signin_button_width'],
-            'signin_height': config['signin_button_height']
+            'signin_height': config['signin_button_height'],
+            'buttons_spacing': config['action_buttons_spacing']
         }

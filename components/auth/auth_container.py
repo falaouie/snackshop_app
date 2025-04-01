@@ -21,25 +21,26 @@ class AuthenticationContainer(QFrame):
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignTop)  # Align all to the top
+        
         # Get container dimensions
         container_dims = self.config.get_auth_layout()
 
         # Explicitly set fixed width and height from config
-        width =  container_dims['container_width']
+        width = container_dims['container_width']
         height = container_dims['container_height']
         self.setFixedSize(width, height)
 
-        # layout.setContentsMargins(0, 0, 0, 0)
-        layout.setContentsMargins(
-            container_dims['container_margin'],
-            container_dims['container_margin'],
-            container_dims['container_margin'],
-            container_dims['container_margin']
-        )
+        # Set minimal margins for the container's layout
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)  # No spacing in container
         
         # User ID View
         self.user_id_view = UserIDView(self)
         layout.addWidget(self.user_id_view)
+        
+        # Add a stretch at the end to push everything to the top
+        layout.addStretch(1)
 
     def switch_to_pin_view(self, user_id):
         """Switch to PIN entry view"""

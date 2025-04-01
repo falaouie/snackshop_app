@@ -17,12 +17,14 @@ class UserIDView(QWidget):
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignTop)  # Align all to the top
 
         keypad_config = self.config.get_keypad_config()
         action_config = self.config.get_action_buttons_config()
         
         container_specs = self.config.get_auth_layout()
 
+        # Set container margins
         layout.setContentsMargins(
             container_specs['container_margin'],
             container_specs['container_margin'],
@@ -30,14 +32,15 @@ class UserIDView(QWidget):
             container_specs['container_margin']
         )
         
-        layout.setSpacing(container_specs['container_margin'])
+        # Remove the generic spacing and add specific ones where needed
+        layout.setSpacing(0)  # No default spacing between all elements
         
         # User ID Label
         label_container = QHBoxLayout()
         self.lbl_user_id = QLabel("User ID", alignment=Qt.AlignCenter)
 
         # Explicitly set fixed width and height
-        label_width =  container_specs['label_width']
+        label_width = container_specs['label_width']
         label_height = container_specs['label_height']
         self.lbl_user_id.setFixedSize(label_width, label_height)
 
@@ -55,15 +58,21 @@ class UserIDView(QWidget):
         label_container.addStretch()
         
         layout.addLayout(label_container)
+        
+        # Add specific spacing between label and input
+        layout.addSpacing(container_specs['label_to_input_spacing'])
 
         # Input Fields
         self.user_input = UserInput()
         layout.addWidget(self.user_input)
+        
+        # Add specific spacing between input and keypad
+        layout.addSpacing(container_specs['input_to_keypad_spacing'])
 
         # Keypad
         grid = QGridLayout()
-        spacing = container_specs['section_spacing']
-        grid.setSpacing(spacing)
+        # Use specific keypad button spacing
+        grid.setSpacing(keypad_config['buttons_spacing'])
 
         pad_font = QFont()
         pad_font_size = keypad_config['font_size']
@@ -84,13 +93,18 @@ class UserIDView(QWidget):
             self.number_buttons.append(btn)
             grid.addWidget(btn, row, col)
 
+        layout.addLayout(grid)
+        
+        # Add specific spacing between keypad and action buttons
+        layout.addSpacing(container_specs['keypad_to_action_spacing'])
+
         # Action buttons
         action_row = QHBoxLayout()
-        action_row.setSpacing(spacing)
+        action_row.setSpacing(action_config['buttons_spacing'])
 
-        self.btn_clear = QPushButton("Clear")
+        self.btn_clear = QPushButton("Clear All")
         btn_0 = QPushButton("0")
-        self.btn_next = QPushButton("Next")
+        self.btn_backspace = QPushButton("←")  # Backspace button with arrow symbol
         
         # Style the '0' button like other keypad buttons
         btn_0.setFixedSize(keypad_config['button_width'], 
@@ -100,7 +114,7 @@ class UserIDView(QWidget):
         btn_0.setFont(pad_font)
 
         # Style action buttons
-        for btn in [self.btn_clear, self.btn_next]:
+        for btn in [self.btn_clear, self.btn_backspace]:
             btn.setFixedSize(action_config['action_width'], 
                            action_config['action_height'])
             # set style
@@ -109,21 +123,47 @@ class UserIDView(QWidget):
         
         # Initialize action button states
         self.btn_clear.setEnabled(False)
-        self.btn_next.setEnabled(False)
+        self.btn_backspace.setEnabled(False)
         
         # Connect buttons
-        self.btn_clear.clicked.connect(self.user_input.remove_digit)
+        self.btn_clear.clicked.connect(self.user_input.clear_all)
+        self.btn_backspace.clicked.connect(self.user_input.remove_digit)
         btn_0.clicked.connect(lambda: self._on_number_click(0))
-        self.btn_next.clicked.connect(self._handle_next)
         
         self.number_buttons.append(btn_0)
 
         action_row.addWidget(self.btn_clear)
         action_row.addWidget(btn_0)
-        action_row.addWidget(self.btn_next)
+        action_row.addWidget(self.btn_backspace)
 
-        layout.addLayout(grid)
         layout.addLayout(action_row)
+        
+        # Add spacing before Next button
+        layout.addSpacing(15)  # A little more space before the next button
+
+        # Next button container
+        next_container = QHBoxLayout()
+        next_container.setSpacing(action_config['buttons_spacing'])
+
+        self.btn_next = QPushButton("Next")
+        self.btn_next.setFixedSize(action_config['signin_width'], 
+                                  action_config['signin_height'])
+        self.btn_next.setEnabled(False)
+        # set style
+        self.btn_next.setStyleSheet(AuthStyles.get_keypad_button_style())
+        self.btn_next.setFont(pad_font)
+        self.btn_next.clicked.connect(self._handle_next)
+
+        # Add button to container with stretches for centering
+        next_container.addStretch()
+        next_container.addWidget(self.btn_next)
+        next_container.addStretch()
+
+        # Add the container to main layout
+        layout.addLayout(next_container)
+        
+        # Add a stretch at the end to push all content to the top
+        layout.addStretch(1)
 
         self.user_input.input_changed.connect(self._update_button_states)
 
@@ -134,6 +174,9 @@ class UserIDView(QWidget):
         
         # Update Clear button
         self.btn_clear.setEnabled(has_digits)
+        
+        # Update Backspace button
+        self.btn_backspace.setEnabled(has_digits)
         
         # Update Next button
         self.btn_next.setEnabled(is_complete)

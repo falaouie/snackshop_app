@@ -23,6 +23,7 @@ class PinView(QWidget):
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
+        layout.setAlignment(Qt.AlignTop)  # Align all to the top
 
         # Get container dimensions
         container_specs = self.config.get_auth_layout()
@@ -34,6 +35,7 @@ class PinView(QWidget):
         height = container_specs['container_height']
         self.setFixedSize(width, height)
 
+        # Set container margins
         layout.setContentsMargins(
             container_specs['container_margin'],
             container_specs['container_margin'],
@@ -41,7 +43,8 @@ class PinView(QWidget):
             container_specs['container_margin']
         )
         
-        layout.setSpacing(container_specs['container_margin'])
+        # Remove the generic spacing and add specific ones where needed
+        layout.setSpacing(0)  # No default spacing between all elements
 
         # PIN Label
         label_container = QHBoxLayout()
@@ -67,15 +70,21 @@ class PinView(QWidget):
         label_container.addStretch()
         
         layout.addLayout(label_container)
+        
+        # Add specific spacing between label and input
+        layout.addSpacing(container_specs['label_to_input_spacing'])
 
         # Input Fields
         self.pin_input = UserInput(is_pin=True)
         layout.addWidget(self.pin_input)
+        
+        # Add specific spacing between input and keypad
+        layout.addSpacing(container_specs['input_to_keypad_spacing'])
 
         # Number pad grid
         grid = QGridLayout()
-        spacing = container_specs['section_spacing']
-        grid.setSpacing(spacing)
+        # Use specific keypad button spacing
+        grid.setSpacing(keypad_config['buttons_spacing'])
 
         pad_font = QFont()
         pad_font_size = keypad_config['font_size']
@@ -96,13 +105,18 @@ class PinView(QWidget):
             self.number_buttons.append(btn)
             grid.addWidget(btn, row, col)
 
+        layout.addLayout(grid)
+        
+        # Add specific spacing between keypad and action buttons
+        layout.addSpacing(container_specs['keypad_to_action_spacing'])
+
         # Action buttons
         action_row = QHBoxLayout()
-        action_row.setSpacing(spacing)
+        action_row.setSpacing(action_config['buttons_spacing'])
         
-        self.btn_clear = QPushButton("Clear")
+        self.btn_clear = QPushButton("Clear All")
         btn_0 = QPushButton("0")
-        self.btn_cancel = QPushButton("Cancel")
+        self.btn_backspace = QPushButton("←")  # Backspace button with arrow symbol
         
         # Style the '0' button like other keypad buttons
         btn_0.setFixedSize(keypad_config['button_width'], 
@@ -113,48 +127,69 @@ class PinView(QWidget):
         self.number_buttons.append(btn_0)
 
         # Style action buttons
-        for btn in [self.btn_clear, self.btn_cancel]:
+        for btn in [self.btn_clear, self.btn_backspace]:
             btn.setFixedSize(action_config['action_width'], 
                             action_config['action_height'])
             # set style
             btn.setStyleSheet(AuthStyles.get_keypad_button_style())
             btn.setFont(pad_font)
         
+        # Initialize button states
         self.btn_clear.setEnabled(False)
+        self.btn_backspace.setEnabled(False)
+        
+        # Connect buttons
         btn_0.clicked.connect(lambda: self._on_number_click(0))
-        self.btn_clear.clicked.connect(self.pin_input.remove_digit)
-        self.btn_cancel.clicked.connect(self._handle_cancel)
+        self.btn_clear.clicked.connect(self.pin_input.clear_all)
+        self.btn_backspace.clicked.connect(self.pin_input.remove_digit)
 
         action_row.addWidget(self.btn_clear)
         action_row.addWidget(btn_0)
-        action_row.addWidget(self.btn_cancel)
+        action_row.addWidget(self.btn_backspace)
 
-        layout.addLayout(grid)
         layout.addLayout(action_row)
-
-        # Sign In container
-        signin_container = QHBoxLayout()
-        signin_container.setSpacing(spacing)
-
+        
+        # Add spacing before the buttons row
+        layout.addSpacing(15)  # A little more space before the buttons row
+        
+        # Cancel/Sign In row
+        buttons_row = QHBoxLayout()
+        buttons_row.setSpacing(action_config['buttons_spacing'])
+        
+        self.btn_cancel = QPushButton("Cancel")
         self.btn_sign_in = QPushButton("Sign In")
+        
+        # Style buttons
+        self.btn_cancel.setFixedSize(action_config['action_width'], 
+                                   action_config['action_height'])
         self.btn_sign_in.setFixedSize(action_config['signin_width'], 
-                                     action_config['signin_height'])
-        self.btn_sign_in.setEnabled(False)
-        # set style
+                                    action_config['signin_height'])
+        
+        self.btn_cancel.setStyleSheet(AuthStyles.get_keypad_button_style())
         self.btn_sign_in.setStyleSheet(AuthStyles.get_keypad_button_style())
+        
+        self.btn_cancel.setFont(pad_font)
         self.btn_sign_in.setFont(pad_font)
-
-        # Add button to container with stretches for centering
-        signin_container.addStretch()
-        signin_container.addWidget(self.btn_sign_in)
-        signin_container.addStretch()
-
-        # Add the container to main layout
-        layout.addLayout(signin_container)
+        
+        self.btn_sign_in.setEnabled(False)
+        
+        # Connect buttons
+        self.btn_cancel.clicked.connect(self._handle_cancel)
+        self.btn_sign_in.clicked.connect(self._handle_sign_in)
+        
+        # Center the buttons
+        buttons_row.addStretch()
+        buttons_row.addWidget(self.btn_cancel)
+        buttons_row.addWidget(self.btn_sign_in)
+        buttons_row.addStretch()
+        
+        layout.addLayout(buttons_row)
+        
+        # Add a stretch at the end to push everything to the top
+        layout.addStretch(1)
 
         # Connect signals
         self.pin_input.input_changed.connect(self._update_button_states)
-        self.btn_sign_in.clicked.connect(self._handle_sign_in)
 
     def _on_number_click(self, number):
         """Handle number button clicks"""
@@ -187,6 +222,9 @@ class PinView(QWidget):
         
         # Update Clear button
         self.btn_clear.setEnabled(has_digits)
+        
+        # Update Backspace button
+        self.btn_backspace.setEnabled(has_digits)
         
         # Update Sign In button
         self.btn_sign_in.setEnabled(is_complete)
@@ -264,6 +302,10 @@ class PinView(QWidget):
         elif key in (Qt.Key_Return, Qt.Key_Enter):
             if self.pin_input.is_complete():
                 self._handle_sign_in()
+        
+        # Escape (for cancel)
+        elif key == Qt.Key_Escape:
+            self._handle_cancel()
         
         # Ignore other keys
         else:
