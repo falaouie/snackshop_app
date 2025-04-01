@@ -46,6 +46,9 @@ class PinView(QWidget):
         # Remove the generic spacing and add specific ones where needed
         layout.setSpacing(0)  # No default spacing between all elements
 
+        # Add top margin before the label
+        layout.addSpacing(container_specs['label_top_margin'])
+        
         # PIN Label
         label_container = QHBoxLayout()
         self.lbl_pin = QLabel(f"PIN for User ID {self.user_id}", alignment=Qt.AlignCenter)
@@ -116,7 +119,7 @@ class PinView(QWidget):
         
         self.btn_clear = QPushButton("Clear All")
         btn_0 = QPushButton("0")
-        self.btn_backspace = QPushButton("←")  # Backspace button with arrow symbol
+        self.btn_cancel = QPushButton("Cancel")
         
         # Style the '0' button like other keypad buttons
         btn_0.setFixedSize(keypad_config['button_width'], 
@@ -127,7 +130,7 @@ class PinView(QWidget):
         self.number_buttons.append(btn_0)
 
         # Style action buttons
-        for btn in [self.btn_clear, self.btn_backspace]:
+        for btn in [self.btn_clear, self.btn_cancel]:
             btn.setFixedSize(action_config['action_width'], 
                             action_config['action_height'])
             # set style
@@ -136,54 +139,43 @@ class PinView(QWidget):
         
         # Initialize button states
         self.btn_clear.setEnabled(False)
-        self.btn_backspace.setEnabled(False)
         
         # Connect buttons
         btn_0.clicked.connect(lambda: self._on_number_click(0))
         self.btn_clear.clicked.connect(self.pin_input.clear_all)
-        self.btn_backspace.clicked.connect(self.pin_input.remove_digit)
+        self.btn_cancel.clicked.connect(self._handle_cancel)
 
         action_row.addWidget(self.btn_clear)
         action_row.addWidget(btn_0)
-        action_row.addWidget(self.btn_backspace)
+        action_row.addWidget(self.btn_cancel)
 
         layout.addLayout(action_row)
         
         # Add spacing before the buttons row
         layout.addSpacing(15)  # A little more space before the buttons row
         
-        # Cancel/Sign In row
-        buttons_row = QHBoxLayout()
-        buttons_row.setSpacing(action_config['buttons_spacing'])
+        # Sign In button row
+        signin_container = QHBoxLayout()
+        signin_container.setSpacing(action_config['buttons_spacing'])
         
-        self.btn_cancel = QPushButton("Cancel")
         self.btn_sign_in = QPushButton("Sign In")
-        
-        # Style buttons
-        self.btn_cancel.setFixedSize(action_config['action_width'], 
-                                   action_config['action_height'])
         self.btn_sign_in.setFixedSize(action_config['signin_width'], 
                                     action_config['signin_height'])
         
-        self.btn_cancel.setStyleSheet(AuthStyles.get_keypad_button_style())
         self.btn_sign_in.setStyleSheet(AuthStyles.get_keypad_button_style())
-        
-        self.btn_cancel.setFont(pad_font)
         self.btn_sign_in.setFont(pad_font)
         
         self.btn_sign_in.setEnabled(False)
         
-        # Connect buttons
-        self.btn_cancel.clicked.connect(self._handle_cancel)
+        # Connect button
         self.btn_sign_in.clicked.connect(self._handle_sign_in)
         
-        # Center the buttons
-        buttons_row.addStretch()
-        buttons_row.addWidget(self.btn_cancel)
-        buttons_row.addWidget(self.btn_sign_in)
-        buttons_row.addStretch()
+        # Center the button
+        signin_container.addStretch()
+        signin_container.addWidget(self.btn_sign_in)
+        signin_container.addStretch()
         
-        layout.addLayout(buttons_row)
+        layout.addLayout(signin_container)
         
         # Add a stretch at the end to push everything to the top
         layout.addStretch(1)
@@ -222,9 +214,6 @@ class PinView(QWidget):
         
         # Update Clear button
         self.btn_clear.setEnabled(has_digits)
-        
-        # Update Backspace button
-        self.btn_backspace.setEnabled(has_digits)
         
         # Update Sign In button
         self.btn_sign_in.setEnabled(is_complete)

@@ -35,6 +35,9 @@ class UserIDView(QWidget):
         # Remove the generic spacing and add specific ones where needed
         layout.setSpacing(0)  # No default spacing between all elements
         
+        # Add top margin before the label
+        layout.addSpacing(container_specs['label_top_margin'])
+        
         # User ID Label
         label_container = QHBoxLayout()
         self.lbl_user_id = QLabel("User ID", alignment=Qt.AlignCenter)

@@ -33,6 +33,7 @@ class AuthLayoutConfig:
             'auth_container_margin': 5,
             
             # Specific spacing controls
+            'label_top_margin': 20,             # label's top margin
             'label_to_input_spacing': 5,        # Space between label and input field
             'input_to_keypad_spacing': 10,      # Space between input field and keypad
             'keypad_buttons_spacing': 5,        # Space between keypad buttons
@@ -80,6 +81,7 @@ class AuthLayoutConfig:
             'auth_container_margin': 5,
             
             # Specific spacing controls
+            'label_top_margin': 20,          # New parameter for label's top margin
             'label_to_input_spacing': 5,
             'input_to_keypad_spacing': 10,
             'keypad_buttons_spacing': 5,
@@ -123,13 +125,14 @@ class AuthLayoutConfig:
 
             # Auth container
             'auth_container_width': 500,
-            'auth_container_height': 600,  # Reduced height to match content
+            'auth_container_height': 600,
             'auth_container_margin': 5,
             
             # Specific spacing controls
+            'label_top_margin': 20,             # label's top margin
             'label_to_input_spacing': 25,
             'input_to_keypad_spacing': 25,
-            'keypad_buttons_spacing': 35,
+            'keypad_buttons_spacing': 25,
             'keypad_to_action_spacing': 25,
             
             # Auth label
@@ -211,6 +214,7 @@ class AuthLayoutConfig:
             'logo_width': config['logo_width'],
             'logo_height': config['logo_height'],
             'container_margin': config['auth_container_margin'],
+            'label_top_margin': config['label_top_margin'],
             'label_to_input_spacing': config['label_to_input_spacing'],
             'input_to_keypad_spacing': config['input_to_keypad_spacing'],
             'keypad_to_action_spacing': config['keypad_to_action_spacing'],
