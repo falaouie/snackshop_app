@@ -8,9 +8,9 @@ from styles.auth_styles import AuthStyles
 from config.layouts import AuthLayoutConfig
 
 class PinView(QWidget):
-    def __init__(self, user_id, auth_container, parent=None):
+    def __init__(self, user_name, auth_container, parent=None):
         super().__init__(parent or auth_container)
-        self.user_id = user_id
+        self.user_id = user_name
         self.auth_container = auth_container
         self.valid_pin = "9856"  # Hardcoded valid PIN
         self.user_name = "Fadi"
@@ -51,7 +51,7 @@ class PinView(QWidget):
         
         # PIN Label
         label_container = QHBoxLayout()
-        self.lbl_pin = QLabel(f"PIN for User ID {self.user_id}", alignment=Qt.AlignCenter)
+        self.lbl_pin = QLabel(f"PIN for User {self.user_name}", alignment=Qt.AlignCenter)
         
         # Explicitly set fixed width and height
         label_width = container_specs['label_width']
@@ -190,7 +190,7 @@ class PinView(QWidget):
 
     def _reset_pin_label(self):
         """Restore PIN label to original state"""
-        self.lbl_pin.setText(f"PIN for User ID {self.user_id}")
+        self.lbl_pin.setText(f"PIN for User {self.user_name}")
         
         container_specs = self.config.get_auth_layout()
         # Explicitly set fixed width and height
@@ -252,7 +252,7 @@ class PinView(QWidget):
 
     def _show_invalid_pin(self):
         """Show invalid PIN message and clear input"""
-        self.lbl_pin.setText(f"Invalid PIN for User ID {self.user_id}")
+        self.lbl_pin.setText(f"Invalid PIN for User {self.user_name}")
         
         container_specs = self.config.get_auth_layout()
         # Explicitly set fixed width and height

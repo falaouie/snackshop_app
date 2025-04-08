@@ -22,11 +22,11 @@ class ViewManager:
         """Initialize with main window reference"""
         self.main_window = main_window
         
-    def switch_to_pin_view(self, user_id: str):
+    def switch_to_pin_view(self, user_name: str):
         """Switch to PIN entry view"""
         if self.auth_container:
             self.auth_container.show()
-            self.auth_container.switch_to_pin_view(user_id)
+            self.auth_container.switch_to_pin_view(user_name)
     
     def switch_to_user_id_view(self):
         """Switch back to user ID entry view"""
@@ -49,7 +49,7 @@ class ViewManager:
             self.main_window.setCentralWidget(pos_view)
             pos_view.show()
     
-    def switch_back_to_pin_view_from_pos(self, user_id: str):
+    def switch_back_to_pin_view_from_pos(self, user_name: str):
         """Switch from POS view back to PIN view"""
         if self.main_window:
             # Create central widget to hold everything
@@ -74,7 +74,7 @@ class ViewManager:
             
             self.auth_container = AuthenticationContainer()
             self.auth_container.setFocusPolicy(Qt.StrongFocus)
-            self.auth_container.switch_to_pin_view(user_id)
+            self.auth_container.switch_to_pin_view(user_name)
             center_layout.addWidget(self.auth_container)
             
             center_layout.addStretch()
