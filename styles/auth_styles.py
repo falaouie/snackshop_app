@@ -54,17 +54,17 @@ class AuthStyles:
             }}
         """
     
-    @staticmethod
-    def LABEL_TEXT(padding, font_size):
-        return f"""
-            QLabel {{
-                color: #333;
-                background: transparent;
-                border-radius: 15px;
-                padding: {padding}px;
-                font-size: {font_size}px;
-            }}
-        """
+    # @staticmethod
+    # def LABEL_TEXT(padding, font_size):
+    #     return f"""
+    #         QLabel {{
+    #             color: #333;
+    #             background: transparent;
+    #             border-radius: 15px;
+    #             padding: {padding}px;
+    #             font-size: {font_size}px;
+    #         }}
+    #     """
     
     @staticmethod
     def get_auth_label_text_style():
@@ -76,17 +76,17 @@ class AuthStyles:
             }}
         """
 
-    @staticmethod
-    def LABEL_TEXT_INVALID(padding, font_size):
-        return f"""
-            QLabel {{
-                color: red;
-                background: white;
-                border-radius: 15px;
-                padding: {padding}px;
-                font-size: {font_size}px;
-            }}
-        """
+    # @staticmethod
+    # def LABEL_TEXT_INVALID(padding, font_size):
+    #     return f"""
+    #         QLabel {{
+    #             color: red;
+    #             background: white;
+    #             border-radius: 15px;
+    #             padding: {padding}px;
+    #             font-size: {font_size}px;
+    #         }}
+    #     """
     
     @staticmethod
     def get_auth_label_invalid_style():
